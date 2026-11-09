@@ -1,0 +1,771 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Alphabet Challenge</title>
+  <style>
+    :root {
+      --bg-primary: #f8fafc;
+      --bg-card: #ffffff;
+      --text-main: #0f172a;
+      --text-muted: #64748b;
+      --border-color: #cbd5e1;
+      --primary-color: #2563eb;
+      --primary-hover: #1d4ed8;
+      --correct-bg: #dcfce7;
+      --correct-border: #16a34a;
+      --correct-text: #14532d;
+      --hint-tile-bg: rgba(37, 99, 235, 0.08);
+      --hint-tile-border: #93c5fd;
+      --tile-empty-border: #94a3b8;
+      
+      /* Dynamic Master Font Scaling */
+      --master-scale: 2.2rem;
+      --letter-hero-size: calc(var(--master-scale) * 2.6);
+      --definition-size: calc(var(--master-scale) * 1.05);
+      --word-size: calc(var(--master-scale) * 1.35);
+      --hint-btn-size: calc(var(--master-scale) * 0.5);
+
+      --shadow-sm: 0 2px 4px rgba(0,0,0,0.05);
+      --shadow-md: 0 10px 28px rgba(0,0,0,0.08);
+      --shadow-glow: 0 6px 24px rgba(37, 99, 235, 0.22);
+      --transition: all 0.22s ease;
+    }
+
+    [data-theme="dark"] {
+      --bg-primary: #0b0f19;
+      --bg-card: #161e2e;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --border-color: #334155;
+      --primary-color: #3b82f6;
+      --primary-hover: #60a5fa;
+      --correct-bg: #064e3b;
+      --correct-border: #10b981;
+      --correct-text: #ecfdf5;
+      --hint-tile-bg: rgba(59, 130, 246, 0.16);
+      --hint-tile-border: #2563eb;
+      --tile-empty-border: #475569;
+      --shadow-sm: 0 2px 4px rgba(0,0,0,0.3);
+      --shadow-md: 0 10px 28px rgba(0,0,0,0.4);
+      --shadow-glow: 0 6px 24px rgba(59, 130, 246, 0.35);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      user-select: none;
+    }
+
+    body {
+      background-color: var(--bg-primary);
+      color: var(--text-main);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow-x: hidden;
+      transition: background-color 0.3s ease, color 0.3s ease;
+    }
+
+    /* Minimalist Top Control Bar */
+    header {
+      background: var(--bg-card);
+      border-bottom: 2px solid var(--border-color);
+      padding: 0.75rem 1.8rem;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      gap: 1rem;
+      box-shadow: var(--shadow-sm);
+      position: sticky;
+      top: 0;
+      z-index: 50;
+    }
+
+    .header-left, .header-right {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .badge-status {
+      font-weight: 800;
+      font-size: 1.15rem;
+      color: var(--primary-color);
+      letter-spacing: 0.5px;
+    }
+
+    .badge-tag {
+      background: var(--primary-color);
+      color: #fff;
+      padding: 0.25rem 0.8rem;
+      border-radius: 999px;
+      font-size: 0.85rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .control-group {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: var(--text-muted);
+    }
+
+    .control-group input[type="range"] {
+      width: 120px;
+      cursor: pointer;
+    }
+
+    select, button {
+      background: var(--bg-card);
+      color: var(--text-main);
+      border: 1.5px solid var(--border-color);
+      padding: 0.5rem 0.9rem;
+      border-radius: 9px;
+      font-size: 0.95rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: var(--transition);
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    select:focus, button:focus {
+      outline: 2px solid var(--primary-color);
+    }
+
+    button:hover {
+      border-color: var(--primary-color);
+      background: rgba(37, 99, 235, 0.06);
+    }
+
+    /* Main Slide Stage */
+    main {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      padding: 2rem 1.5rem;
+      max-width: 1200px;
+      margin: 0 auto;
+      width: 100%;
+    }
+
+    .challenge-card {
+      background: var(--bg-card);
+      border: 2px solid var(--border-color);
+      border-radius: 28px;
+      padding: 3.2rem 2.8rem;
+      box-shadow: var(--shadow-md);
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 2.2rem;
+      text-align: center;
+      position: relative;
+      transition: var(--transition);
+    }
+
+    /* Hero Letter (Prominent) */
+    .hero-letter-container {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .hero-letter-badge {
+      width: calc(var(--letter-hero-size) * 1.35);
+      height: calc(var(--letter-hero-size) * 1.35);
+      border-radius: 28px;
+      background: var(--primary-color);
+      color: #ffffff;
+      font-size: var(--letter-hero-size);
+      font-weight: 900;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: var(--shadow-glow);
+      line-height: 1;
+      letter-spacing: -1px;
+      transition: transform 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    .hero-letter-badge:hover {
+      transform: scale(1.04);
+    }
+
+    /* Definition Text (Large) */
+    .definition-display {
+      font-size: var(--definition-size);
+      font-weight: 650;
+      line-height: 1.55;
+      color: var(--text-main);
+      max-width: 900px;
+      padding: 0 0.5rem;
+    }
+
+    /* Interactive Concealed / Revealed Card */
+    .word-card-wrapper {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.9rem;
+      width: 100%;
+      max-width: 950px;
+    }
+
+    .word-card {
+      width: 100%;
+      min-height: calc(var(--word-size) * 2.3);
+      border: 3px dashed var(--border-color);
+      border-radius: 22px;
+      padding: 1.2rem 1.8rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 0.6rem;
+      cursor: pointer;
+      transition: var(--transition);
+      background: rgba(148, 163, 184, 0.04);
+    }
+
+    .word-card:hover {
+      border-color: var(--primary-color);
+      background: rgba(37, 99, 235, 0.03);
+      transform: translateY(-2px);
+    }
+
+    .word-card-status-cue {
+      font-size: calc(var(--hint-btn-size) * 0.9);
+      font-weight: 700;
+      color: var(--text-muted);
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      display: flex;
+      align-items: center;
+      gap: 0.35rem;
+    }
+
+    /* Concealed Tile Flow */
+    .tiles-row {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      align-items: center;
+      gap: 0.6rem;
+    }
+
+    .letter-tile {
+      min-width: calc(var(--word-size) * 1.05);
+      height: calc(var(--word-size) * 1.3);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: var(--word-size);
+      font-weight: 800;
+      text-transform: uppercase;
+      transition: var(--transition);
+    }
+
+    .letter-tile.empty {
+      border-bottom: 5px solid var(--tile-empty-border);
+      background: transparent;
+      color: transparent;
+    }
+
+    .letter-tile.revealed-hint {
+      background: var(--hint-tile-bg);
+      border: 2px solid var(--hint-tile-border);
+      color: var(--primary-color);
+      animation: popTile 0.28s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    .letter-tile.symbol {
+      border: none;
+      color: var(--text-muted);
+    }
+
+    /* Fully Revealed State */
+    .word-card.state-revealed {
+      border: 3px solid var(--correct-border);
+      background: var(--correct-bg);
+      box-shadow: 0 6px 26px rgba(22, 163, 74, 0.22);
+    }
+
+    .word-card.state-revealed .word-card-status-cue {
+      color: var(--correct-text);
+    }
+
+    .word-revealed-text {
+      font-size: var(--word-size);
+      font-weight: 900;
+      letter-spacing: 2px;
+      color: var(--correct-text);
+      text-transform: uppercase;
+      animation: popWord 0.32s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    @keyframes popTile {
+      0% { transform: scale(0.7); opacity: 0; }
+      100% { transform: scale(1); opacity: 1; }
+    }
+
+    @keyframes popWord {
+      0% { transform: scale(0.85); opacity: 0; }
+      100% { transform: scale(1); opacity: 1; }
+    }
+
+    /* Subdued / Low-Key Hint Action Bar */
+    .hint-actions {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.8rem;
+      margin-top: 0.2rem;
+    }
+
+    .btn-hint {
+      background: transparent;
+      border: 1.5px solid var(--border-color);
+      color: var(--text-muted);
+      font-size: var(--hint-btn-size);
+      padding: 0.45rem 1.1rem;
+      border-radius: 999px;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      transition: var(--transition);
+    }
+
+    .btn-hint:hover:not(:disabled) {
+      border-color: var(--primary-color);
+      color: var(--primary-color);
+      background: rgba(37, 99, 235, 0.05);
+    }
+
+    .btn-hint:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+
+    .btn-mini-reset {
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      font-size: calc(var(--hint-btn-size) * 0.95);
+      cursor: pointer;
+      text-decoration: underline;
+      padding: 0.2rem 0.5rem;
+    }
+
+    .btn-mini-reset:hover {
+      color: var(--text-main);
+    }
+
+    /* Minimal Navigation Footer */
+    footer {
+      background: var(--bg-card);
+      border-top: 2px solid var(--border-color);
+      padding: 1rem 1.8rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 -2px 10px rgba(0,0,0,0.03);
+    }
+
+    .nav-buttons {
+      display: flex;
+      gap: 1rem;
+    }
+
+    .btn-nav {
+      font-size: 1.1rem;
+      padding: 0.65rem 1.5rem;
+      font-weight: 700;
+    }
+
+    .btn-primary {
+      background: var(--primary-color);
+      color: #fff;
+      border: none;
+    }
+
+    .btn-primary:hover {
+      background: var(--primary-hover);
+      color: #fff;
+    }
+
+    .keyboard-hints {
+      font-size: 0.9rem;
+      color: var(--text-muted);
+    }
+
+    kbd {
+      background: var(--border-color);
+      padding: 0.15rem 0.45rem;
+      border-radius: 5px;
+      font-size: 0.8rem;
+      font-family: inherit;
+      color: var(--text-main);
+    }
+
+    @media (max-width: 768px) {
+      .challenge-card {
+        padding: 2rem 1.2rem;
+        border-radius: 20px;
+        gap: 1.6rem;
+      }
+      header {
+        padding: 0.75rem 1rem;
+      }
+      .keyboard-hints {
+        display: none;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Top Minimal Header Bar -->
+  <header>
+    <div class="header-left">
+      <span class="badge-status" id="badgeCounter">Letter A (1 of 26)</span>
+      <span class="badge-tag">Alphabet Challenge</span>
+      <select id="jumpSelect" aria-label="Jump to letter"></select>
+    </div>
+
+    <div class="header-right">
+      <div class="control-group">
+        <span>Display Scale:</span>
+        <input type="range" id="fontSlider" min="20" max="44" value="31" aria-label="Display scale slider">
+      </div>
+      <button id="themeToggleBtn" aria-label="Toggle dark/light mode">
+        <span>☀️ Light</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- Interactive Slide Stage -->
+  <main>
+    <div class="challenge-card">
+      
+      <!-- Prominent Letter Hero -->
+      <div class="hero-letter-container">
+        <div class="hero-letter-badge" id="heroLetter">A</div>
+      </div>
+
+      <!-- Large Definition Display -->
+      <div class="definition-display" id="definitionBox">
+        The place where airplanes land and take off.
+      </div>
+
+      <!-- Concealed / Revealed Mystery Word Card -->
+      <div class="word-card-wrapper">
+        <div class="word-card" id="wordCard" role="button" tabindex="0" title="Click to reveal or conceal word">
+          <div class="word-card-status-cue" id="cardCue">
+            <span>🔒 Click Card to Reveal Word</span>
+          </div>
+          <div id="wordContentArea"></div>
+        </div>
+
+        <!-- Low-Key Scaffolding Hint Actions -->
+        <div class="hint-actions">
+          <button class="btn-hint" id="hintBtn" title="Reveal the next letter (Shortcut: H)">
+            <span>💡 Hint</span>
+            <span id="hintCounter">(0/7)</span>
+          </button>
+          <button class="btn-mini-reset" id="resetWordBtn" title="Reset word to concealed state">Reset</button>
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <!-- Navigation Bar -->
+  <footer>
+    <div class="nav-buttons">
+      <button class="btn-nav" id="prevBtn">← Previous</button>
+      <button class="btn-nav btn-primary" id="nextBtn">Next →</button>
+    </div>
+    <div class="keyboard-hints">
+      Shortcuts: <kbd>←</kbd> <kbd>→</kbd> Navigate &bull; <kbd>Space</kbd> / <kbd>Enter</kbd> Reveal/Conceal &bull; <kbd>H</kbd> Hint
+    </div>
+  </footer>
+
+  <script>
+    // 26 Alphabet Challenge Items (Verbatim from tab PREQUIZ)
+    const alphabetData = [
+      { letter: "A", word: "Airport", definition: "The place where airplanes land and take off." },
+      { letter: "B", word: "Bakery", definition: "A shop where you buy fresh bread, pastries, and cakes." },
+      { letter: "C", word: "Cinema", definition: "A place where people pay to watch movies on a very large screen." },
+      { letter: "D", word: "Dentist", definition: "A doctor who checks, cleans, and fixes your teeth." },
+      { letter: "E", word: "Envelope", definition: "A flat paper cover used to send a letter in the mail." },
+      { letter: "F", word: "Fridge", definition: "A cold kitchen appliance used to keep food and drinks fresh." },
+      { letter: "G", word: "Guitar", definition: "A musical instrument with strings that you play with your fingers or a pick." },
+      { letter: "H", word: "Helmet", definition: "A hard protective hat you wear on your head when riding a bike or motorbike." },
+      { letter: "I", word: "Island", definition: "A piece of land with water completely surrounding it." },
+      { letter: "J", word: "Jungle", definition: "A thick, tropical forest with tall trees and many wild animals." },
+      { letter: "K", word: "Kitchen", definition: "The room in a home where meals are prepared and cooked." },
+      { letter: "L", word: "Library", definition: "A quiet building where you can read or borrow books for free." },
+      { letter: "M", word: "Museum", definition: "A building where historical objects, art, or science collections are displayed to the public." },
+      { letter: "N", word: "Nurse", definition: "A person whose job is caring for sick or injured people in a hospital or clinic." },
+      { letter: "O", word: "Oven", definition: "A hot kitchen appliance used for baking cakes, bread, or roasting meat." },
+      { letter: "P", word: "Passport", definition: "An official small booklet you must show when traveling to another country." },
+      { letter: "Q", word: "Queue", definition: "A line of people waiting for their turn to buy something or enter a place." },
+      { letter: "R", word: "Restaurant", definition: "A place where you sit down, order food from a menu, and pay for your meal." },
+      { letter: "S", word: "Suitcase", definition: "A large case with a handle and wheels used for packing clothes on a trip." },
+      { letter: "T", word: "Toothbrush", definition: "A small brush with a long handle used to clean your teeth every morning and night." },
+      { letter: "U", word: "Umbrella", definition: "A handheld object that opens up to keep you dry when it rains." },
+      { letter: "V", word: "Village", definition: "A very small town in the countryside, much smaller than a city." },
+      { letter: "W", word: "Wallet", definition: "A small, flat pocket case used to carry cash, coins, and bank cards." },
+      { letter: "X", word: "X-ray", definition: "A special medical photograph that shows the bones inside your body." },
+      { letter: "Y", word: "Yogurt", definition: "A thick, creamy food made from milk that is eaten cold, often with fruit or honey." },
+      { letter: "Z", word: "Zoo", definition: "A large park where wild animals live so visitors can view them safely." }
+    ];
+
+    // Slide State
+    let currentIndex = 0;
+    let isRevealed = false;
+    let hintCount = 0;
+
+    // DOM References
+    const badgeCounter = document.getElementById("badgeCounter");
+    const jumpSelect = document.getElementById("jumpSelect");
+    const heroLetter = document.getElementById("heroLetter");
+    const definitionBox = document.getElementById("definitionBox");
+    const wordCard = document.getElementById("wordCard");
+    const cardCue = document.getElementById("cardCue");
+    const wordContentArea = document.getElementById("wordContentArea");
+    const hintBtn = document.getElementById("hintBtn");
+    const hintCounter = document.getElementById("hintCounter");
+    const resetWordBtn = document.getElementById("resetWordBtn");
+    const prevBtn = document.getElementById("prevBtn");
+    const nextBtn = document.getElementById("nextBtn");
+    const fontSlider = document.getElementById("fontSlider");
+    const themeToggleBtn = document.getElementById("themeToggleBtn");
+
+    // Populate Jump-to Dropdown
+    function populateJumpSelect() {
+      jumpSelect.innerHTML = "";
+      alphabetData.forEach((item, idx) => {
+        const opt = document.createElement("option");
+        opt.value = idx;
+        opt.textContent = `${item.letter} – ${item.word}`;
+        jumpSelect.appendChild(opt);
+      });
+    }
+
+    // Get non-symbol characters for accurate hint scaffolding
+    function getAlphabetIndices(word) {
+      const indices = [];
+      for (let i = 0; i < word.length; i++) {
+        if (/[a-zA-Z]/.test(word[i])) {
+          indices.push(i);
+        }
+      }
+      return indices;
+    }
+
+    // Render Slide Content
+    function renderSlide() {
+      const current = alphabetData[currentIndex];
+      const alphaIndices = getAlphabetIndices(current.word);
+      const totalLetters = alphaIndices.length;
+
+      // Update Navigation & Header
+      badgeCounter.textContent = `Letter ${current.letter} (${currentIndex + 1} of ${alphabetData.length})`;
+      jumpSelect.value = currentIndex;
+      heroLetter.textContent = current.letter;
+      definitionBox.textContent = current.definition;
+
+      prevBtn.disabled = currentIndex === 0;
+      nextBtn.disabled = currentIndex === alphabetData.length - 1;
+
+      // Render Word Box (Concealed or Revealed)
+      if (isRevealed) {
+        wordCard.className = "word-card state-revealed";
+        cardCue.innerHTML = "<span>🔓 Revealed • Click to Conceal</span>";
+        wordContentArea.innerHTML = `<div class="word-revealed-text">${escapeHtml(current.word)}</div>`;
+        hintBtn.disabled = true;
+      } else {
+        wordCard.className = "word-card";
+        cardCue.innerHTML = "<span>🔒 Click Card to Reveal Word</span>";
+
+        // Build Scaffolding Letter Tiles
+        const tilesRow = document.createElement("div");
+        tilesRow.className = "tiles-row";
+
+        // Determine which indices are uncovered by hints
+        const revealedIndices = new Set(alphaIndices.slice(0, hintCount));
+
+        for (let i = 0; i < current.word.length; i++) {
+          const char = current.word[i];
+          const tile = document.createElement("div");
+
+          if (!/[a-zA-Z]/.test(char)) {
+            // Symbols like hyphens are directly shown
+            tile.className = "letter-tile symbol";
+            tile.textContent = char;
+          } else if (revealedIndices.has(i)) {
+            // Unlocked by hint
+            tile.className = "letter-tile revealed-hint";
+            tile.textContent = char.toUpperCase();
+          } else {
+            // Concealed blank
+            tile.className = "letter-tile empty";
+            tile.textContent = "";
+          }
+          tilesRow.appendChild(tile);
+        }
+
+        wordContentArea.innerHTML = "";
+        wordContentArea.appendChild(tilesRow);
+
+        // Update Hint Button State
+        hintBtn.disabled = hintCount >= totalLetters;
+      }
+
+      hintCounter.textContent = `(${Math.min(hintCount, totalLetters)}/${totalLetters})`;
+    }
+
+    // Toggle Conceal / Reveal on Word Card Click
+    function toggleWordReveal() {
+      isRevealed = !isRevealed;
+      renderSlide();
+    }
+
+    // Scaffolding Hint Click
+    function giveScaffoldingHint() {
+      const current = alphabetData[currentIndex];
+      const alphaIndices = getAlphabetIndices(current.word);
+
+      if (isRevealed) {
+        // If already revealed, conceal first to show scaffolding
+        isRevealed = false;
+      }
+
+      if (hintCount < alphaIndices.length) {
+        hintCount++;
+        // If all letters revealed via hints, transition to fully revealed
+        if (hintCount === alphaIndices.length) {
+          isRevealed = true;
+        }
+      }
+      renderSlide();
+    }
+
+    // Reset current letter hints
+    function resetCurrentWord() {
+      isRevealed = false;
+      hintCount = 0;
+      renderSlide();
+    }
+
+    // Navigation handlers
+    function goToPrev() {
+      if (currentIndex > 0) {
+        currentIndex--;
+        isRevealed = false;
+        hintCount = 0;
+        renderSlide();
+      }
+    }
+
+    function goToNext() {
+      if (currentIndex < alphabetData.length - 1) {
+        currentIndex++;
+        isRevealed = false;
+        hintCount = 0;
+        renderSlide();
+      }
+    }
+
+    // Escape HTML helper
+    function escapeHtml(text) {
+      return text.replace(/[&<>"']/g, function(m) {
+        return {
+          '&': '&amp;',
+          '<': '&lt;',
+          '>': '&gt;',
+          '"': '&quot;',
+          "'": '&#039;'
+        }[m];
+      });
+    }
+
+    // Event Listeners
+    wordCard.addEventListener("click", toggleWordReveal);
+    hintBtn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      giveScaffoldingHint();
+    });
+    resetWordBtn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      resetCurrentWord();
+    });
+
+    prevBtn.addEventListener("click", goToPrev);
+    nextBtn.addEventListener("click", goToNext);
+
+    jumpSelect.addEventListener("change", (e) => {
+      currentIndex = parseInt(e.target.value, 10);
+      isRevealed = false;
+      hintCount = 0;
+      renderSlide();
+    });
+
+    // Font Scale Slider
+    fontSlider.addEventListener("input", (e) => {
+      const val = e.target.value;
+      document.documentElement.style.setProperty("--master-scale", `${val / 14}rem`);
+    });
+
+    // Theme Toggle (Light / Dark)
+    themeToggleBtn.addEventListener("click", () => {
+      const currentTheme = document.documentElement.getAttribute("data-theme");
+      const newTheme = currentTheme === "dark" ? "light" : "dark";
+      document.documentElement.setAttribute("data-theme", newTheme);
+      themeToggleBtn.innerHTML = newTheme === "dark" ? "<span>🌙 Dark</span>" : "<span>☀️ Light</span>";
+    });
+
+    // Keyboard Shortcuts
+    window.addEventListener("keydown", (e) => {
+      if (e.target.tagName === "SELECT" || e.target.tagName === "INPUT") return;
+
+      if (e.key === "ArrowLeft") {
+        goToPrev();
+      } else if (e.key === "ArrowRight") {
+        goToNext();
+      } else if (e.key === " " || e.key === "Enter") {
+        e.preventDefault();
+        toggleWordReveal();
+      } else if (e.key.toLowerCase() === "h") {
+        e.preventDefault();
+        giveScaffoldingHint();
+      } else if (e.key.toLowerCase() === "r") {
+        e.preventDefault();
+        resetCurrentWord();
+      }
+    });
+
+    // Initialize
+    populateJumpSelect();
+    renderSlide();
+  </script>
+</body>
+</html>
