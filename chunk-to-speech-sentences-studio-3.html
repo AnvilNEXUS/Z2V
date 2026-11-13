@@ -1,0 +1,1939 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chunk-to-Speech: Daily Speaking Studio (A1–A2 Adult Edition)</title>
+  
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              50: '#f0f9ff',
+              100: '#e0f2fe',
+              500: '#0284c7',
+              600: '#0284c7',
+              700: '#0369a1',
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- Google Fonts: Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --ui-scale: 100%;
+      /* Light Theme Defaults */
+      --bg-main: #FAF7F2;
+      --bg-card: #FFFFFF;
+      --bg-card-subtle: #F4EFE6;
+      --bg-header: rgba(255, 255, 255, 0.9);
+      --text-main: #1E293B;
+      --text-sub: #64748B;
+      --border-color: #E2E8F0;
+      
+      --chip-s1-bg: #EFF6FF;
+      --chip-s1-text: #1E40AF;
+      --chip-s1-border: #BFDBFE;
+      --chip-s1-active: #2563EB;
+
+      --chip-s2-bg: #FFFBEB;
+      --chip-s2-text: #92400E;
+      --chip-s2-border: #FDE68A;
+      --chip-s2-active: #D97706;
+
+      --chip-s3-bg: #F0FDF4;
+      --chip-s3-text: #166534;
+      --chip-s3-border: #BBF7D0;
+      --chip-s3-active: #16A34A;
+    }
+
+    [data-theme="dark"] {
+      /* Dark Theme Overrides */
+      --bg-main: #0F172A;
+      --bg-card: #1E293B;
+      --bg-card-subtle: #334155;
+      --bg-header: rgba(30, 41, 59, 0.9);
+      --text-main: #F8FAFC;
+      --text-sub: #94A3B8;
+      --border-color: #334155;
+
+      --chip-s1-bg: #1E3A8A;
+      --chip-s1-text: #DBEAFE;
+      --chip-s1-border: #3B82F6;
+      --chip-s1-active: #60A5FA;
+
+      --chip-s2-bg: #78350F;
+      --chip-s2-text: #FEF3C7;
+      --chip-s2-border: #F59E0B;
+      --chip-s2-active: #FBBF24;
+
+      --chip-s3-bg: #14532D;
+      --chip-s3-text: #DCFCE7;
+      --chip-s3-border: #22C55E;
+      --chip-s3-active: #4ADE80;
+    }
+
+    html {
+      font-size: var(--ui-scale);
+      font-family: 'Inter', sans-serif;
+      transition: font-size 0.15s ease-in-out;
+    }
+
+    body {
+      background-color: var(--bg-main);
+      color: var(--text-main);
+      min-height: 100vh;
+      transition: background-color 0.25s ease, color 0.25s ease;
+    }
+
+    .themed-card {
+      background-color: var(--bg-card);
+      border-color: var(--border-color);
+      color: var(--text-main);
+    }
+
+    .themed-subtle {
+      background-color: var(--bg-card-subtle);
+    }
+
+    .chip-s1 {
+      background-color: var(--chip-s1-bg);
+      color: var(--chip-s1-text);
+      border: 1.5px solid var(--chip-s1-border);
+    }
+    .chip-s1.active, .chip-s1:hover {
+      border-color: var(--chip-s1-active);
+      box-shadow: 0 0 0 2px var(--chip-s1-border);
+    }
+
+    .chip-s2 {
+      background-color: var(--chip-s2-bg);
+      color: var(--chip-s2-text);
+      border: 1.5px solid var(--chip-s2-border);
+    }
+    .chip-s2.active, .chip-s2:hover {
+      border-color: var(--chip-s2-active);
+      box-shadow: 0 0 0 2px var(--chip-s2-border);
+    }
+
+    .chip-s3 {
+      background-color: var(--chip-s3-bg);
+      color: var(--chip-s3-text);
+      border: 1.5px solid var(--chip-s3-border);
+    }
+    .chip-s3.active, .chip-s3:hover {
+      border-color: var(--chip-s3-active);
+      box-shadow: 0 0 0 2px var(--chip-s3-border);
+    }
+
+    /* Custom Scrollbar */
+    ::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+    }
+    ::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: var(--border-color);
+      border-radius: 9999px;
+    }
+
+    /* Teleprompter Breath Marker */
+    .breath-pause {
+      display: inline-block;
+      margin: 0 0.35rem;
+      padding: 0.1rem 0.4rem;
+      border-radius: 0.25rem;
+      font-size: 0.85em;
+      font-weight: 700;
+      opacity: 0.75;
+      background: rgba(148, 163, 184, 0.2);
+    }
+
+    /* Recording Pulsing Indicator */
+    @keyframes pulse-ring {
+      0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
+      70% { transform: scale(1.05); box-shadow: 0 0 0 10px rgba(239, 68, 68, 0); }
+      100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+    }
+    .recording-pulse {
+      animation: pulse-ring 1.5s infinite ease-in-out;
+    }
+  </style>
+</head>
+<body class="antialiased selection:bg-sky-500 selection:text-white">
+
+  <!-- TOP GLOBAL HEADER -->
+  <header class="sticky top-0 z-40 backdrop-blur-md border-b transition-colors duration-200" style="background-color: var(--bg-header); border-color: var(--border-color);">
+    <div class="w-full px-4 lg:px-8 py-3 flex flex-wrap items-center justify-between gap-4">
+      
+      <!-- Logo & Title -->
+      <div class="flex items-center space-x-3">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-sky-500 to-indigo-600 flex items-center justify-center text-white shadow-md shadow-sky-500/20">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 100-6 3 3 0 000 6z"/>
+          </svg>
+        </div>
+        <div>
+          <h1 class="font-bold text-lg leading-tight tracking-tight flex items-center gap-2">
+            <span>Chunk-to-Speech</span>
+            <span class="text-xs px-2 py-0.5 rounded-full font-semibold bg-sky-100 dark:bg-sky-950 text-sky-700 dark:text-sky-300 border border-sky-200 dark:border-sky-800">A1–A2 Adult Edition</span>
+          </h1>
+          <p class="text-xs opacity-70">Daily Practical English Speaking Studio for Vietnamese Learners</p>
+        </div>
+      </div>
+
+      <!-- Controls: Progress + Font Scale + Theme Toggle -->
+      <div class="flex items-center flex-wrap gap-3 sm:gap-6">
+
+        <!-- Global Progress Tracker -->
+        <div class="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-lg border text-xs font-medium" style="border-color: var(--border-color); background-color: var(--bg-card-subtle);">
+          <svg class="w-4 h-4 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+          </svg>
+          <span>Progress: <strong id="progress-text" class="text-sky-600 dark:text-sky-400">0 / 24</strong> Days</span>
+        </div>
+
+        <!-- Interactive Font Scale Slider -->
+        <div class="flex items-center gap-2 px-3 py-1.5 rounded-xl border text-xs shadow-sm" style="border-color: var(--border-color); background-color: var(--bg-card);">
+          <span class="font-semibold text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 cursor-pointer select-none" title="Smaller Font" onclick="adjustFontScale(-5)">A-</span>
+          
+          <input 
+            type="range" 
+            id="font-scale-slider" 
+            min="90" 
+            max="150" 
+            step="5" 
+            value="100"
+            class="w-20 sm:w-28 h-1.5 bg-slate-200 dark:bg-slate-700 rounded-lg appearance-none cursor-pointer accent-sky-500"
+            oninput="updateFontScale(this.value)"
+            title="Adjust UX Text Scale"
+          />
+
+          <span class="font-bold text-slate-700 dark:text-slate-200 hover:text-slate-900 cursor-pointer select-none" title="Larger Font" onclick="adjustFontScale(5)">A+</span>
+
+          <span id="font-scale-label" class="font-mono text-xs px-1.5 py-0.5 rounded bg-slate-100 dark:bg-slate-800 border dark:border-slate-700 text-sky-600 dark:text-sky-400 min-w-[3.25rem] text-center">100%</span>
+
+          <button onclick="resetFontScale()" title="Reset Font Scale to 100%" class="ml-1 p-1 rounded hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200">
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+            </svg>
+          </button>
+        </div>
+
+        <!-- Light / Dark Mode Toggle Button -->
+        <button 
+          id="theme-toggle-btn" 
+          onclick="toggleTheme()" 
+          class="p-2.5 rounded-xl border transition-all duration-200 shadow-sm hover:scale-105"
+          style="border-color: var(--border-color); background-color: var(--bg-card);"
+          title="Toggle Light/Dark Theme"
+          aria-label="Toggle Light/Dark Mode"
+        >
+          <!-- Sun Icon (Light Mode Active) -->
+          <svg id="sun-icon" class="w-5 h-5 text-amber-500 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"/>
+          </svg>
+          <!-- Moon Icon (Dark Mode Active) -->
+          <svg id="moon-icon" class="w-5 h-5 text-sky-400 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/>
+          </svg>
+        </button>
+
+      </div>
+    </div>
+  </header>
+
+  <!-- MAIN FULL-WIDTH 3-COLUMN WORKSPACE -->
+  <main class="w-full px-4 lg:px-8 py-6">
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+      
+      <!-- LEFT COLUMN: 24-DAY PROMPT DIRECTORY (lg:col-span-3) -->
+      <aside class="lg:col-span-3 themed-card rounded-2xl border p-4 shadow-sm flex flex-col max-h-[calc(100vh-6rem)] lg:sticky lg:top-20">
+        
+        <!-- Header & Search -->
+        <div class="mb-3 space-y-2">
+          <div class="flex items-center justify-between">
+            <h2 class="font-bold text-base flex items-center gap-2">
+              <svg class="w-5 h-5 text-sky-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/>
+              </svg>
+              <span>24 Daily Situations</span>
+            </h2>
+            <span class="text-xs px-2 py-0.5 rounded-full font-mono font-medium" style="background-color: var(--bg-card-subtle);">24 Prompts</span>
+          </div>
+
+          <!-- Search Input -->
+          <div class="relative">
+            <input 
+              type="text" 
+              id="directory-search" 
+              placeholder="Search topic or English..." 
+              oninput="filterDirectory()"
+              class="w-full pl-8 pr-3 py-1.5 text-xs rounded-xl border focus:outline-none focus:ring-2 focus:ring-sky-500 transition-all"
+              style="background-color: var(--bg-card-subtle); border-color: var(--border-color); color: var(--text-main);"
+            />
+            <svg class="w-4 h-4 absolute left-2.5 top-2 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+            </svg>
+          </div>
+
+          <!-- Category Filter Pills -->
+          <div class="flex gap-1 overflow-x-auto pb-1 text-[11px] no-scrollbar" id="category-pills">
+            <button onclick="setCategoryFilter('all')" class="cat-pill active px-2.5 py-1 rounded-lg border whitespace-nowrap bg-sky-600 text-white font-medium">All</button>
+            <button onclick="setCategoryFilter('Daily Life')" class="cat-pill px-2.5 py-1 rounded-lg border whitespace-nowrap opacity-75 hover:opacity-100" style="border-color: var(--border-color);">Daily Life</button>
+            <button onclick="setCategoryFilter('Shopping')" class="cat-pill px-2.5 py-1 rounded-lg border whitespace-nowrap opacity-75 hover:opacity-100" style="border-color: var(--border-color);">Shopping</button>
+            <button onclick="setCategoryFilter('Health & Care')" class="cat-pill px-2.5 py-1 rounded-lg border whitespace-nowrap opacity-75 hover:opacity-100" style="border-color: var(--border-color);">Health</button>
+            <button onclick="setCategoryFilter('Social & Family')" class="cat-pill px-2.5 py-1 rounded-lg border whitespace-nowrap opacity-75 hover:opacity-100" style="border-color: var(--border-color);">Social</button>
+            <button onclick="setCategoryFilter('Travel & Transport')" class="cat-pill px-2.5 py-1 rounded-lg border whitespace-nowrap opacity-75 hover:opacity-100" style="border-color: var(--border-color);">Travel</button>
+          </div>
+        </div>
+
+        <!-- List Container -->
+        <div id="directory-list" class="flex-1 overflow-y-auto space-y-2 pr-1">
+          <!-- Dynamically Rendered Day Cards -->
+        </div>
+
+      </aside>
+
+      <!-- CENTER COLUMN: DAILY SITUATION CARD & 3-SENTENCE BUILDER (lg:col-span-5) -->
+      <section class="lg:col-span-5 space-y-6">
+        
+        <!-- SITUATION CARD -->
+        <div class="themed-card rounded-2xl border p-5 shadow-sm space-y-4">
+          
+          <!-- Top Tag & TTS Reader for Prompt -->
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-2">
+              <span id="situation-day-badge" class="px-3 py-1 rounded-full text-xs font-bold bg-sky-500 text-white shadow-sm shadow-sky-500/30">
+                Day 1
+              </span>
+              <span id="situation-category-badge" class="text-xs px-2.5 py-0.5 rounded-md font-medium" style="background-color: var(--bg-card-subtle);">
+                Social & Family
+              </span>
+            </div>
+
+            <!-- Read Prompt Aloud Button -->
+            <button 
+              onclick="speakPrompt()" 
+              class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold bg-sky-50 dark:bg-sky-950/60 text-sky-600 dark:text-sky-300 border border-sky-200 dark:border-sky-800 hover:bg-sky-100 transition-colors shadow-sm"
+              title="Listen to native pronunciation of the prompt"
+            >
+              <svg class="w-4 h-4 text-sky-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z"/>
+              </svg>
+              <span>Hear Situation</span>
+            </button>
+          </div>
+
+          <!-- Situation Title & Icon -->
+          <div class="flex items-start gap-4">
+            <div id="situation-icon-box" class="w-12 h-12 rounded-2xl bg-sky-100 dark:bg-sky-900/50 text-sky-600 dark:text-sky-300 flex items-center justify-center flex-shrink-0 shadow-inner">
+              <!-- SVG Icon injected dynamically -->
+            </div>
+            <div>
+              <h2 id="situation-title-en" class="text-lg sm:text-xl font-extrabold tracking-tight leading-snug">
+                <!-- Situation Title English -->
+              </h2>
+              <p id="situation-title-vi" class="text-xs font-medium opacity-70 mt-0.5">
+                <!-- Situation Title Vietnamese -->
+              </p>
+            </div>
+          </div>
+
+          <!-- Scenario Instructions (English & Vietnamese) -->
+          <div class="p-3.5 rounded-xl border text-xs sm:text-sm space-y-2" style="background-color: var(--bg-card-subtle); border-color: var(--border-color);">
+            <div class="font-semibold text-sky-700 dark:text-sky-300 flex items-center gap-1.5">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+              </svg>
+              <span>Practical Context / Bối Cảnh Thực Tế:</span>
+            </div>
+            <p id="situation-desc-en" class="font-medium leading-relaxed">
+              <!-- Situation English Description -->
+            </p>
+            <p id="situation-desc-vi" class="text-xs opacity-80 leading-relaxed pt-1 border-t border-slate-200 dark:border-slate-700">
+              <!-- Situation Vietnamese Description -->
+            </p>
+          </div>
+
+          <!-- Key Vocabulary Micro-Chips -->
+          <div>
+            <span class="text-xs font-semibold uppercase tracking-wider text-slate-400 block mb-2">Key Vocabulary / Từ Vựng Gợi Ý</span>
+            <div id="situation-vocab-list" class="flex flex-wrap gap-2">
+              <!-- Dynamic Vocab Chips -->
+            </div>
+          </div>
+
+        </div>
+
+
+        <!-- 3-SENTENCE TAP-TO-SLOT BUILDER CARD -->
+        <div class="themed-card rounded-2xl border p-5 shadow-sm space-y-5">
+          <div class="flex items-center justify-between border-b pb-3" style="border-color: var(--border-color);">
+            <div>
+              <h3 class="font-bold text-base flex items-center gap-2">
+                <svg class="w-5 h-5 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 4a2 2 0 00-2 2v14a2 2 0 002 2h2a2 2 0 002-2V6a2 2 0 00-2-2h-2z"/>
+                </svg>
+                <span>3-Sentence Tap-to-Slot Builder</span>
+              </h3>
+              <p class="text-xs opacity-70">Tap a phrase chunk or type custom text for each slot to craft your natural response</p>
+            </div>
+            <button onclick="resetCurrentSentenceBuilder()" class="text-xs px-2.5 py-1 rounded-lg border hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors opacity-75" style="border-color: var(--border-color);">Clear Slots</button>
+          </div>
+
+          <!-- SLOT 1: Sentence Opener / Starter -->
+          <div class="space-y-2">
+            <div class="flex items-center justify-between">
+              <label class="text-xs font-bold uppercase tracking-wider text-blue-600 dark:text-blue-400 flex items-center gap-1.5">
+                <span class="w-5 h-5 rounded-full bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300 flex items-center justify-center text-[10px] font-mono">1</span>
+                <span>Sentence Starter / Câu Mở Đầu</span>
+              </label>
+              <button onclick="toggleWildcardInput(1)" class="text-[11px] text-sky-600 hover:underline flex items-center gap-1 font-medium">
+                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+                <span>Custom Input</span>
+              </button>
+            </div>
+
+            <!-- Wildcard Text Input (Hidden by default) -->
+            <div id="wildcard-box-1" class="hidden mb-2">
+              <div class="flex gap-2">
+                <input type="text" id="wildcard-input-1" placeholder="Type custom starter sentence..." class="flex-1 px-3 py-1.5 text-xs rounded-xl border focus:outline-none focus:ring-2 focus:ring-blue-500" style="background-color: var(--bg-card-subtle); border-color: var(--border-color); color: var(--text-main);" />
+                <button onclick="applyWildcard(1)" class="px-3 py-1.5 bg-blue-600 text-white text-xs font-semibold rounded-xl hover:bg-blue-700">Apply</button>
+              </div>
+            </div>
+
+            <!-- Preset Phrase Chips S1 -->
+            <div id="slot-1-chips" class="flex flex-wrap gap-2">
+              <!-- Rendered S1 Chips -->
+            </div>
+          </div>
+
+          <!-- SLOT 2: Core Details / Connector -->
+          <div class="space-y-2">
+            <div class="flex items-center justify-between">
+              <label class="text-xs font-bold uppercase tracking-wider text-amber-600 dark:text-amber-400 flex items-center gap-1.5">
+                <span class="w-5 h-5 rounded-full bg-amber-100 dark:bg-amber-900 text-amber-700 dark:text-amber-300 flex items-center justify-center text-[10px] font-mono">2</span>
+                <span>Core Details / Chi Tiết Chính</span>
+              </label>
+              <button onclick="toggleWildcardInput(2)" class="text-[11px] text-amber-600 hover:underline flex items-center gap-1 font-medium">
+                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+                <span>Custom Input</span>
+              </button>
+            </div>
+
+            <!-- Wildcard Text Input 2 -->
+            <div id="wildcard-box-2" class="hidden mb-2">
+              <div class="flex gap-2">
+                <input type="text" id="wildcard-input-2" placeholder="Type custom details..." class="flex-1 px-3 py-1.5 text-xs rounded-xl border focus:outline-none focus:ring-2 focus:ring-amber-500" style="background-color: var(--bg-card-subtle); border-color: var(--border-color); color: var(--text-main);" />
+                <button onclick="applyWildcard(2)" class="px-3 py-1.5 bg-amber-600 text-white text-xs font-semibold rounded-xl hover:bg-amber-700">Apply</button>
+              </div>
+            </div>
+
+            <!-- Preset Phrase Chips S2 -->
+            <div id="slot-2-chips" class="flex flex-wrap gap-2">
+              <!-- Rendered S2 Chips -->
+            </div>
+          </div>
+
+          <!-- SLOT 3: Follow-up / Closing -->
+          <div class="space-y-2">
+            <div class="flex items-center justify-between">
+              <label class="text-xs font-bold uppercase tracking-wider text-emerald-600 dark:text-emerald-400 flex items-center gap-1.5">
+                <span class="w-5 h-5 rounded-full bg-emerald-100 dark:bg-emerald-900 text-emerald-700 dark:text-emerald-300 flex items-center justify-center text-[10px] font-mono">3</span>
+                <span>Follow-Up / Kết Thúc Polite</span>
+              </label>
+              <button onclick="toggleWildcardInput(3)" class="text-[11px] text-emerald-600 hover:underline flex items-center gap-1 font-medium">
+                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+                <span>Custom Input</span>
+              </button>
+            </div>
+
+            <!-- Wildcard Text Input 3 -->
+            <div id="wildcard-box-3" class="hidden mb-2">
+              <div class="flex gap-2">
+                <input type="text" id="wildcard-input-3" placeholder="Type custom closing sentence..." class="flex-1 px-3 py-1.5 text-xs rounded-xl border focus:outline-none focus:ring-2 focus:ring-emerald-500" style="background-color: var(--bg-card-subtle); border-color: var(--border-color); color: var(--text-main);" />
+                <button onclick="applyWildcard(3)" class="px-3 py-1.5 bg-emerald-600 text-white text-xs font-semibold rounded-xl hover:bg-emerald-700">Apply</button>
+              </div>
+            </div>
+
+            <!-- Preset Phrase Chips S3 -->
+            <div id="slot-3-chips" class="flex flex-wrap gap-2">
+              <!-- Rendered S3 Chips -->
+            </div>
+          </div>
+
+        </div>
+
+      </section>
+
+      <!-- RIGHT COLUMN: STICKY TELEPROMPTER & VOICE STUDIO PANEL (lg:col-span-4) -->
+      <aside class="lg:col-span-4 space-y-6 lg:sticky lg:top-20">
+        
+        <!-- TELEPROMPTER PANEL -->
+        <div class="themed-card rounded-2xl border p-5 shadow-sm space-y-4">
+          
+          <div class="flex items-center justify-between border-b pb-3" style="border-color: var(--border-color);">
+            <h3 class="font-bold text-base flex items-center gap-2">
+              <svg class="w-5 h-5 text-sky-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/>
+              </svg>
+              <span>Live Teleprompter</span>
+            </h3>
+            <span class="text-xs px-2.5 py-0.5 rounded-full font-semibold bg-emerald-100 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800">Chunked Reading</span>
+          </div>
+
+          <!-- Assembled Answer Box with Pause Marks -->
+          <div class="p-4 rounded-xl border text-sm sm:text-base leading-relaxed font-medium min-h-[120px] flex items-center justify-center text-center" style="background-color: var(--bg-card-subtle); border-color: var(--border-color);" id="teleprompter-display">
+            <!-- Dynamic Chunked Text -->
+          </div>
+
+          <!-- TTS Reader Controls for Complete Built Answer -->
+          <div class="flex items-center justify-between gap-3 pt-2">
+            
+            <!-- Speed Selector -->
+            <div class="flex items-center gap-1.5 text-xs">
+              <span class="text-slate-400 font-medium">Speed:</span>
+              <select id="tts-speed" class="px-2 py-1 rounded-lg border text-xs focus:outline-none" style="background-color: var(--bg-card); border-color: var(--border-color); color: var(--text-main);">
+                <option value="0.75">0.75x (Slow)</option>
+                <option value="1.0" selected>1.0x (Normal)</option>
+                <option value="1.2">1.2x (Fast)</option>
+              </select>
+            </div>
+
+            <!-- Speak Response Button -->
+            <button 
+              onclick="speakAssembledAnswer()" 
+              class="flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold text-white bg-gradient-to-r from-sky-500 to-blue-600 hover:from-sky-600 hover:to-blue-700 shadow-md shadow-sky-500/20 transition-all hover:scale-[1.02]"
+            >
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/>
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+              </svg>
+              <span>Hear Full Answer</span>
+            </button>
+          </div>
+
+        </div>
+
+        <!-- VOICE RECORDER STUDIO PANEL -->
+        <div class="themed-card rounded-2xl border p-5 shadow-sm space-y-4">
+          
+          <div class="flex items-center justify-between border-b pb-3" style="border-color: var(--border-color);">
+            <h3 class="font-bold text-base flex items-center gap-2">
+              <svg class="w-5 h-5 text-rose-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 100-6 3 3 0 000 6z"/>
+              </svg>
+              <span>Voice Studio & Recorder</span>
+            </h3>
+            <span id="recording-timer" class="font-mono text-xs px-2.5 py-0.5 rounded-md font-bold bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300">00:00</span>
+          </div>
+
+          <!-- Mic Visualizer Canvas & Controls -->
+          <div class="space-y-3">
+            
+            <div class="relative w-full h-14 rounded-xl border flex items-center justify-center overflow-hidden" style="background-color: var(--bg-card-subtle); border-color: var(--border-color);">
+              <canvas id="audio-visualizer" class="w-full h-full"></canvas>
+              <span id="mic-status-text" class="absolute text-xs font-semibold opacity-60 pointer-events-none">Click record to start speaking</span>
+            </div>
+
+            <!-- Record / Stop Buttons -->
+            <div class="flex items-center justify-center gap-3">
+              
+              <button 
+                id="record-btn" 
+                onclick="toggleRecording()" 
+                class="flex-1 flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl text-xs font-bold text-white bg-rose-600 hover:bg-rose-700 shadow-md shadow-rose-600/20 transition-all hover:scale-[1.02]"
+              >
+                <div id="record-icon-dot" class="w-3 h-3 rounded-full bg-white"></div>
+                <span id="record-btn-text">Start Recording</span>
+              </button>
+
+            </div>
+
+            <!-- Recorded Audio Player Component -->
+            <div id="audio-playback-container" class="hidden space-y-3 pt-2 border-t" style="border-color: var(--border-color);">
+              <div class="text-xs font-bold text-slate-500 uppercase tracking-wider">Your Recorded Practice</div>
+              <audio id="audio-player" controls class="w-full h-10 rounded-lg focus:outline-none"></audio>
+              
+              <div class="flex items-center gap-2">
+                <a id="download-recording-btn" download="my-english-practice.webm" class="flex-1 flex items-center justify-center gap-1.5 py-1.5 px-3 rounded-xl border text-xs font-semibold hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors" style="border-color: var(--border-color);">
+                  <svg class="w-4 h-4 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+                  <span>Download Audio</span>
+                </a>
+
+                <button onclick="copyTranscript()" class="px-3 py-1.5 rounded-xl border text-xs font-semibold hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors flex items-center gap-1.5" style="border-color: var(--border-color);" title="Copy answer text">
+                  <svg class="w-4 h-4 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"/></svg>
+                  <span>Copy Text</span>
+                </button>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- Self Rating & Mark Completion -->
+          <div class="pt-3 border-t space-y-3" style="border-color: var(--border-color);">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-bold text-slate-500 uppercase tracking-wider">Self Assessment</span>
+              <div class="flex gap-1 text-amber-400" id="star-rating">
+                <button onclick="setStarRating(1)" class="star-btn text-lg opacity-40 hover:opacity-100 transition-opacity">★</button>
+                <button onclick="setStarRating(2)" class="star-btn text-lg opacity-40 hover:opacity-100 transition-opacity">★</button>
+                <button onclick="setStarRating(3)" class="star-btn text-lg opacity-40 hover:opacity-100 transition-opacity">★</button>
+                <button onclick="setStarRating(4)" class="star-btn text-lg opacity-40 hover:opacity-100 transition-opacity">★</button>
+                <button onclick="setStarRating(5)" class="star-btn text-lg opacity-40 hover:opacity-100 transition-opacity">★</button>
+              </div>
+            </div>
+
+            <button 
+              id="complete-day-btn" 
+              onclick="toggleCompleteCurrentDay()" 
+              class="w-full py-2.5 px-4 rounded-xl text-xs font-bold flex items-center justify-center gap-2 border transition-all"
+              style="border-color: var(--border-color); background-color: var(--bg-card-subtle);"
+            >
+              <svg class="w-4 h-4 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+              </svg>
+              <span id="complete-btn-label">Mark Day Completed</span>
+            </button>
+          </div>
+
+        </div>
+
+      </aside>
+
+    </div>
+  </main>
+
+  <!-- JAVASCRIPT APP LOGIC & DATASET -->
+  <script>
+    /* ==========================================================================
+       1. 24 ADULT A1-A2 DAILY SPEAKING PROMPTS DATASET
+       ========================================================================== */
+    const PROMPTS_DATA = [
+      {
+        id: 1,
+        category: "Social & Family",
+        titleEn: "Self-Introduction to New Neighbors",
+        titleVi: "Giới thiệu bản thân với hàng xóm mới",
+        iconSvg: `<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 00-1-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>`,
+        situationEn: "You just moved into a new apartment building in District 2. Say hello to your neighbor, state your name and job, and express hope to be good neighbors.",
+        situationVi: "Bạn vừa chuyển đến chung cư mới ở Quận 2. Hãy chào hàng xóm, giới thiệu tên, nghề nghiệp và bày tỏ mong muốn hòa thuận.",
+        vocab: [
+          { en: "just moved in", vi: "vừa chuyển đến" },
+          { en: "apartment", vi: "căn hộ" },
+          { en: "neighbor", vi: "hàng xóm" },
+          { en: "feel free", vi: "cứ tự nhiên" }
+        ],
+        slots: {
+          s1: [
+            "Hello! I am Minh, and I just moved into apartment 402.",
+            "Good morning! My name is Lan, your new next-door neighbor.",
+            "Hi there! I live right across the hallway in apartment 305."
+          ],
+          s2: [
+            "I work as an office accountant in District 1.",
+            "I am currently working from home as a graphic designer.",
+            "I work at a nearby hospital as a nurse."
+          ],
+          s3: [
+            "It's very nice to meet you, please let me know if I make too much noise!",
+            "I hope we can help each other out whenever needed.",
+            "Please feel free to drop by for tea anytime!"
+          ]
+        }
+      },
+      {
+        id: 2,
+        category: "Daily Life",
+        titleEn: "Ordering Morning Pho & Coffee",
+        titleVi: "Gọi Phở & Cà phê sáng tại quán",
+        iconSvg: `<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>`,
+        situationEn: "You are having breakfast at a cafe. Order a bowl of beef noodle soup, an iced black coffee with less sugar, and ask for the check.",
+        situationVi: "Bạn ăn sáng tại quán. Hãy gọi 1 tô phở bò, 1 cà phê đen đá ít đường và gọi tính tiền.",
+        vocab: [
+          { en: "less sugar", vi: "ít đường" },
+          { en: "beef soup", vi: "phở bò" },
+          { en: "takeaway", vi: "mang đi" },
+          { en: "the check/bill", vi: "hóa đơn" }
+        ],
+        slots: {
+          s1: [
+            "Good morning! Can I order a bowl of beef pho?",
+            "Hi! I would like to get one hot noodle soup, please.",
+            "Excuse me! Could I order breakfast for one person?"
+          ],
+          s2: [
+            "And please bring me an iced black coffee with less sugar.",
+            "Along with a hot green tea with extra ice on the side.",
+            "Plus an iced milk coffee to take away after eating."
+          ],
+          s3: [
+            "Also, could you bring the total bill to my table?",
+            "Thank you! How much is the total for everything?",
+            "Can I pay with credit card or cash?"
+          ]
+        }
+      },
+      {
+        id: 3,
+        category: "Shopping",
+        titleEn: "Buying Fresh Fruit at Local Market",
+        titleVi: "Mua trái cây tươi ở chợ địa phương",
+        iconSvg: `<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 11h14l1 12H4L5 11z"/></svg>`,
+        situationEn: "You are buying mangoes and oranges at the local wet market. Ask the seller about price per kilo, sweetness, and request a small discount.",
+        situationVi: "Bạn đi chợ mua xoài và cam. Hỏi giá theo kg, độ ngọt và xin giảm giá nhẹ.",
+        vocab: [
+          { en: "per kilo", vi: "mỗi ký" },
+          { en: "ripe and sweet", vi: "chín ngọt" },
+          { en: "discount", vi: "giảm giá" },
+          { en: "fresh fruit", vi: "trái cây tươi" }
+        ],
+        slots: {
+          s1: [
+            "Hi! How much are these yellow mangoes per kilo today?",
+            "Hello! Are these fresh oranges sweet and juicy?",
+            "Excuse me! How much for a bag of fresh apples?"
+          ],
+          s2: [
+            "Please pick two kilos of the sweetest ones for me.",
+            "I will take one kilo of mangoes and half a kilo of grapes.",
+            "Make sure they are ripe and good to eat today."
+          ],
+          s3: [
+            "Could you give me a small discount if I buy three kilos?",
+            "Can you put them in a sturdy takeaway bag, please?",
+            "Thank you! Here is the exact cash."
+          ]
+        }
+      },
+      {
+        id: 4,
+        category: "Travel & Transport",
+        titleEn: "Booking & Finding a Ride-Hailing Car",
+        titleVi: "Đặt xe công nghệ và hẹn điểm đón",
+        iconSvg: `<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"/></svg>`,
+        situationEn: "You booked a Grab car. Call or message the driver to confirm your pickup spot in front of the convenience store.",
+        situationVi: "Bạn đặt xe Grab. Gọi hoặc nhắn cho tài xế xác nhận điểm đón trước cửa hàng tiện lợi.",
+        vocab: [
+          { en: "pickup point", vi: "điểm đón" },
+          { en: "in front of", vi: "phía trước" },
+          { en: "heavy traffic", vi: "kẹt xe nặng" },
+          { en: "license plate", vi: "biển số xe" }
+        ],
+        slots: {
+          s1: [
+            "Hello driver, I am standing right in front of the convenience store.",
+            "Hi there! I am waiting near the main gate of the supermarket.",
+            "Excuse me driver, I am wearing a blue jacket by the bus stop."
+          ],
+          s2: [
+            "There is heavy traffic here, so please take your time.",
+            "I can see your car license plate coming around the corner.",
+            "Please turn right at the traffic lights to reach me."
+          ],
+          s3: [
+            "I will step into the car as soon as you stop.",
+            "Thank you very much, see you in two minutes!",
+            "Could you please turn on the air conditioner when I get in?"
+          ]
+        }
+      },
+      {
+        id: 5,
+        category: "Health & Care",
+        titleEn: "Pharmacy Visit for Cold & Flu",
+        titleVi: "Mua thuốc cảm cúm tại nhà thuốc",
+        iconSvg: `<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"/></svg>`,
+        situationEn: "You have a fever and sore throat. Tell the pharmacist your symptoms and ask how many times a day to take the medicine.",
+        situationVi: "Bạn bị sốt và đau họng. Trình bày triệu chứng với dược sĩ và hỏi liều dùng.",
+        vocab: [
+          { en: "sore throat", vi: "đau họng" },
+          { en: "runny nose", vi: "sổ mũi" },
+          { en: "after meals", vi: "sau khi ăn" },
+          { en: "dosage", vi: "liều dùng" }
+        ],
+        slots: {
+          s1: [
+            "Hello pharmacist, I have a mild fever and a painful sore throat.",
+            "Hi! I have been coughing and having a runny nose since yesterday.",
+            "Excuse me, I feel very tired and have a bad headache today."
+          ],
+          s2: [
+            "Could you recommend some effective flu medicine for adults?",
+            "Do I need antibiotics or just basic cough syrup?",
+            "Please give me medicine for three days of treatment."
+          ],
+          s3: [
+            "How many times a day should I take these pills after meals?",
+            "Will this medicine make me feel sleepy during work hours?",
+            "Thank you! How much is the total for the medicine?"
+          ]
+        }
+      },
+      {
+        id: 6,
+        category: "Travel & Transport",
+        titleEn: "Asking Directions to the Bus Station",
+        titleVi: "Hỏi đường đến bến xe buýt",
+        iconSvg: `<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>`,
+        situationEn: "You are walking in an unfamiliar area. Ask a local passerby for directions to the nearest bus stop or bank.",
+        situationVi: "Bạn đi lạc ở khu vực mới. Hỏi người qua đường hướng đến trạm xe buýt hoặc ngân hàng gần nhất.",
+        vocab: [
+          { en: "turn right", vi: "rẽ phải" },
+          { en: "straight ahead", vi: "đi thẳng" },
+          { en: "traffic lights", vi: "đèn giao thông" },
+          { en: "walking distance", vi: "khoảng cách đi bộ" }
+        ],
+        slots: {
+          s1: [
+            "Excuse me! Could you tell me where the nearest bus stop is?",
+            "Hello! Is there a bank or ATM near this street?",
+            "Hi there! Can you help me find the main city park?"
+          ],
+          s2: [
+            "Should I walk straight ahead or turn right at the traffic lights?",
+            "Is it within walking distance or should I take a motor-taxi?",
+            "I am trying to find building number 120 on this avenue."
+          ],
+          s3: [
+            "Thank you so much for your kind help!",
+            "Got it! Thanks and have a wonderful day!",
+            "I appreciate your directions very much!"
+          ]
+        }
+      },
+      {
+        id: 7,
+        category: "Daily Life",
+        titleEn: "Requesting Air Conditioner Repair from Landlord",
+        titleVi: "Báo chủ nhà sửa điều hòa bị hỏng",
+        iconSvg: `<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/></svg>`,
+        situationEn: "The air conditioner in your rental room is leaking water and not cooling. Contact your landlord to send a technician.",
+        situationVi: "Điều hòa phòng trọ bị chảy nước và không mát. Báo chủ nhà cử thợ đến kiểm tra.",
+        vocab: [
+          { en: "leaking water", vi: "rỉ nước" },
+          { en: "technician", vi: "thợ kỹ thuật" },
+          { en: "fix/repair", vi: "sửa chữa" },
+          { en: "as soon as possible", vi: "sớm nhất có thể" }
+        ],
+        slots: {
+          s1: [
+            "Hello landlord, the air conditioner in room 302 is leaking water.",
+            "Hi Mr. Nam, the air conditioner is not blowing cold air today.",
+            "Good afternoon! The fan in my bedroom air conditioner stopped working."
+          ],
+          s2: [
+            "It makes the floor wet and the bedroom is very warm.",
+            "Could you please send a technician to check and repair it?",
+            "I will be home after 5 PM today for the technician to come."
+          ],
+          s3: [
+            "Please fix it as soon as possible because of the hot weather.",
+            "Thank you for taking care of this issue quickly!",
+            "Let me know what time the repairman will arrive."
+          ]
+        }
+      },
+      {
+        id: 8,
+        category: "Daily Life",
+        titleEn: "Buying a Mobile SIM Card & 4G Data",
+        titleVi: "Mua SIM điện thoại và gói cước 4G",
+        iconSvg: `<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"/></svg>`,
+        situationEn: "Visit a telecom store to register a monthly SIM card with high-speed internet data for daily work.",
+        situationVi: "Đến cửa hàng viễn thông đăng ký SIM chính chủ kèm gói cước data tốc độ cao.",
+        vocab: [
+          { en: "high-speed data", vi: "data tốc độ cao" },
+          { en: "monthly package", vi: "gói cước hàng tháng" },
+          { en: "ID card", vi: "căn cước công dân" },
+          { en: "activate", vi: "kích hoạt" }
+        ],
+        slots: {
+          s1: [
+            "Hello! I would like to buy a new mobile prepaid SIM card.",
+            "Hi there! Can I register a monthly 4G data plan for my phone?",
+            "Good morning! I need a SIM card with unlimited internet access."
+          ],
+          s2: [
+            "I have my ID card here for official registration.",
+            "Which monthly package is best for daily video calls and browsing?",
+            "Can you help me activate the SIM card right now?"
+          ],
+          s3: [
+            "How much is the total cost for the SIM and first month fee?",
+            "Thank you! Can you write down the phone number for me?",
+            "Great service! Is 5G supported in this district?"
+          ]
+        }
+      },
+      {
+        id: 9,
+        category: "Health & Care",
+        titleEn: "Doctor's Clinic Consultation",
+        titleVi: "Khám bệnh tại phòng khám bác sĩ",
+        iconSvg: `<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/></svg>`,
+        situationEn: "You have stomach pain after eating out. Explain your pain level to the doctor and ask if you need blood tests.",
+        situationVi: "Bạn đau bụng sau khi ăn ngoài. Giải thích triệu chứng với bác sĩ và hỏi có cần xét nghiệm không.",
+        vocab: [
+          { en: "stomach pain", vi: "đau dạ dày/bụng" },
+          { en: "dizzy", vi: "chóng mặt" },
+          { en: "prescription", vi: "đơn thuốc" },
+          { en: "blood test", vi: "xét nghiệm máu" }
+        ],
+        slots: {
+          s1: [
+            "Doctor, I have severe stomach pain since early this morning.",
+            "Good morning Doctor, I feel nauseous and very dizzy after lunch.",
+            "Hello Doctor, my upper stomach hurts after drinking iced coffee."
+          ],
+          s2: [
+            "The pain started two hours after eating food at a street stall.",
+            "Do I need to do a blood test or stomach ultrasound today?",
+            "I am allergic to seafood and certain painkillers."
+          ],
+          s3: [
+            "Please write a prescription and guide me on what to eat.",
+            "Thank you Doctor! How many days should I rest at home?",
+            "Should I come back for a follow-up checkup next week?"
+          ]
+        }
+      },
+      {
+        id: 10,
+        category: "Shopping",
+        titleEn: "Shopping for Clothes & Negotiating Price",
+        titleVi: "Mua quần áo và hỏi bớt giá",
+        iconSvg: `<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h10v10H7z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7V5a2 2 0 012-2h2a2 2 0 012 2v2"/></svg>`,
+        situationEn: "You are at a local clothing boutique trying on a shirt. Ask for a larger size and check if you get a discount for buying two.",
+        situationVi: "Bạn ở cửa hàng quần áo thử áo sơ mi. Hỏi size lớn hơn và xin giảm giá khi mua 2 cái.",
+        vocab: [
+          { en: "fitting room", vi: "phòng thử đồ" },
+          { en: "larger size", vi: "size lớn hơn" },
+          { en: "buy two get discount", vi: "mua hai giảm giá" },
+          { en: "cotton material", vi: "chất liệu cotton" }
+        ],
+        slots: {
+          s1: [
+            "Excuse me, do you have this cotton shirt in size Large?",
+            "Hi! Where is the fitting room so I can try this jacket on?",
+            "Hello! Does this trousers come in navy blue or black color?"
+          ],
+          s2: [
+            "This medium size feels a bit too tight around the shoulders.",
+            "If I buy both the shirt and pants, can you give me 10% off?",
+            "The material feels very comfortable and light for summer."
+          ],
+          s3: [
+            "Great! I will take these two items and pay with digital wallet.",
+            "Can I exchange this item within three days if it doesn't fit?",
+            "Thank you! Please pack them in a gift bag."
+          ]
+        }
+      },
+      {
+        id: 11,
+        category: "Social & Family",
+        titleEn: "Inviting a Friend for Weekend Dinner",
+        titleVi: "Mời bạn bè đi ăn tối cuối tuần",
+        iconSvg: `<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/></svg>`,
+        situationEn: "Call your friend to invite them for seafood dinner on Saturday evening to celebrate your new job promotion.",
+        situationVi: "Gọi điện mời bạn đi ăn hải sản vào tối Thứ Bảy mừng thăng chức.",
+        vocab: [
+          { en: "free this Saturday", vi: "rảnh Thứ 7 này" },
+          { en: "job promotion", vi: "thăng chức" },
+          { en: "seafood restaurant", vi: "nhà hàng hải sản" },
+          { en: "my treat", vi: "tôi khao" }
+        ],
+        slots: {
+          s1: [
+            "Hey Huy! Are you free this Saturday evening around 6:30 PM?",
+            "Hi Tram! Do you have any plans for dinner this coming weekend?",
+            "Hello my friend! I would love to invite you for dinner on Saturday."
+          ],
+          s2: [
+            "I just got promoted at work, so dinner is entirely my treat!",
+            "Let's go to that famous seafood restaurant near the river bank.",
+            "We haven't caught up in a long time, so let's celebrate together!"
+          ],
+          s3: [
+            "Let me know if 7:00 PM works for you, and I will reserve a table.",
+            "I can pick you up at your house around 6 PM if you like.",
+            "Looking forward to seeing you this Saturday!"
+          ]
+        }
+      },
+      {
+        id: 12,
+        category: "Shopping",
+        titleEn: "Supermarket Checkout & Points Registration",
+        titleVi: "Thanh toán siêu thị & Tích điểm thành viên",
+        iconSvg: `<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 100 4 2 2 0 000-4z"/></svg>`,
+        situationEn: "You are at the checkout register with groceries. Request plastic-free bags and scan your member card for reward points.",
+        situationVi: "Thanh toán hàng hóa tại siêu thị. Yêu cầu túi bọc thân thiện môi trường và tích điểm thành viên.",
+        vocab: [
+          { en: "member card", vi: "thẻ thành viên" },
+          { en: "reward points", vi: "điểm thưởng" },
+          { en: "reusable bag", vi: "túi tái sử dụng" },
+          { en: "receipt", vi: "hóa đơn thanh toán" }
+        ],
+        slots: {
+          s1: [
+            "Good evening! I would like to pay for these grocery items.",
+            "Hi! Here is my phone number to scan my supermarket member card.",
+            "Hello! Can I use my accumulated reward points to get a discount?"
+          ],
+          s2: [
+            "Please don't use plastic bags; I brought my own canvas tote bag.",
+            "Could you pack the fragile glass bottles separately, please?",
+            "I will pay using my phone contactless payment."
+          ],
+          s3: [
+            "Could you please print a full receipt for my records?",
+            "Thank you! Have a good night!",
+            "How many points did I earn from this purchase?"
+          ]
+        }
+      },
+      {
+        id: 13,
+        category: "Work & Business",
+        titleEn: "Explaining Work Routines to a Colleague",
+        titleVi: "Trao đổi quy trình công việc với đồng nghiệp",
+        iconSvg: `<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>`,
+        situationEn: "Briefly describe your main daily office tasks: checking emails, attending standup meetings, and sending daily reports to your manager.",
+        situationVi: "Mô tả ngắn công việc hàng ngày: check email, họp giao ban và gửi báo cáo cho quản lý.",
+        vocab: [
+          { en: "daily report", vi: "báo cáo hàng ngày" },
+          { en: "check emails", vi: "kiểm tra thư điện tử" },
+          { en: "deadline", vi: "hạn chót" },
+          { en: "standup meeting", vi: "cuộc họp nhanh" }
+        ],
+        slots: {
+          s1: [
+            "Every morning, I start my shift by checking customer emails at 8 AM.",
+            "My daily routine involves preparing sales data and inventory lists.",
+            "I am responsible for managing client accounts and answering phone calls."
+          ],
+          s2: [
+            "At 9:30 AM, we usually have a quick standup meeting with the team.",
+            "I work closely with the design team to meet project deadlines.",
+            "After lunch, I review contracts and organize afternoon meetings."
+          ],
+          s3: [
+            "Before leaving at 5 PM, I always send my daily report to the manager.",
+            "That's how we keep everything running smoothly in our department.",
+            "Let me know if you need any assistance with these tasks!"
+          ]
+        }
+      },
+      {
+        id: 14,
+        category: "Work & Business",
+        titleEn: "Reporting a Lost ATM Card at Bank",
+        titleVi: "Báo mất thẻ ATM tại ngân hàng",
+        iconSvg: `<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>`,
+        situationEn: "You dropped your debit card at a market. Visit the bank to temporarily lock your account and apply for a replacement card.",
+        situationVi: "Bạn làm rơi thẻ ATM ở chợ. Đến ngân hàng báo khóa thẻ khẩn cấp và làm lại thẻ mới.",
+        vocab: [
+          { en: "block/lock card", vi: "khóa thẻ" },
+          { en: "replacement card", vi: "thẻ thay thế" },
+          { en: "debit card", vi: "thẻ ghi nợ" },
+          { en: "account balance", vi: "số dư tài khoản" }
+        ],
+        slots: {
+          s1: [
+            "Hello, I need to block my debit card immediately because I lost it.",
+            "Good morning! I accidentally dropped my wallet with my bank card.",
+            "Excuse me! Can you help me lock my account to protect my balance?"
+          ],
+          s2: [
+            "I have brought my national identity card to verify my identity.",
+            "Has there been any unauthorized transaction in the last hour?",
+            "I would like to apply for a replacement card as soon as possible."
+          ],
+          s3: [
+            "How many business days will it take to issue the new card?",
+            "Thank you for locking the card so quickly for me!",
+            "Can I still withdraw cash at the counter using my ID card?"
+          ]
+        }
+      },
+      {
+        id: 15,
+        category: "Daily Life",
+        titleEn: "Ordering Delivery Food via Phone",
+        titleVi: "Đặt đồ ăn giao tận nơi qua điện thoại",
+        iconSvg: `<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/></svg>`,
+        situationEn: "Call a pizza shop to order a large chicken pizza for delivery to your house address within 30 minutes.",
+        situationVi: "Gọi tiệm pizza đặt 1 bánh gà cỡ lớn giao tận nhà trong 30 phút.",
+        vocab: [
+          { en: "home delivery", vi: "giao hàng tận nhà" },
+          { en: "thin crust", vi: "đế mỏng" },
+          { en: "delivery fee", vi: "phí giao hàng" },
+          { en: "estimated time", vi: "thời gian dự kiến" }
+        ],
+        slots: {
+          s1: [
+            "Hello! I would like to place an order for home delivery, please.",
+            "Hi! Can I order a large barbecue chicken pizza for delivery?",
+            "Good afternoon! I want to order lunch delivered to my office address."
+          ],
+          s2: [
+            "Please make it with thin crust and extra cheese on top.",
+            "My address is 45 Le Loi Street, Ward 3, District 1.",
+            "Along with the pizza, please add two cans of cold cola."
+          ],
+          s3: [
+            "How long will the delivery driver take to arrive?",
+            "I will pay with cash upon receiving the food.",
+            "Thank you! Please call me when the driver arrives downstairs."
+          ]
+        }
+      },
+      {
+        id: 16,
+        category: "Daily Life",
+        titleEn: "Asking About Apartment Rental Details",
+        titleVi: "Hỏi thông tin thuê căn hộ chung cư",
+        iconSvg: `<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>`,
+        situationEn: "Call an apartment agent to inquire about a 2-bedroom furnished flat: rental price, deposit requirement, and view time.",
+        situationVi: "Gọi môi giới hỏi căn hộ 2 phòng ngủ đủ nội thất: giá thuê, tiền cọc và hẹn giờ xem nhà.",
+        vocab: [
+          { en: "fully furnished", vi: "đầy đủ nội thất" },
+          { en: "security deposit", vi: "tiền đặt cọc" },
+          { en: "management fee", vi: "phí quản lý" },
+          { en: "viewing time", vi: "thời gian xem nhà" }
+        ],
+        slots: {
+          s1: [
+            "Hello! I saw your advertisement for a 2-bedroom apartment rental.",
+            "Hi! Is the apartment on the 10th floor still available for rent?",
+            "Good morning! I am looking for a fully furnished flat near District 7."
+          ],
+          s2: [
+            "Does the monthly rent include internet and building management fees?",
+            "How many months of security deposit do I need to pay upfront?",
+            "Is the apartment pet-friendly and available for immediate move-in?"
+          ],
+          s3: [
+            "Can I schedule a viewing time tomorrow at 5 PM after work?",
+            "Thank you! Please send me the exact address and location link.",
+            "I look forward to meeting you tomorrow to see the apartment."
+          ]
+        }
+      },
+      {
+        id: 17,
+        category: "Social & Family",
+        titleEn: "Talking About Family & Children",
+        titleVi: "Trò chuyện về gia đình và con cái",
+        iconSvg: `<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/></svg>`,
+        situationEn: "During tea break with a coworker, share details about your family structure, your spouse's job, and your children's school.",
+        situationVi: "Giờ giải lao cùng đồng nghiệp, chia sẻ về gia đình, công việc của bạn đời và trường học của con.",
+        vocab: [
+          { en: "extended family", vi: "gia đình nhiều thế hệ" },
+          { en: "primary school", vi: "trường tiểu học" },
+          { en: "homemaker/spouse", vi: "bạn đời/nội trợ" },
+          { en: "work-life balance", vi: "cân bằng công việc cuộc sống" }
+        ],
+        slots: {
+          s1: [
+            "I live with my spouse and two kids in a quiet neighborhood.",
+            "There are four people in my family: my husband, two daughters, and me.",
+            "My family lives in a cozy house along with my elder parents."
+          ],
+          s2: [
+            "My eldest son is currently studying in a local primary school.",
+            "My wife works as an English teacher at a high school nearby.",
+            "On weekends, we love cooking meals together and visiting parks."
+          ],
+          s3: [
+            "Family time helps me relax after a busy working week.",
+            "How about you? Do you live with your family or on your own?",
+            "Here is a photo of my kids taken during our last beach trip!"
+          ]
+        }
+      },
+      {
+        id: 18,
+        category: "Travel & Transport",
+        titleEn: "Hotel Check-In & Room Special Request",
+        titleVi: "Nhận phòng khách sạn & Yêu cầu phòng quiet",
+        iconSvg: `<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>`,
+        situationEn: "Arrive at a hotel reception desk. Show your booking confirmation code, request a quiet room on a high floor, and ask about breakfast hours.",
+        situationVi: "Đến quầy lễ tân khách sạn. Xuất trình mã đặt phòng, xin phòng yên tĩnh tầng cao và hỏi giờ ăn sáng.",
+        vocab: [
+          { en: "booking confirmation", vi: "xác nhận đặt phòng" },
+          { en: "high floor", vi: "tầng cao" },
+          { en: "breakfast hours", vi: "giờ phục vụ ăn sáng" },
+          { en: "key card", vi: "thẻ từ mở phòng" }
+        ],
+        slots: {
+          s1: [
+            "Good afternoon! I have a reservation under the name Tran Van Nam.",
+            "Hello! I booked a Deluxe Double Room through Agoda for two nights.",
+            "Hi there! Here is my passport and booking confirmation code."
+          ],
+          s2: [
+            "Could I please request a non-smoking room on a high floor?",
+            "Is it possible to get a room away from the elevator for quietness?",
+            "What time is breakfast served in the restaurant tomorrow morning?"
+          ],
+          s3: [
+            "Thank you! Could you also give me the Wi-Fi password?",
+            "Great! Where can I find the swimming pool and gym area?",
+            "I appreciate your friendly support!"
+          ]
+        }
+      },
+      {
+        id: 19,
+        category: "Health & Care",
+        titleEn: "Hair Salon Visit & Styling Instructions",
+        titleVi: "Đi cắt tóc & Hướng dẫn thợ tạo kiểu",
+        iconSvg: `<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.121 14.121L19 19m-7-7l7-7m-7 7l-2.879 2.879M12 12L9.121 9.121m0 0L4 4m5.121 5.121L4 14.121"/></svg>`,
+        situationEn: "Sit at a hair salon. Tell the hair stylist to trim just 2 cm off the ends, keep the sides short, and wash your hair with warm water.",
+        situationVi: "Tại tiệm cắt tóc. Bảo thợ chỉ tỉa bớt 2 cm phần ngọn, giữ phía bên gọn gàng và gội đầu bằng nước ấm.",
+        vocab: [
+          { en: "trim the ends", vi: "tỉa bớt ngọn" },
+          { en: "keep it short", vi: "giữ ngắn gọn" },
+          { en: "hair wash", vi: "gội đầu" },
+          { en: "warm water", vi: "nước ấm" }
+        ],
+        slots: {
+          s1: [
+            "Hello! I would like to get a haircut and a relaxing hair wash.",
+            "Hi! Please just trim the ends by about two centimeters today.",
+            "Good morning! I want to try a clean professional hairstyle."
+          ],
+          s2: [
+            "Please keep the back and sides short, but leave the top longer.",
+            "Make sure not to cut it too short because I have an event soon.",
+            "When washing my hair, please use warm water and mild shampoo."
+          ],
+          s3: [
+            "That looks very neat and nice! Thank you so much!",
+            "How much is the total for both the haircut and wash?",
+            "I am very satisfied with this new haircut!"
+          ]
+        }
+      },
+      {
+        id: 20,
+        category: "Work & Business",
+        titleEn: "Reporting Late Arrival for Team Meeting",
+        titleVi: "Báo đi muộn cuộc họp do kẹt xe",
+        iconSvg: `<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>`,
+        situationEn: "You are stuck in heavy traffic on your way to work. Send a quick message to your team leader explaining you will be 15 minutes late.",
+        situationVi: "Bạn bị kẹt xe trên đường đi làm. Nhắn tin cho trưởng nhóm báo sẽ đến muộn 15 phút.",
+        vocab: [
+          { en: "stuck in traffic", vi: "kẹt xe" },
+          { en: "unexpected delay", vi: "trễ ngoài dự kiến" },
+          { en: "start without me", vi: "bắt đầu trước không cần tôi" },
+          { en: "apologize for", vi: "xin lỗi vì" }
+        ],
+        slots: {
+          s1: [
+            "Good morning Team Leader, I am currently stuck in heavy traffic.",
+            "Hi Ms. Linh! There is a traffic accident on the main bridge today.",
+            "Hello everyone! My motorbike had a flat tire on my way to work."
+          ],
+          s2: [
+            "Because of this delay, I will be about 15 minutes late for our meeting.",
+            "Please start the 9 AM meeting without me; I will join as soon as I arrive.",
+            "I am riding as fast as safety allows right now."
+          ],
+          s3: [
+            "I sincerely apologize for any inconvenience caused to the team!",
+            "I will review the meeting minutes as soon as I reach my desk.",
+            "Thank you for your understanding and patience!"
+          ]
+        }
+      },
+      {
+        id: 21,
+        category: "Daily Life",
+        titleEn: "Paying Utility Bills at Convenience Store",
+        titleVi: "Thanh toán hóa đơn điện nước tại cửa hàng",
+        iconSvg: `<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"/></svg>`,
+        situationEn: "Show your customer code at a store counter to pay for your monthly electricity and water bills.",
+        situationVi: "Đưa mã khách hàng tại quầy cửa hàng tiện lợi để thanh toán hóa đơn điện nước hàng tháng.",
+        vocab: [
+          { en: "electricity bill", vi: "hóa đơn tiền điện" },
+          { en: "customer ID", vi: "mã khách hàng" },
+          { en: "payment receipt", vi: "biên nhận thanh toán" },
+          { en: "water bill", vi: "hóa đơn tiền nước" }
+        ],
+        slots: {
+          s1: [
+            "Hello! I would like to pay my electricity and water bills here.",
+            "Hi there! Can I pay my monthly utility bills at this counter?",
+            "Good morning! Here are my two customer code numbers."
+          ],
+          s2: [
+            "Please check the outstanding balance for electricity account PE0100.",
+            "Can you verify if my water bill for this month is already updated?",
+            "I want to pay both bills in cash right now."
+          ],
+          s3: [
+            "Could you stamp and hand me the payment receipt, please?",
+            "Thank you! Is the transaction processed immediately in the system?",
+            "Appreciate your quick assistance! Have a good day!"
+          ]
+        }
+      },
+      {
+        id: 22,
+        category: "Social & Family",
+        titleEn: "Discussing Weather & Daily Plans",
+        titleVi: "Bàn về thời tiết và kế hoạch trong ngày",
+        iconSvg: `<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 10-9.78 2.096A4.001 4.001 0 003 15z"/></svg>`,
+        situationEn: "Chat with your friend about the rainy season, carrying an umbrella, and planning an indoor movie evening.",
+        situationVi: "Nói chuyện với bạn về mùa mưa, chuẩn bị ô và lên kế hoạch xem phim trong nhà.",
+        vocab: [
+          { en: "heavy rain", vi: "mưa to" },
+          { en: "raincoat/umbrella", vi: "áo mưa/ô" },
+          { en: "stay indoors", vi: "ở trong nhà" },
+          { en: "weather forecast", vi: "dự báo thời tiết" }
+        ],
+        slots: {
+          s1: [
+            "It looks like it is going to pour heavy rain this afternoon!",
+            "The weather forecast says there will be thunderstorm later today.",
+            "It is so sunny and humid outside this morning!"
+          ],
+          s2: [
+            "Don't forget to take your raincoat or umbrella when you go out.",
+            "Instead of going outdoors, why don't we watch a movie indoors?",
+            "I love drinking hot coffee on rainy days like this."
+          ],
+          s3: [
+            "Stay safe on the road and drive carefully in the rain!",
+            "Let's meet up at the cinema once the rain stops.",
+            "Have a cozy afternoon!"
+          ]
+        }
+      },
+      {
+        id: 23,
+        category: "Travel & Transport",
+        titleEn: "Airport Check-In & Boarding Pass",
+        titleVi: "Làm thủ tục tại sân bay & Lấy thẻ lên máy bay",
+        iconSvg: `<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/></svg>`,
+        situationEn: "At the airline check-in counter, hand over your passport, check one piece of luggage, and ask for a window seat.",
+        situationVi: "Tại quầy làm thủ tục sân bay. Nộp hộ chiếu, ký gửi 1 kiện hành lý và xin ghế ngồi gần cửa sổ.",
+        vocab: [
+          { en: "boarding pass", vi: "thẻ lên máy bay" },
+          { en: "checked luggage", vi: "hành lý ký gửi" },
+          { en: "window seat", vi: "ghế cạnh cửa sổ" },
+          { en: "gate number", vi: "cổng lên máy bay" }
+        ],
+        slots: {
+          s1: [
+            "Good morning! I am checking in for flight VN214 to Da Nang.",
+            "Hello! Here is my passport and electronic ticket reference.",
+            "Hi there! I would like to check in for my morning flight."
+          ],
+          s2: [
+            "I have one suitcase to check in and one small backpack to carry on.",
+            "Could you please assign me a window seat near the front of the plane?",
+            "Is the flight running on schedule or are there any gate changes?"
+          ],
+          s3: [
+            "Thank you! What time does boarding start at the gate?",
+            "Have a great day and thanks for your help!",
+            "Understood! Heading to the security checkpoint right now."
+          ]
+        }
+      },
+      {
+        id: 24,
+        category: "Health & Care",
+        titleEn: "Fitness Club Registration & Personal Trainer",
+        titleVi: "Đăng ký phòng tập Gym & HLV cá nhân",
+        iconSvg: `<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>`,
+        situationEn: "Inquire at a gym front desk about a 6-month membership, personal trainer guidance for weight loss, and trial classes.",
+        situationVi: "Hỏi quầy tư vấn phòng gym về gói 6 tháng, huấn luyện viên giảm cân và buổi tập thử.",
+        vocab: [
+          { en: "gym membership", vi: "thẻ hội viên gym" },
+          { en: "personal trainer", vi: "huấn luyện viên cá nhân" },
+          { en: "trial class", vi: "buổi tập thử" },
+          { en: "weight loss goal", vi: "mục tiêu giảm cân" }
+        ],
+        slots: {
+          s1: [
+            "Hello! I am interested in joining your gym for a 6-month membership.",
+            "Hi there! Can you tell me about the monthly fitness class packages?",
+            "Good afternoon! My goal is to lose weight and gain overall health."
+          ],
+          s2: [
+            "Does the membership include access to the sauna and swimming pool?",
+            "Can I get two trial sessions with a personal trainer first?",
+            "What are the least busy hours during weekdays for peaceful workouts?"
+          ],
+          s3: [
+            "Thank you! I would like to sign up for the free trial today.",
+            "Can you show me around the locker room and machine area?",
+            "Awesome! I'm excited to start my health transformation journey!"
+          ]
+        }
+      }
+    ];
+
+    /* ==========================================================================
+       2. GLOBAL STATE MANAGERS
+       ========================================================================== */
+    let currentDayId = 1;
+    let selectedCategory = 'all';
+    let userSelections = { 1: '', 2: '', 3: '' };
+    let completedDays = new Set();
+    let currentTheme = 'light';
+    let currentFontScale = 100;
+    let starRating = 0;
+
+    // Web Speech API Synthesis
+    const synth = window.speechSynthesis;
+
+    // Audio Recorder State (MediaRecorder)
+    let mediaRecorder = null;
+    let audioChunks = [];
+    let recordedAudioBlob = null;
+    let isRecording = false;
+    let recordTimerInterval = null;
+    let recordSeconds = 0;
+    let audioContext = null;
+    let analyser = null;
+    let animFrameId = null;
+
+    /* ==========================================================================
+       3. INITIALIZATION & LOCALSTORAGE MANAGEMENT
+       ========================================================================== */
+    window.addEventListener('DOMContentLoaded', () => {
+      loadSavedPreferences();
+      renderDirectory();
+      loadDayPrompt(1);
+      initVisualizerCanvas();
+    });
+
+    function loadSavedPreferences() {
+      // 1. Theme
+      const savedTheme = localStorage.getItem('speech_studio_theme');
+      if (savedTheme) {
+        currentTheme = savedTheme;
+      } else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        currentTheme = dark;
+      }
+      applyTheme(currentTheme);
+
+      // 2. Font Scale
+      const savedScale = localStorage.getItem('speech_studio_font_scale');
+      if (savedScale) {
+        currentFontScale = parseInt(savedScale, 10);
+      }
+      applyFontScale(currentFontScale);
+
+      // 3. Completed Days Progress
+      const savedProgress = localStorage.getItem('speech_studio_progress');
+      if (savedProgress) {
+        try {
+          const arr = JSON.parse(savedProgress);
+          completedDays = new Set(arr);
+        } catch(e) {
+          completedDays = new Set();
+        }
+      }
+      updateProgressDisplay();
+    }
+
+    /* ==========================================================================
+       4. THEME TOGGLE LOGIC
+       ========================================================================== */
+    function toggleTheme() {
+      currentTheme = (currentTheme === 'light') ? 'dark' : 'light';
+      applyTheme(currentTheme);
+      localStorage.setItem('speech_studio_theme', currentTheme);
+    }
+
+    function applyTheme(theme) {
+      document.documentElement.setAttribute('data-theme', theme);
+      const sunIcon = document.getElementById('sun-icon');
+      const moonIcon = document.getElementById('moon-icon');
+
+      if (theme === 'dark') {
+        document.documentElement.classList.add('dark');
+        sunIcon.classList.add('hidden');
+        moonIcon.classList.remove('hidden');
+      } else {
+        document.documentElement.classList.remove('dark');
+        moonIcon.classList.add('hidden');
+        sunIcon.classList.remove('hidden');
+      }
+    }
+
+    /* ==========================================================================
+       5. FONT SCALE SLIDER LOGIC
+       ========================================================================== */
+    function updateFontScale(val) {
+      currentFontScale = parseInt(val, 10);
+      applyFontScale(currentFontScale);
+      localStorage.setItem('speech_studio_font_scale', currentFontScale);
+    }
+
+    function adjustFontScale(delta) {
+      let newScale = currentFontScale + delta;
+      if (newScale < 90) newScale = 90;
+      if (newScale > 150) newScale = 150;
+      updateFontScale(newScale);
+    }
+
+    function resetFontScale() {
+      updateFontScale(100);
+    }
+
+    function applyFontScale(scale) {
+      document.documentElement.style.setProperty('--ui-scale', scale + '%');
+      const slider = document.getElementById('font-scale-slider');
+      const label = document.getElementById('font-scale-label');
+      if (slider) slider.value = scale;
+      if (label) label.innerText = scale + '%';
+    }
+
+    /* ==========================================================================
+       6. DIRECTORY & NAVIGATION LOGIC
+       ========================================================================== */
+    function setCategoryFilter(cat) {
+      selectedCategory = cat;
+      const pills = document.querySelectorAll('#category-pills button');
+      pills.forEach(p => {
+        if (p.innerText.toLowerCase().includes(cat.toLowerCase()) || (cat === 'all' && p.innerText === 'All')) {
+          p.className = 'cat-pill active px-2.5 py-1 rounded-lg border whitespace-nowrap bg-sky-600 text-white font-medium';
+        } else {
+          p.className = 'cat-pill px-2.5 py-1 rounded-lg border whitespace-nowrap opacity-75 hover:opacity-100';
+          p.style.borderColor = 'var(--border-color)';
+        }
+      });
+      renderDirectory();
+    }
+
+    function filterDirectory() {
+      renderDirectory();
+    }
+
+    function renderDirectory() {
+      const searchVal = document.getElementById('directory-search').value.toLowerCase().trim();
+      const listContainer = document.getElementById('directory-list');
+      listContainer.innerHTML = '';
+
+      const filtered = PROMPTS_DATA.filter(item => {
+        const matchesCat = (selectedCategory === 'all') || (item.category === selectedCategory);
+        const matchesSearch = item.titleEn.toLowerCase().includes(searchVal) || 
+                              item.titleVi.toLowerCase().includes(searchVal) || 
+                              `day ${item.id}`.includes(searchVal);
+        return matchesCat && matchesSearch;
+      });
+
+      if (filtered.length === 0) {
+        listContainer.innerHTML = `<div class="p-4 text-center text-xs opacity-60">No speaking scenarios found.</div>`;
+        return;
+      }
+
+      filtered.forEach(item => {
+        const isSelected = item.id === currentDayId;
+        const isDone = completedDays.has(item.id);
+
+        const card = document.createElement('div');
+        card.onclick = () => loadDayPrompt(item.id);
+        card.className = `p-3 rounded-xl border cursor-pointer transition-all duration-150 flex items-center justify-between ${
+          isSelected ? 'ring-2 ring-sky-500 shadow-md' : 'hover:scale-[1.01]'
+        }`;
+        card.style.backgroundColor = isSelected ? 'var(--bg-card-subtle)' : 'var(--bg-card)';
+        card.style.borderColor = 'var(--border-color)';
+
+        card.innerHTML = `
+          <div class="flex items-center space-x-3 overflow-hidden">
+            <div class="w-8 h-8 rounded-lg flex items-center justify-center font-bold text-xs flex-shrink-0 ${
+              isDone ? 'bg-emerald-500 text-white' : 'bg-slate-200 dark:bg-slate-700 opacity-80'
+            }">
+              ${isDone ? '✓' : item.id}
+            </div>
+            <div class="truncate">
+              <div class="font-bold text-xs truncate flex items-center gap-1">
+                <span>${item.titleEn}</span>
+              </div>
+              <div class="text-[11px] opacity-70 truncate">${item.titleVi}</div>
+            </div>
+          </div>
+          <span class="text-[10px] font-semibold px-2 py-0.5 rounded ml-2 flex-shrink-0 opacity-75" style="background-color: var(--bg-card-subtle);">
+            ${item.category.split(' ')[0]}
+          </span>
+        `;
+        listContainer.appendChild(card);
+      });
+    }
+
+    /* ==========================================================================
+       7. LOAD DAY PROMPT & RENDER BUILDER
+       ========================================================================== */
+    function loadDayPrompt(dayId) {
+      currentDayId = dayId;
+      const data = PROMPTS_DATA.find(p => p.id === dayId);
+      if (!data) return;
+
+      // Update UI Header Elements
+      document.getElementById('situation-day-badge').innerText = `Day ${data.id}`;
+      document.getElementById('situation-category-badge').innerText = data.category;
+      document.getElementById('situation-icon-box').innerHTML = data.iconSvg;
+      document.getElementById('situation-title-en').innerText = data.titleEn;
+      document.getElementById('situation-title-vi').innerText = data.titleVi;
+      document.getElementById('situation-desc-en').innerText = data.situationEn;
+      document.getElementById('situation-desc-vi').innerText = data.situationVi;
+
+      // Render Vocab Chips
+      const vocabBox = document.getElementById('situation-vocab-list');
+      vocabBox.innerHTML = '';
+      data.vocab.forEach(v => {
+        const chip = document.createElement('span');
+        chip.className = 'px-2.5 py-1 rounded-lg text-xs border font-medium flex items-center gap-1 shadow-sm';
+        chip.style.backgroundColor = 'var(--bg-card-subtle)';
+        chip.style.borderColor = 'var(--border-color)';
+        chip.innerHTML = `<span class="font-bold text-sky-600 dark:text-sky-400">${v.en}</span> <span class="opacity-60 text-[11px]">(${v.vi})</span>`;
+        vocabBox.appendChild(chip);
+      });
+
+      // Reset Selections & Load Defaults
+      userSelections = {
+        1: data.slots.s1[0],
+        2: data.slots.s2[0],
+        3: data.slots.s3[0]
+      };
+
+      // Hide Wildcard Inputs
+      [1, 2, 3].forEach(num => {
+        document.getElementById(`wildcard-box-${num}`).classList.add('hidden');
+        document.getElementById(`wildcard-input-${num}`).value = '';
+      });
+
+      renderSlotChips(1, data.slots.s1, 'chip-s1');
+      renderSlotChips(2, data.slots.s2, 'chip-s2');
+      renderSlotChips(3, data.slots.s3, 'chip-s3');
+
+      updateTeleprompter();
+      updateCompletionButtonState();
+      renderDirectory();
+      resetRecordingUI();
+    }
+
+    function renderSlotChips(slotNum, optionsArray, chipStyleClass) {
+      const container = document.getElementById(`slot-${slotNum}-chips`);
+      container.innerHTML = '';
+
+      optionsArray.forEach((text, idx) => {
+        const btn = document.createElement('button');
+        const isActive = userSelections[slotNum] === text;
+        btn.className = `px-3 py-2 rounded-xl text-xs sm:text-sm text-left transition-all font-medium ${chipStyleClass} ${isActive ? 'active shadow-sm font-bold' : 'opacity-90'}`;
+        btn.innerText = text;
+        btn.onclick = () => {
+          userSelections[slotNum] = text;
+          renderSlotChips(slotNum, optionsArray, chipStyleClass);
+          updateTeleprompter();
+          speakChunk(text);
+        };
+        container.appendChild(btn);
+      });
+    }
+
+    /* Wildcard Custom Inputs */
+    function toggleWildcardInput(slotNum) {
+      const box = document.getElementById(`wildcard-box-${slotNum}`);
+      box.classList.toggle('hidden');
+    }
+
+    function applyWildcard(slotNum) {
+      const input = document.getElementById(`wildcard-input-${slotNum}`);
+      const val = input.value.trim();
+      if (!val) return;
+
+      userSelections[slotNum] = val;
+      const data = PROMPTS_DATA.find(p => p.id === currentDayId);
+      const styleClass = slotNum === 1 ? 'chip-s1' : (slotNum === 2 ? 'chip-s2' : 'chip-s3');
+      const arrayKey = `s${slotNum}`;
+
+      renderSlotChips(slotNum, data.slots[arrayKey], styleClass);
+      updateTeleprompter();
+      speakChunk(val);
+    }
+
+    function resetCurrentSentenceBuilder() {
+      const data = PROMPTS_DATA.find(p => p.id === currentDayId);
+      if (!data) return;
+      userSelections = {
+        1: data.slots.s1[0],
+        2: data.slots.s2[0],
+        3: data.slots.s3[0]
+      };
+      renderSlotChips(1, data.slots.s1, 'chip-s1');
+      renderSlotChips(2, data.slots.s2, 'chip-s2');
+      renderSlotChips(3, data.slots.s3, 'chip-s3');
+      updateTeleprompter();
+    }
+
+    /* ==========================================================================
+       8. TELEPROMPTER & TEXT-TO-SPEECH (TTS)
+       ========================================================================== */
+    function updateTeleprompter() {
+      const display = document.getElementById('teleprompter-display');
+      const s1 = userSelections[1] || '...';
+      const s2 = userSelections[2] || '...';
+      const s3 = userSelections[3] || '...';
+
+      display.innerHTML = `
+        <div class="space-y-1">
+          <span class="text-blue-600 dark:text-blue-400 font-semibold">${escapeHtml(s1)}</span>
+          <span class="breath-pause" title="Breath Pause">/</span>
+          <span class="text-amber-600 dark:text-amber-400 font-semibold">${escapeHtml(s2)}</span>
+          <span class="breath-pause" title="Breath Pause">/</span>
+          <span class="text-emerald-600 dark:text-emerald-400 font-semibold">${escapeHtml(s3)}</span>
+        </div>
+      `;
+    }
+
+    function getFullAssembledText() {
+      return `${userSelections[1]} ${userSelections[2]} ${userSelections[3]}`.trim();
+    }
+
+    function speakChunk(text) {
+      if (!synth) return;
+      synth.cancel();
+      const utter = new SpeechSynthesisUtterance(text);
+      utter.lang = 'en-US';
+      utter.rate = parseFloat(document.getElementById('tts-speed').value || '1.0');
+      synth.speak(utter);
+    }
+
+    function speakPrompt() {
+      const data = PROMPTS_DATA.find(p => p.id === currentDayId);
+      if (data) speakChunk(data.situationEn);
+    }
+
+    function speakAssembledAnswer() {
+      speakChunk(getFullAssembledText());
+    }
+
+    /* ==========================================================================
+       9. VOICE RECORDER STUDIO (MEDIARECORDER & AUDIO VISUALIZER)
+       ========================================================================== */
+    async function toggleRecording() {
+      if (!isRecording) {
+        startRecording();
+      } else {
+        stopRecording();
+      }
+    }
+
+    async function startRecording() {
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        audioChunks = [];
+        mediaRecorder = new MediaRecorder(stream);
+
+        mediaRecorder.ondataavailable = e => {
+          if (e.data.size > 0) audioChunks.push(e.data);
+        };
+
+        mediaRecorder.onstop = () => {
+          recordedAudioBlob = new Blob(audioChunks, { type: 'audio/webm' });
+          const audioUrl = URL.createObjectURL(recordedAudioBlob);
+          const audioPlayer = document.getElementById('audio-player');
+          const downloadBtn = document.getElementById('download-recording-btn');
+          
+          audioPlayer.src = audioUrl;
+          downloadBtn.href = audioUrl;
+          downloadBtn.download = `Day_${currentDayId}_Practice_Recording.webm`;
+
+          document.getElementById('audio-playback-container').classList.remove('hidden');
+        };
+
+        mediaRecorder.start();
+        isRecording = true;
+
+        // Visualizer Setup
+        setupAudioContext(stream);
+
+        // UI Updates
+        const recordBtn = document.getElementById('record-btn');
+        recordBtn.className = 'flex-1 flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl text-xs font-bold text-white bg-slate-800 hover:bg-slate-900 recording-pulse';
+        document.getElementById('record-btn-text').innerText = 'Stop Recording';
+        document.getElementById('mic-status-text').classList.add('hidden');
+
+        // Timer Start
+        recordSeconds = 0;
+        updateTimerDisplay();
+        recordTimerInterval = setInterval(() => {
+          recordSeconds++;
+          updateTimerDisplay();
+        }, 1000);
+
+      } catch (err) {
+        alert('Microphone access denied or unsupported in browser context.');
+      }
+    }
+
+    function stopRecording() {
+      if (mediaRecorder && isRecording) {
+        mediaRecorder.stop();
+        mediaRecorder.stream.getTracks().forEach(track => track.stop());
+        isRecording = false;
+
+        clearInterval(recordTimerInterval);
+        if (animFrameId) cancelAnimationFrame(animFrameId);
+
+        const recordBtn = document.getElementById('record-btn');
+        recordBtn.className = 'flex-1 flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl text-xs font-bold text-white bg-rose-600 hover:bg-rose-700 shadow-md shadow-rose-600/20 transition-all hover:scale-[1.02]';
+        document.getElementById('record-btn-text').innerText = 'Record Again';
+      }
+    }
+
+    function resetRecordingUI() {
+      stopRecording();
+      document.getElementById('audio-playback-container').classList.add('hidden');
+      document.getElementById('recording-timer').innerText = '00:00';
+      document.getElementById('mic-status-text').classList.remove('hidden');
+      document.getElementById('record-btn-text').innerText = 'Start Recording';
+      starRating = 0;
+      updateStarRatingUI();
+    }
+
+    function updateTimerDisplay() {
+      const mins = String(Math.floor(recordSeconds / 60)).padStart(2, '0');
+      const secs = String(recordSeconds % 60).padStart(2, '0');
+      document.getElementById('recording-timer').innerText = `${mins}:${secs}`;
+    }
+
+    function setupAudioContext(stream) {
+      audioContext = new (window.AudioContext || window.webkitAudioContext)();
+      analyser = audioContext.createAnalyser();
+      const source = audioContext.createMediaStreamSource(stream);
+      source.connect(analyser);
+      analyser.fftSize = 64;
+      drawVisualizer();
+    }
+
+    function initVisualizerCanvas() {
+      const canvas = document.getElementById('audio-visualizer');
+      const ctx = canvas.getContext('2d');
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+    }
+
+    function drawVisualizer() {
+      const canvas = document.getElementById('audio-visualizer');
+      const ctx = canvas.getContext('2d');
+      const bufferLength = analyser.frequencyBinCount;
+      const dataArray = new Uint8Array(bufferLength);
+
+      function renderFrame() {
+        if (!isRecording) return;
+        animFrameId = requestAnimationFrame(renderFrame);
+
+        analyser.getByteFrequencyData(dataArray);
+
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        const barWidth = (canvas.width / bufferLength) * 2.5;
+        let x = 0;
+
+        for (let i = 0; i < bufferLength; i++) {
+          const barHeight = (dataArray[i] / 255) * canvas.height;
+          ctx.fillStyle = currentTheme === 'dark' ? '#38bdf8' : '#0284c7';
+          ctx.fillRect(x, canvas.height - barHeight, barWidth, barHeight);
+          x += barWidth + 2;
+        }
+      }
+
+      renderFrame();
+    }
+
+    /* ==========================================================================
+       10. UTILITIES, RATINGS & PROGRESS
+       ========================================================================== */
+    function setStarRating(stars) {
+      starRating = stars;
+      updateStarRatingUI();
+    }
+
+    function updateStarRatingUI() {
+      const btns = document.querySelectorAll('#star-rating button');
+      btns.forEach((btn, index) => {
+        if (index < starRating) {
+          btn.className = 'star-btn text-lg text-amber-400 opacity-100 scale-110 transition-transform';
+        } else {
+          btn.className = 'star-btn text-lg opacity-40 hover:opacity-100 transition-opacity';
+        }
+      });
+    }
+
+    function toggleCompleteCurrentDay() {
+      if (completedDays.has(currentDayId)) {
+        completedDays.delete(currentDayId);
+      } else {
+        completedDays.add(currentDayId);
+      }
+      saveProgress();
+      updateCompletionButtonState();
+      updateProgressDisplay();
+      renderDirectory();
+    }
+
+    function saveProgress() {
+      localStorage.setItem('speech_studio_progress', JSON.stringify(Array.from(completedDays)));
+    }
+
+    function updateCompletionButtonState() {
+      const isDone = completedDays.has(currentDayId);
+      const btn = document.getElementById('complete-day-btn');
+      const label = document.getElementById('complete-btn-label');
+
+      if (isDone) {
+        btn.className = 'w-full py-2.5 px-4 rounded-xl text-xs font-bold flex items-center justify-center gap-2 border bg-emerald-500 text-white border-emerald-600 shadow-sm';
+        label.innerText = 'Completed ✓ (Click to Undo)';
+      } else {
+        btn.className = 'w-full py-2.5 px-4 rounded-xl text-xs font-bold flex items-center justify-center gap-2 border transition-all';
+        btn.style.backgroundColor = 'var(--bg-card-subtle)';
+        btn.style.borderColor = 'var(--border-color)';
+        label.innerText = 'Mark Day Completed';
+      }
+    }
+
+    function updateProgressDisplay() {
+      document.getElementById('progress-text').innerText = `${completedDays.size} / 24`;
+    }
+
+    function copyTranscript() {
+      const text = getFullAssembledText();
+      const tempInput = document.createElement('textarea');
+      tempInput.value = text;
+      document.body.appendChild(tempInput);
+      tempInput.select();
+      document.execCommand('copy');
+      document.body.removeChild(tempInput);
+      alert('Copied response transcript to clipboard!');
+    }
+
+    function escapeHtml(str) {
+      return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+    }
+  </script>
+</body>
+</html>

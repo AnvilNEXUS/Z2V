@@ -1,0 +1,1726 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chunk-to-Speech: Daily Speaking Studio (A1–A2 Adult Edition)</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:ital,wght@0,500;0,600;0,700;1,400&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            alabaster: '#FAF7F2',
+            cardbg: '#FFFFFF',
+            charcoal: '#1E242B',
+            mutedgray: '#5C6470',
+            borderline: '#E5DFD5',
+            starter: {
+              bg: '#EBF2FA',
+              border: '#B3CDE8',
+              text: '#1D3B66'
+            },
+            connector: {
+              bg: '#FEF3C7',
+              border: '#FDE68A',
+              text: '#92400E'
+            },
+            detail: {
+              bg: '#E6F4EA',
+              border: '#A7F3D0',
+              text: '#166534'
+            },
+            accent: '#C85A32',
+            accenthover: '#B04B25'
+          },
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+            serif: ['"Crimson Pro"', 'serif']
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    body {
+      background-color: #FAF7F2;
+      color: #1E242B;
+      font-size: 18px;
+      line-height: 1.6;
+    }
+    
+    /* Custom Scrollbars */
+    ::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #FAF7F2;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #D8D0C5;
+      border-radius: 4px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #B8B0A5;
+    }
+
+    .chip-btn {
+      transition: all 0.15s ease-in-out;
+      user-select: none;
+    }
+    .chip-btn:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+    }
+    .chip-btn:active {
+      transform: translateY(0);
+    }
+
+    .recording-pulse {
+      animation: pulse-ring 1.5s cubic-bezier(0.215, 0.61, 0.355, 1) infinite;
+    }
+    @keyframes pulse-ring {
+      0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(200, 90, 50, 0.6); }
+      70% { transform: scale(1.05); box-shadow: 0 0 0 14px rgba(200, 90, 50, 0); }
+      100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(200, 90, 50, 0); }
+    }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col font-sans antialiased selection:bg-amber-100">
+
+  <!-- TOP APP BAR -->
+  <header class="sticky top-0 z-30 bg-[#FAF7F2]/95 backdrop-blur border-b border-borderline px-4 lg:px-8 py-3.5 flex items-center justify-between">
+    <div class="flex items-center space-x-3">
+      <button id="toggleDrawerBtn" onclick="toggleDrawer()" class="p-2 rounded-lg bg-white border border-borderline hover:bg-stone-100 text-charcoal flex items-center justify-center shadow-sm focus:outline-none" aria-label="Open Prompts Drawer">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
+      </button>
+      <div>
+        <h1 class="font-serif font-bold text-xl md:text-2xl text-charcoal leading-tight">Chunk-to-Speech</h1>
+        <p class="text-xs md:text-sm text-mutedgray font-medium">Daily Speaking Studio • A1–A2 Adult Edition</p>
+      </div>
+    </div>
+
+    <!-- Right Controls -->
+    <div class="flex items-center space-x-2 md:space-x-4">
+      <div class="hidden sm:flex items-center bg-white border border-borderline rounded-lg px-3 py-1.5 shadow-sm">
+        <svg class="w-4 h-4 text-emerald-600 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
+        <span class="text-xs font-semibold text-charcoal"><span id="completedCount">0</span> / 24 Completed</span>
+      </div>
+
+      <!-- TTS Speed Control -->
+      <div class="flex items-center bg-white border border-borderline rounded-lg p-1 shadow-sm">
+        <span class="text-xs text-mutedgray font-semibold px-2 hidden md:inline">Audio Speed:</span>
+        <button onclick="setSpeechSpeed(0.75)" id="speed-075" class="speed-btn px-2 py-1 text-xs font-semibold rounded text-mutedgray hover:text-charcoal">0.75x</button>
+        <button onclick="setSpeechSpeed(0.85)" id="speed-085" class="speed-btn px-2 py-1 text-xs font-semibold rounded bg-stone-200 text-charcoal">0.85x</button>
+        <button onclick="setSpeechSpeed(1.0)" id="speed-100" class="speed-btn px-2 py-1 text-xs font-semibold rounded text-mutedgray hover:text-charcoal">1.0x</button>
+      </div>
+    </div>
+  </header>
+
+  <!-- DRAWER OVERLAY -->
+  <div id="drawerBackdrop" onclick="toggleDrawer()" class="fixed inset-0 bg-stone-900/40 backdrop-blur-sm z-40 hidden transition-opacity"></div>
+
+  <!-- SIDEBAR DRAWER -->
+  <aside id="drawer" class="fixed top-0 left-0 bottom-0 w-80 sm:w-96 bg-white z-50 transform -translate-x-full transition-transform duration-300 ease-in-out border-r border-borderline flex flex-col shadow-2xl">
+    <div class="p-4 border-b border-borderline flex items-center justify-between bg-alabaster">
+      <div>
+        <h2 class="font-serif font-bold text-xl text-charcoal">All 24 Prompts</h2>
+        <p class="text-xs text-mutedgray">Select any lesson to practice</p>
+      </div>
+      <button onclick="toggleDrawer()" class="p-2 rounded-lg text-mutedgray hover:text-charcoal hover:bg-stone-200">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+      </button>
+    </div>
+
+    <!-- Category Filter -->
+    <div class="p-3 border-b border-borderline bg-white">
+      <select id="categoryFilter" onchange="renderPromptList()" class="w-full text-sm rounded-lg border border-borderline p-2 text-charcoal bg-alabaster focus:outline-none focus:ring-2 focus:ring-amber-500 font-medium">
+        <option value="ALL">All Categories (24 Prompts)</option>
+        <option value="Local Guide">1. Local Guide</option>
+        <option value="Then vs. Now">2. Then vs. Now</option>
+        <option value="Kitchen & Market Wisdom">3. Kitchen & Market Wisdom</option>
+        <option value="Morning Window Report">4. Morning Window Report</option>
+        <option value="Ask Uncle / Auntie">5. Ask Uncle / Auntie</option>
+        <option value="Polite Problem-Solving">6. Polite Problem-Solving</option>
+        <option value="Two-Choice Trade-Offs">7. Two-Choice Trade-Offs</option>
+        <option value="The 3-Item Constraint">8. The 3-Item Constraint</option>
+        <option value="Visual Scene Reflection">9. Visual Scene Reflection</option>
+        <option value="Finish the Mini-Story">10. Finish the Mini-Story</option>
+        <option value="Proverb Reaction">11. Proverb Reaction</option>
+        <option value="Daily Small Win Check-In">12. Daily Small Win Check-In</option>
+      </select>
+    </div>
+
+    <!-- Prompt List Container -->
+    <div id="promptListContainer" class="flex-1 overflow-y-auto p-3 space-y-2">
+      <!-- Dynamic Items inserted here -->
+    </div>
+  </aside>
+
+  <!-- MAIN CONTENT CONTAINER -->
+  <main class="flex-1 max-w-5xl w-full mx-auto p-4 md:p-6 space-y-6">
+
+    <!-- PROMPT CONTEXT CARD -->
+    <section class="bg-cardbg border border-borderline rounded-2xl p-5 md:p-7 shadow-sm relative overflow-hidden">
+      <!-- Top Badges -->
+      <div class="flex flex-wrap items-center justify-between gap-2 mb-3">
+        <div class="flex items-center space-x-2">
+          <span id="badgeDay" class="px-3 py-1 rounded-full text-xs font-bold tracking-wide uppercase bg-accent text-white">Day 01</span>
+          <span id="badgeCategory" class="px-3 py-1 rounded-full text-xs font-semibold bg-stone-100 text-stone-700 border border-stone-200">Local Guide</span>
+        </div>
+        <button onclick="toggleVietnameseHint()" class="text-xs text-amber-800 bg-amber-50 border border-amber-200 hover:bg-amber-100 px-3 py-1 rounded-full font-medium transition flex items-center">
+          <svg class="w-3.5 h-3.5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5h12M9 3v2m1.048 9.5A18.022 18.022 0 016.412 9m6.088 9h7M11 21l5-10 5 10M12.751 5C11.783 11.37 9.198 15.602 6 18"/></svg>
+          <span id="vnHintBtnText">Show VN Hint (Gợi ý)</span>
+        </button>
+      </div>
+
+      <!-- Title & Situation -->
+      <h2 id="promptTitle" class="font-serif font-bold text-2xl md:text-3xl text-charcoal mb-2">Recommending a Local Breakfast</h2>
+
+      <!-- Vietnamese Hint (Collapsible) -->
+      <div id="vnHintBox" class="hidden my-3 p-3 bg-amber-50/80 border-l-4 border-amber-500 rounded-r-lg text-sm text-amber-900 leading-relaxed italic">
+        <span class="font-bold not-italic">Hướng dẫn:</span> <span id="vnHintContent">Giới thiệu một món ăn sáng phổ biến ở khu phố của bạn cho người nước ngoài.</span>
+      </div>
+
+      <p id="promptSituation" class="text-charcoal/90 text-lg md:text-xl font-normal leading-relaxed my-3 bg-stone-50 p-4 rounded-xl border border-stone-100">
+        Imagine a foreign visitor is staying in your neighborhood. Where should they go for breakfast, what dish should they order, and why is it special?
+      </p>
+
+      <!-- SVG Illustration Container (If applicable) -->
+      <div id="svgIllustrationContainer" class="hidden my-4"></div>
+
+      <!-- Scaffolding Actions -->
+      <div class="flex flex-wrap items-center justify-between gap-3 pt-2">
+        <div class="flex items-center space-x-2">
+          <button onclick="speakPromptText()" class="inline-flex items-center px-4 py-2 bg-stone-100 hover:bg-stone-200 text-charcoal text-sm font-semibold rounded-lg border border-stone-300 transition shadow-sm">
+            <svg class="w-4 h-4 mr-2 text-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z"/></svg>
+            Listen to Situation
+          </button>
+          
+          <button onclick="toggleModelExample()" class="inline-flex items-center px-4 py-2 bg-stone-100 hover:bg-stone-200 text-charcoal text-sm font-semibold rounded-lg border border-stone-300 transition shadow-sm">
+            <svg class="w-4 h-4 mr-2 text-mutedgray" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+            <span id="modelToggleLabel">View Sample Answer</span>
+          </button>
+        </div>
+
+        <button onclick="autoFillSampleResponse()" class="text-xs md:text-sm text-stone-600 hover:text-charcoal underline underline-offset-4 font-medium">
+          Auto-fill sample chips
+        </button>
+      </div>
+
+      <!-- Model Example Accordion -->
+      <div id="modelExampleCard" class="hidden mt-4 p-4 bg-emerald-50/70 border border-emerald-200 rounded-xl text-emerald-950">
+        <div class="flex items-center justify-between mb-2">
+          <span class="text-xs font-bold uppercase text-emerald-800 tracking-wider">Natural A2 Model Response:</span>
+          <button onclick="speakModelExample()" class="text-xs font-semibold text-emerald-700 hover:text-emerald-900 flex items-center bg-white px-2.5 py-1 rounded border border-emerald-300 shadow-sm">
+            <svg class="w-3.5 h-3.5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/></svg>
+            Listen to Model
+          </button>
+        </div>
+        <p id="modelExampleText" class="font-serif italic text-lg leading-relaxed">
+          "You should try broken rice at the morning stall near the market because the pork chop is very fresh. It costs about 35,000 VND and comes with hot iced tea."
+        </p>
+      </div>
+    </section>
+
+    <!-- STEP 1: CHUNK-TO-SENTENCE BUILDER WORKSPACE -->
+    <section class="space-y-6">
+      <div class="flex items-center justify-between border-b border-borderline pb-2">
+        <h3 class="font-serif font-bold text-2xl text-charcoal flex items-center">
+          <span class="w-8 h-8 rounded-full bg-accent text-white font-sans text-sm font-bold inline-flex items-center justify-center mr-2 shadow-sm">1</span>
+          Compose Your 3 Sentences
+        </h3>
+        <span class="text-xs md:text-sm text-mutedgray font-medium">Tap chips to add/remove</span>
+      </div>
+
+      <!-- ROW 1 BUILDER -->
+      <div class="bg-cardbg border border-borderline rounded-2xl p-5 shadow-sm space-y-4">
+        <div class="flex items-center justify-between">
+          <h4 id="row1Label" class="font-semibold text-base md:text-lg text-charcoal">Sentence 1: Opening & Recommendation</h4>
+          <button onclick="clearRow(0)" class="text-xs text-rose-600 hover:text-rose-800 font-semibold px-2 py-1 rounded hover:bg-rose-50 transition">Clear Line</button>
+        </div>
+
+        <!-- Assembly Track -->
+        <div id="assemblyTrack-0" class="min-h-[64px] p-3 rounded-xl bg-alabaster border-2 border-dashed border-stone-300 flex flex-wrap items-center gap-2 transition-colors">
+          <span class="text-sm text-stone-400 italic pointer-events-none select-none">Tap chips below to build Sentence 1...</span>
+        </div>
+
+        <!-- Chips Bank -->
+        <div class="space-y-3 pt-2">
+          <!-- Starters -->
+          <div>
+            <span class="text-xs uppercase font-bold text-starter-text tracking-wider block mb-1.5">Sentence Starters (Blue)</span>
+            <div id="startersBank-0" class="flex flex-wrap gap-2"></div>
+          </div>
+          <!-- Connectors -->
+          <div>
+            <span class="text-xs uppercase font-bold text-connector-text tracking-wider block mb-1.5">Connectors & Context (Amber)</span>
+            <div id="connectorsBank-0" class="flex flex-wrap gap-2"></div>
+          </div>
+          <!-- Details -->
+          <div>
+            <span class="text-xs uppercase font-bold text-detail-text tracking-wider block mb-1.5">Details & Endings (Green)</span>
+            <div id="detailsBank-0" class="flex flex-wrap gap-2"></div>
+          </div>
+          <!-- Custom Wildcard Input -->
+          <div class="pt-1">
+            <div class="flex items-center space-x-2">
+              <input type="text" id="customInput-0" placeholder="Type custom word/phrase (e.g., phở bò)..." class="flex-1 text-sm p-2 rounded-lg border border-borderline bg-alabaster focus:outline-none focus:ring-2 focus:ring-accent">
+              <button onclick="addCustomChip(0)" class="px-3 py-2 bg-stone-800 text-white text-xs font-semibold rounded-lg hover:bg-stone-950 transition flex items-center">
+                <svg class="w-3.5 h-3.5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/></svg>
+                Add My Words
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ROW 2 BUILDER -->
+      <div class="bg-cardbg border border-borderline rounded-2xl p-5 shadow-sm space-y-4">
+        <div class="flex items-center justify-between">
+          <h4 id="row2Label" class="font-semibold text-base md:text-lg text-charcoal">Sentence 2: Reason & Explanation</h4>
+          <button onclick="clearRow(1)" class="text-xs text-rose-600 hover:text-rose-800 font-semibold px-2 py-1 rounded hover:bg-rose-50 transition">Clear Line</button>
+        </div>
+
+        <!-- Assembly Track -->
+        <div id="assemblyTrack-1" class="min-h-[64px] p-3 rounded-xl bg-alabaster border-2 border-dashed border-stone-300 flex flex-wrap items-center gap-2 transition-colors">
+          <span class="text-sm text-stone-400 italic pointer-events-none select-none">Tap chips below to build Sentence 2...</span>
+        </div>
+
+        <!-- Chips Bank -->
+        <div class="space-y-3 pt-2">
+          <div>
+            <span class="text-xs uppercase font-bold text-starter-text tracking-wider block mb-1.5">Sentence Starters (Blue)</span>
+            <div id="startersBank-1" class="flex flex-wrap gap-2"></div>
+          </div>
+          <div>
+            <span class="text-xs uppercase font-bold text-connector-text tracking-wider block mb-1.5">Connectors & Context (Amber)</span>
+            <div id="connectorsBank-1" class="flex flex-wrap gap-2"></div>
+          </div>
+          <div>
+            <span class="text-xs uppercase font-bold text-detail-text tracking-wider block mb-1.5">Details & Endings (Green)</span>
+            <div id="detailsBank-1" class="flex flex-wrap gap-2"></div>
+          </div>
+          <div class="pt-1">
+            <div class="flex items-center space-x-2">
+              <input type="text" id="customInput-1" placeholder="Type custom word/phrase..." class="flex-1 text-sm p-2 rounded-lg border border-borderline bg-alabaster focus:outline-none focus:ring-2 focus:ring-accent">
+              <button onclick="addCustomChip(1)" class="px-3 py-2 bg-stone-800 text-white text-xs font-semibold rounded-lg hover:bg-stone-950 transition flex items-center">
+                <svg class="w-3.5 h-3.5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/></svg>
+                Add My Words
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ROW 3 BUILDER -->
+      <div class="bg-cardbg border border-borderline rounded-2xl p-5 shadow-sm space-y-4">
+        <div class="flex items-center justify-between">
+          <h4 id="row3Label" class="font-semibold text-base md:text-lg text-charcoal">Sentence 3: Additional Detail or Tip</h4>
+          <button onclick="clearRow(2)" class="text-xs text-rose-600 hover:text-rose-800 font-semibold px-2 py-1 rounded hover:bg-rose-50 transition">Clear Line</button>
+        </div>
+
+        <!-- Assembly Track -->
+        <div id="assemblyTrack-2" class="min-h-[64px] p-3 rounded-xl bg-alabaster border-2 border-dashed border-stone-300 flex flex-wrap items-center gap-2 transition-colors">
+          <span class="text-sm text-stone-400 italic pointer-events-none select-none">Tap chips below to build Sentence 3...</span>
+        </div>
+
+        <!-- Chips Bank -->
+        <div class="space-y-3 pt-2">
+          <div>
+            <span class="text-xs uppercase font-bold text-starter-text tracking-wider block mb-1.5">Sentence Starters (Blue)</span>
+            <div id="startersBank-2" class="flex flex-wrap gap-2"></div>
+          </div>
+          <div>
+            <span class="text-xs uppercase font-bold text-connector-text tracking-wider block mb-1.5">Connectors & Context (Amber)</span>
+            <div id="connectorsBank-2" class="flex flex-wrap gap-2"></div>
+          </div>
+          <div>
+            <span class="text-xs uppercase font-bold text-detail-text tracking-wider block mb-1.5">Details & Endings (Green)</span>
+            <div id="detailsBank-2" class="flex flex-wrap gap-2"></div>
+          </div>
+          <div class="pt-1">
+            <div class="flex items-center space-x-2">
+              <input type="text" id="customInput-2" placeholder="Type custom word/phrase..." class="flex-1 text-sm p-2 rounded-lg border border-borderline bg-alabaster focus:outline-none focus:ring-2 focus:ring-accent">
+              <button onclick="addCustomChip(2)" class="px-3 py-2 bg-stone-800 text-white text-xs font-semibold rounded-lg hover:bg-stone-950 transition flex items-center">
+                <svg class="w-3.5 h-3.5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/></svg>
+                Add My Words
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- STEP 2: TELEPROMPTER & VOICE RECORDING STUDIO -->
+    <section class="space-y-6 pt-4">
+      <div class="flex items-center justify-between border-b border-borderline pb-2">
+        <h3 class="font-serif font-bold text-2xl text-charcoal flex items-center">
+          <span class="w-8 h-8 rounded-full bg-accent text-white font-sans text-sm font-bold inline-flex items-center justify-center mr-2 shadow-sm">2</span>
+          Rehearse & Record Your Voice
+        </h3>
+      </div>
+
+      <!-- TELEPROMPTER BOARD -->
+      <div class="bg-stone-900 text-amber-50 rounded-2xl p-6 md:p-8 shadow-xl space-y-6">
+        <div class="flex items-center justify-between border-b border-stone-800 pb-3">
+          <div class="flex items-center space-x-2">
+            <span class="w-3 h-3 rounded-full bg-emerald-500 animate-pulse"></span>
+            <span class="text-xs uppercase font-bold tracking-widest text-stone-400">Phrase-Chunked Teleprompter</span>
+          </div>
+          <button onclick="speakComposedText()" class="px-3.5 py-1.5 bg-amber-600 hover:bg-amber-500 text-white text-xs font-bold rounded-lg transition flex items-center shadow">
+            <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/></svg>
+            Hear My Assembled Answer
+          </button>
+        </div>
+
+        <!-- Dynamic Phrase-Chunk Display -->
+        <div id="teleprompterText" class="font-serif text-2xl md:text-3xl leading-relaxed text-amber-100 min-h-[120px] flex flex-col justify-center space-y-4">
+          <p class="text-stone-500 italic text-xl">Your assembled sentences will appear here with rhythm pause markers ( / )...</p>
+        </div>
+
+        <div class="text-xs text-stone-400 flex items-center justify-between border-t border-stone-800 pt-3">
+          <span>Tip: Take a short breath at every <strong class="text-amber-400">/</strong> marker while speaking.</span>
+          <button onclick="copyComposedText()" class="text-stone-300 hover:text-white underline font-medium">Copy Text Script</button>
+        </div>
+      </div>
+
+      <!-- VOICE RECORDER PANEL -->
+      <div class="bg-cardbg border border-borderline rounded-2xl p-6 shadow-sm space-y-6">
+        <div class="flex flex-col sm:flex-row items-center justify-between gap-4">
+          <div class="flex items-center space-x-4">
+            <!-- Record Button -->
+            <button id="recordBtn" onclick="toggleRecording()" class="w-16 h-16 rounded-full bg-accent hover:bg-accenthover text-white flex items-center justify-center shadow-lg transition focus:outline-none">
+              <div id="recordIcon" class="w-6 h-6 rounded-full bg-white"></div>
+            </button>
+            <div>
+              <h4 id="recordStatusTitle" class="font-bold text-lg text-charcoal">Ready to Record</h4>
+              <p id="recordStatusSubtitle" class="text-xs text-mutedgray">Click the red button when you are ready to speak</p>
+            </div>
+          </div>
+
+          <!-- Timer & Waveform animation -->
+          <div class="flex items-center space-x-3 bg-alabaster px-4 py-2.5 rounded-xl border border-borderline">
+            <span id="recordingTimer" class="font-mono text-xl font-bold text-charcoal">00:00</span>
+            <div id="audioWaveform" class="hidden flex items-center space-x-1 h-6">
+              <span class="w-1 bg-accent h-3 animate-bounce"></span>
+              <span class="w-1 bg-accent h-6 animate-bounce [animation-delay:0.2s]"></span>
+              <span class="w-1 bg-accent h-4 animate-bounce [animation-delay:0.4s]"></span>
+              <span class="w-1 bg-accent h-5 animate-bounce [animation-delay:0.1s]"></span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Audio Playback Container -->
+        <div id="audioPlaybackContainer" class="hidden pt-4 border-t border-borderline space-y-3">
+          <h5 class="text-xs uppercase font-bold text-mutedgray tracking-wider">Your Recorded Audio</h5>
+          <audio id="audioPlayer" controls class="w-full h-10 focus:outline-none"></audio>
+          
+          <div class="flex flex-wrap items-center justify-between gap-2 pt-2">
+            <a id="downloadAudioLink" download="my-speaking-practice.webm" class="inline-flex items-center px-4 py-2 bg-stone-100 hover:bg-stone-200 text-charcoal text-xs font-semibold rounded-lg border border-stone-300 transition">
+              <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+              Download Recording (.webm)
+            </a>
+
+            <button id="markCompleteBtn" onclick="markCurrentDayComplete()" class="inline-flex items-center px-5 py-2.5 bg-emerald-700 hover:bg-emerald-800 text-white text-sm font-bold rounded-xl shadow transition">
+              <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
+              Mark Day Complete
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- FOOTER -->
+  <footer class="mt-12 border-t border-borderline bg-white py-6 text-center text-xs text-mutedgray">
+    <p>Chunk-to-Speech Daily Speaking Studio • Designed for Adult EFL Learners (A1–A2)</p>
+  </footer>
+
+  <!-- NOTIFICATION TOAST -->
+  <div id="toast" class="fixed bottom-6 right-6 z-50 bg-stone-900 text-white px-4 py-3 rounded-xl shadow-2xl text-sm font-medium transform translate-y-20 opacity-0 transition-all duration-300 pointer-events-none flex items-center">
+    <span id="toastMsg">Action completed!</span>
+  </div>
+
+  <!-- JAVASCRIPT LOGIC & DATASET -->
+  <script>
+    /* ==========================================================================
+       DATASET: 24 DAILY PROMPTS TAILORED FOR 60+ VIETNAMESE A1-A2 EFL LEARNERS
+       ========================================================================== */
+    const DAILY_PROMPTS = [
+      {
+        id: 1,
+        dayNumber: "Day 01",
+        category: "Local Guide",
+        title: "Recommending a Local Breakfast",
+        vietnameseHint: "Giới thiệu món ăn sáng yêu thích ở khu phố của bạn cho một khách du lịch nước ngoài.",
+        situation: "Imagine a foreign guest visits your neighborhood. What local dish should they try for breakfast, where can they get it, and why is it special?",
+        modelExample: "You should try broken rice at the morning stall near the market because the pork chop is very fresh. It costs about 35,000 VND and comes with hot iced tea.",
+        rows: [
+          {
+            label: "Sentence 1: Your Recommendation",
+            starters: ["You should definitely try", "I recommend eating", "In my neighborhood, try"],
+            connectors: ["a bowl of fresh phở", "broken rice with pork", "a hot crispy bánh mì"],
+            details: ["near the morning market.", "at a small street stall.", "around the corner."]
+          },
+          {
+            label: "Sentence 2: Why It Is Special",
+            starters: ["I like this dish because", "It is very popular because", "Visitors love it because"],
+            connectors: ["the soup broth is", "the ingredients are", "the meat is cooked"],
+            details: ["very rich and flavorful.", "fresh every morning.", "hot and delicious."]
+          },
+          {
+            label: "Sentence 3: Practical Advice or Price",
+            starters: ["It costs about", "You should go early", "Don't forget to order it"],
+            connectors: ["35,000 VND", "before 8:00 AM", "with a glass of"],
+            details: ["and is very filling.", "to get the best portion.", "iced green tea."]
+          }
+        ]
+      },
+      {
+        id: 2,
+        dayNumber: "Day 02",
+        category: "Local Guide",
+        title: "A Peaceful Place in Your Neighborhood",
+        vietnameseHint: "Giới thiệu một nơi yên tĩnh gần nhà bạn để đi dạo hoặc thư giãn.",
+        situation: "Where do you go near your house when you want to relax or take a peaceful walk? Describe this place to a friend.",
+        modelExample: "My favorite place is the small park near the river because it is very quiet in the afternoon. I often walk there for thirty minutes to enjoy the cool breeze.",
+        rows: [
+          {
+            label: "Sentence 1: The Location",
+            starters: ["My favorite quiet place is", "Near my home, there is", "I often go to"],
+            connectors: ["a small public park", "a quiet local pagoda", "a shady coffee shop"],
+            details: ["near the riverbank.", "just five minutes away.", "at the end of the street."]
+          },
+          {
+            label: "Sentence 2: Why You Like It",
+            starters: ["I like this place because", "It is wonderful because", "I feel peaceful here because"],
+            connectors: ["there are many green trees", "the air is very fresh", "there is no loud traffic"],
+            details: ["and cool shadow.", "in the late afternoon.", "during the weekend."]
+          },
+          {
+            label: "Sentence 3: Your Routine",
+            starters: ["I usually walk there", "I like to sit there", "Sometimes I go there with"],
+            connectors: ["for thirty minutes", "with a cup of tea", "my family members"],
+            details: ["to relax my mind.", "and read a newspaper.", "on Sunday mornings."]
+          }
+        ]
+      },
+      {
+        id: 3,
+        dayNumber: "Day 03",
+        category: "Then vs. Now",
+        title: "City Streets 30 Years Ago vs. Today",
+        vietnameseHint: "So sánh đường phố và giao thông khoảng 30 năm trước với cuộc sống hiện tại.",
+        situation: "Think about your city or village 30 years ago. How were the streets different from today?",
+        modelExample: "Thirty years ago, there were mostly bicycles and very few cars on the street. Today, there are many motorbikes and tall buildings everywhere.",
+        rows: [
+          {
+            label: "Sentence 1: Life in the Past",
+            starters: ["Thirty years ago, there were", "In the past, people traveled by", "When I was younger, our streets were"],
+            connectors: ["mostly bicycles and walkers", "few motorbikes", "very quiet and green"],
+            details: ["in my hometown.", "on the main road.", "without traffic jams."]
+          },
+          {
+            label: "Sentence 2: Changes Today",
+            starters: ["Today, there are thousands of", "Now, the city has many", "Modern life brings many"],
+            connectors: ["motorbikes and cars", "high-rise apartments", "busy shopping centers"],
+            details: ["everywhere you look.", "along the big streets.", "and fast roads."]
+          },
+          {
+            label: "Sentence 3: Personal Opinion",
+            starters: ["I miss the quiet old days", "However, life today is more", "I think modern transport is"],
+            connectors: ["because life was slower", "convenient for travel", "much faster than before"],
+            details: ["and very peaceful.", "for my daily routine.", "despite the noise."]
+          }
+        ]
+      },
+      {
+        id: 4,
+        dayNumber: "Day 04",
+        category: "Then vs. Now",
+        title: "Letters & Visits vs. Smartphones & Zalo",
+        vietnameseHint: "So sánh cách liên lạc qua thư từ trước đây với việc gọi Zalo/điện thoại hiện nay.",
+        situation: "How did you stay in touch with relatives in the past compared to using smartphones and Zalo today?",
+        modelExample: "In the past, we wrote handwritten letters and waited many days for news. Today, I use Zalo to video call my children every evening.",
+        rows: [
+          {
+            label: "Sentence 1: Communication in the Past",
+            starters: ["Years ago, we wrote", "In the past, we visited relatives", "Before smartphones, people sent"],
+            connectors: ["handwritten paper letters", "in person on weekend", "simple text messages"],
+            details: ["and waited many days.", "or waited for holidays.", "or landline calls."]
+          },
+          {
+            label: "Sentence 2: Modern Smartphones",
+            starters: ["Today, I regularly use", "Now, with my smartphone, I can", "Smartphones make it easy to"],
+            connectors: ["Zalo video calls", "send photo messages", "talk with my family"],
+            details: ["every evening.", "in just one second.", "anytime I want."]
+          },
+          {
+            label: "Sentence 3: Value of Modern Tools",
+            starters: ["This helps me stay close", "I am very happy because", "Technology is great because"],
+            connectors: ["to my grandchildren", "I can see their smiles", "distance is no longer"],
+            details: ["who live far away.", "on the screen.", "a big problem."]
+          }
+        ]
+      },
+      {
+        id: 5,
+        dayNumber: "Day 05",
+        category: "Kitchen & Market Wisdom",
+        title: "How to Cook a Simple Family Dish",
+        vietnameseHint: "Hướng dẫn các bước nấu một món ăn gia đình đơn giản mà bạn làm rất giỏi.",
+        situation: "Explain how to prepare a simple home-cooked dish you know well (like caramelized pork or soup).",
+        modelExample: "To make caramelized pork, first slice the meat and marinate with fish sauce and sugar. Then, cook it slowly in a clay pot until rich and tender.",
+        rows: [
+          {
+            label: "Sentence 1: Ingredients & Prep",
+            starters: ["To prepare this simple dish, you need", "My family loves cooked", "First, buy fresh ingredients like"],
+            connectors: ["fresh pork and fish sauce", "vegetables and garlic", "fish and green onions"],
+            details: ["from the morning market.", "at the local shop.", "for good flavor."]
+          },
+          {
+            label: "Sentence 2: Cooking Steps",
+            starters: ["Next, marinate the meat with", "Then, heat the pan and cook", "After cleaning, simmer everything in"],
+            connectors: ["sugar and pepper", "slowly over low fire", "a hot clay pot"],
+            details: ["for fifteen minutes.", "until golden brown.", "with a little water."]
+          },
+          {
+            label: "Sentence 3: Serving Suggestion",
+            starters: ["Finally, serve the dish hot with", "It tastes best when eaten with", "This meal is delicious with"],
+            connectors: ["steamed white rice", "a bowl of soup", "fresh cucumber slices"],
+            details: ["for a family dinner.", "on rainy days.", "and chili sauce."]
+          }
+        ]
+      },
+      {
+        id: 6,
+        dayNumber: "Day 06",
+        category: "Kitchen & Market Wisdom",
+        title: "Choosing Fresh Fruit at the Market",
+        vietnameseHint: "Chia sẻ kinh nghiệm chọn hoa quả tươi ngon khi đi chợ buổi sáng.",
+        situation: "What fruit do you like buying at the morning market, and how do you choose the best ones?",
+        modelExample: "I like buying fresh mangoes and pomelo at the morning market. I always pick fruit that feels firm and smells sweet.",
+        rows: [
+          {
+            label: "Sentence 1: Favorite Market Fruit",
+            starters: ["Every morning, I like buying", "At the local fruit stall, I look for", "My favorite seasonal fruits are"],
+            connectors: ["ripe mangoes and pomelos", "sweet dragon fruit", "fresh bananas and oranges"],
+            details: ["from my trusted seller.", "for my family.", "at reasonable prices."]
+          },
+          {
+            label: "Sentence 2: How to Choose Quality",
+            starters: ["To choose good fruit, you should check", "I always touch the skin to make sure", "Look for fruit that has"],
+            connectors: ["if it smells sweet", "it is firm and heavy", "bright natural color"],
+            details: ["and feels natural.", "without dark spots.", "and fresh stems."]
+          },
+          {
+            label: "Sentence 3: Healthy Habit",
+            starters: ["Eating fresh fruit every day is", "I usually serve fruit after", "Fresh fruit gives us"],
+            connectors: ["very good for health", "our family lunch", "plenty of vitamins"],
+            details: ["especially for seniors.", "as a healthy dessert.", "to stay strong."]
+          }
+        ]
+      },
+      {
+        id: 7,
+        dayNumber: "Day 07",
+        category: "Morning Window Report",
+        title: "Today's Weather & Street Scene",
+        vietnameseHint: "Miêu tả thời tiết và khung cảnh đường phố mà bạn quan sát được từ cửa sổ sáng nay.",
+        situation: "Look out your window or think about this morning. What is the weather like, and what are people doing?",
+        modelExample: "Today the weather is sunny and breezy. Outside, a neighbor is watering green plants while coffee vendors prepare their carts.",
+        rows: [
+          {
+            label: "Sentence 1: The Weather Today",
+            starters: ["This morning, the weather is", "Outside my window, today is", "It is a clear morning with"],
+            connectors: ["sunny and warm", "cool and rainy", "a pleasant cool breeze"],
+            details: ["in my neighborhood.", "after a soft shower.", "and bright sunshine."]
+          },
+          {
+            label: "Sentence 2: Street Activities",
+            starters: ["On the street, a vendor is", "I can see people who are", "Several neighbors are"],
+            connectors: ["setting up a coffee cart", "riding bikes to work", "walking their dogs"],
+            details: ["along the sidewalk.", "in the early hours.", "with cheerful smiles."]
+          },
+          {
+            label: "Sentence 3: How You Feel",
+            starters: ["This morning scene makes me feel", "I enjoy starting my day by", "It is a peaceful moment to"],
+            connectors: ["energetic and happy", "watching the street view", "drink hot tea"],
+            details: ["for a good day ahead.", "from my balcony.", "before starting chores."]
+          }
+        ]
+      },
+      {
+        id: 8,
+        dayNumber: "Day 08",
+        category: "Morning Window Report",
+        title: "Seniors Exercising in the Park",
+        vietnameseHint: "Miêu tả hoạt động tập thể dục buổi sáng của người cao tuổi ở công viên.",
+        situation: "What activities do senior citizens do in the park near your house every morning?",
+        modelExample: "Many older people gather in the park at 6:00 AM to do Tai Chi and slow jogging. Afterwards, they sit on benches and chat happily together.",
+        rows: [
+          {
+            label: "Sentence 1: Morning Gathering",
+            starters: ["Every morning at 6:00 AM, many seniors", "In the local park, people gather to", "Early risers meet together to"],
+            connectors: ["do gentle Tai Chi exercises", "walk around the lake", "stretch their muscles"],
+            details: ["under the big trees.", "in fresh morning air.", "to start their day."]
+          },
+          {
+            label: "Sentence 2: Health Benefits",
+            starters: ["Regular exercise helps everyone", "Doing morning workout keeps", "Staying active is good for"],
+            connectors: ["maintain flexible joints", "the body healthy", "blood circulation"],
+            details: ["and prevent illness.", "and minds sharp.", "for older adults."]
+          },
+          {
+            label: "Sentence 3: Social Connection",
+            starters: ["After exercising, they sit together to", "It is nice because friends can", "Community exercise builds"],
+            connectors: ["drink warm water and talk", "share news and stories", "strong friendships"],
+            details: ["before going home.", "with laughter.", "in our neighborhood."]
+          }
+        ]
+      },
+      {
+        id: 9,
+        dayNumber: "Day 09",
+        category: "Ask Uncle / Auntie",
+        title: "Advice for a Late-Night Student",
+        vietnameseHint: "Cho lời khuyên cho một sinh viên trẻ hay thức khuya đến 2 giờ sáng dùng điện thoại.",
+        situation: "A 20-year-old student stays up until 2:00 AM on their phone and feels tired in class. What advice do you give?",
+        modelExample: "You should turn off your mobile phone by 10:00 PM to protect your health. Going to bed early will help you feel fresh for study tomorrow.",
+        rows: [
+          {
+            label: "Sentence 1: Core Advice",
+            starters: ["I think you should", "My advice for young people is to", "You really ought to"],
+            connectors: ["turn off your phone", "stop scrolling online", "go to sleep earlier"],
+            details: ["before 10:00 PM.", "at bedtime.", "every single night."]
+          },
+          {
+            label: "Sentence 2: Reason for Health",
+            starters: ["Staying up late is bad because", "Your body needs sleep to", "Lack of rest makes you"],
+            connectors: ["it hurts your eyes", "recharge energy", "feel tired and weak"],
+            details: ["and causes stress.", "for the next day.", "during morning lectures."]
+          },
+          {
+            label: "Sentence 3: Encouraging Closing",
+            starters: ["If you sleep early, you will", "Try reading a printed book to", "A good routine brings"],
+            connectors: ["wake up feeling fresh", "relax your mind", "better grades"],
+            details: ["and stay healthy.", "instead of screens.", "and clear focus."]
+          }
+        ]
+      },
+      {
+        id: 10,
+        dayNumber: "Day 10",
+        category: "Ask Uncle / Auntie",
+        title: "Advice for a Young Person Saving Money",
+        vietnameseHint: "Đưa ra lời khuyên cho người trẻ về cách quản lý tài chính và tiết kiệm tiền.",
+        situation: "A young relative gets their first job but spends all their salary quickly. What life advice can you share?",
+        modelExample: "You should save at least twenty percent of your salary as soon as you get paid. Avoid buying unnecessary items so you have emergency funds.",
+        rows: [
+          {
+            label: "Sentence 1: Financial Habit",
+            starters: ["When you receive your salary, you should", "My advice is to always save", "Young workers ought to put"],
+            connectors: ["save 20 percent immediately", "a portion of income", "some money in bank"],
+            details: ["before spending.", "each month.", "for your future."]
+          },
+          {
+            label: "Sentence 2: Wise Spending",
+            starters: ["Before buying something, ask yourself if", "Avoid spending too much on", "It is smart to distinguish between"],
+            connectors: ["it is truly necessary", "expensive coffee and clothes", "things you need"],
+            details: ["or just a wish.", "every week.", "and things you want."]
+          },
+          {
+            label: "Sentence 3: Long-term Benefit",
+            starters: ["Having savings will give you", "Emergency funds help you stay", "Financial discipline brings"],
+            connectors: ["peace of mind", "safe during tough times", "greater independence"],
+            details: ["when unexpected events happen.", "without taking loans.", "as you grow older."]
+          }
+        ]
+      },
+      {
+        id: 11,
+        dayNumber: "Day 11",
+        category: "Polite Problem-Solving",
+        title: "Wrong Food Order at a Restaurant",
+        vietnameseHint: "Xử lý lịch sự khi phục vụ mang nhầm món ăn cho bạn tại nhà hàng.",
+        situation: "You are at a restaurant and the waiter brings you chicken soup instead of beef noodles. What do you politely say?",
+        modelExample: "Excuse me, I ordered beef noodle soup, but this is chicken soup. Could you please check with the kitchen and replace it for me?",
+        rows: [
+          {
+            label: "Sentence 1: Polite Opening",
+            starters: ["Excuse me, server, I think", "Pardon me, but there is", "Hello, could you please look at"],
+            connectors: ["there is a slight mistake", "a small mix-up", "my food order"],
+            details: ["with my dish.", "on this table.", "right now?"]
+          },
+          {
+            label: "Sentence 2: Explain Difference",
+            starters: ["I ordered hot beef noodles,", "My order was fish rice,", "I asked for soup without chili,"],
+            connectors: ["but you brought me", "however this plate is", "yet this bowl has"],
+            details: ["chicken soup instead.", "fried pork noodles.", "too much pepper."]
+          },
+          {
+            label: "Sentence 3: Polite Request",
+            starters: ["Could you please change it for", "Would you mind checking with", "Thank you for helping me"],
+            connectors: ["my original dish", "the main kitchen", "correct this meal"],
+            details: ["when you have time?", "as soon as possible?", "thank you very much."]
+          }
+        ]
+      },
+      {
+        id: 12,
+        dayNumber: "Day 12",
+        category: "Polite Problem-Solving",
+        title: "Asking a Neighbor to Lower Karaoke Noise",
+        vietnameseHint: "Nói chuyện lịch sự với hàng xóm khi họ hát karaoke quá lớn vào đêm muộn.",
+        situation: "Your neighbor is singing loud karaoke after 10:00 PM. How do you politely ask them to reduce the volume?",
+        modelExample: "Good evening neighbor, the music is a bit loud tonight. My family needs to sleep early, so could you please lower the volume slightly?",
+        rows: [
+          {
+            label: "Sentence 1: Friendly Greeting",
+            starters: ["Good evening neighbor, I hope", "Hello there, sorry to disturb", "Hi, excuse me for coming by,"],
+            connectors: ["you are having a nice evening", "your family gathering", "at this late hour"],
+            details: ["with your friends.", "tonight.", "this evening."]
+          },
+          {
+            label: "Sentence 2: Explain Issue",
+            starters: ["The karaoke music is a bit", "My elderly mother is trying to", "The sound carries very clearly,"],
+            connectors: ["loud in our house", "sleep right now", "into our bedroom"],
+            details: ["after 10:00 PM.", "because she feels tired.", "at night."]
+          },
+          {
+            label: "Sentence 3: Polite Solution",
+            starters: ["Could you please turn down the volume", "Would you mind lowering the bass", "Thank you very much for your"],
+            connectors: ["just a little bit", "for the rest of the night", "kind understanding"],
+            details: ["so everyone can rest?", "we really appreciate it.", "have a good night."]
+          }
+        ]
+      },
+      {
+        id: 13,
+        dayNumber: "Day 13",
+        category: "Two-Choice Trade-Offs",
+        title: "Quiet Home Coffee vs. Busy Street Cafe",
+        vietnameseHint: "So sánh việc uống cà phê tự pha yên tĩnh tại nhà với cà phê vỉa hè nhộn nhịp.",
+        situation: "Do you prefer drinking coffee quietly at home or sitting at a lively street cafe? Explain your choice.",
+        modelExample: "I prefer drinking coffee at home because it is quiet and relaxed. I can listen to light music and enjoy my morning at my own pace.",
+        rows: [
+          {
+            label: "Sentence 1: Your Preference",
+            starters: ["I much prefer drinking coffee", "In my opinion, having coffee", "Given a choice, I like"],
+            connectors: ["quietly at my home table", "at a sidewalk street cafe", "in my small garden"],
+            details: ["rather than noisy places.", "with my friends.", "every single morning."]
+          },
+          {
+            label: "Sentence 2: Key Reason",
+            starters: ["I choose this because it is", "The main reason is that", "This option is better because"],
+            connectors: ["more peaceful and relaxing", "full of street energy", "much cleaner and cheaper"],
+            details: ["for my mind.", "and people watching.", "than commercial shops."]
+          },
+          {
+            label: "Sentence 3: Social Aspect",
+            starters: ["I enjoy sitting with", "I can read a book while", "It allows me to relax"],
+            connectors: ["my spouse in peace", "drinking hot coffee", "without any rush"],
+            details: ["to start a nice day.", "for an hour.", "before morning chores."]
+          }
+        ]
+      },
+      {
+        id: 14,
+        dayNumber: "Day 14",
+        category: "Two-Choice Trade-Offs",
+        title: "Mountain Trip (Đà Lạt) vs. Beach Trip (Vũng Tàu)",
+        vietnameseHint: "Lựa chọn giữa đi du lịch nghỉ dưỡng núi cao (Đà Lạt) hay biển (Vũng Tàu).",
+        situation: "For a weekend vacation, do you prefer going to cool mountains (like Đà Lạt) or a sunny beach (like Vũng Tàu)? Why?",
+        modelExample: "I prefer going to Đà Lạt because I love the cool mountain weather and fresh pine trees. Walking in the cool air helps me feel healthy and refreshed.",
+        rows: [
+          {
+            label: "Sentence 1: Travel Choice",
+            starters: ["For a weekend holiday, I prefer", "I would rather visit", "My ideal vacation choice is"],
+            connectors: ["the cool mountains of Đà Lạt", "the sunny beaches of Vũng Tàu", "a peaceful countryside village"],
+            details: ["for a short break.", "with my family.", "over busy cities."]
+          },
+          {
+            label: "Sentence 2: What You Enjoy",
+            starters: ["I love this destination because of", "The best part is enjoying", "I really enjoy"],
+            connectors: ["the fresh pine forest air", "swimming in warm ocean water", "eating fresh seafood"],
+            details: ["and cool weather.", "under bright sun.", "with local fruit."]
+          },
+          {
+            label: "Sentence 3: How It Feels",
+            starters: ["A mountain trip helps me", "Walking near the shore makes me", "This vacation gives our family"],
+            connectors: ["sleep deeply and rest", "feel young and active", "wonderful happy memories"],
+            details: ["away from heat.", "after a long month.", "to treasure together."]
+          }
+        ]
+      },
+      {
+        id: 15,
+        dayNumber: "Day 15",
+        category: "The 3-Item Constraint",
+        title: "Packing 3 Essentials for a Weekend Trip",
+        vietnameseHint: "Kể ra 3 vật dụng quan trọng nhất bạn mang theo cho chuyến đi chơi 3 ngày.",
+        situation: "You are packing a small bag for a 3-day trip. What 3 essential items do you bring and why?",
+        modelExample: "For a weekend trip, I always pack comfortable walking shoes, my daily medicine, and a lightweight jacket. These items keep me safe and comfortable.",
+        rows: [
+          {
+            label: "Sentence 1: The 3 Items",
+            starters: ["If I take a short trip, I pack", "The three essential things in my bag are", "I always carry three items:"],
+            connectors: ["comfortable walking shoes", "my personal daily medicine", "a light rain jacket"],
+            details: ["and a phone charger.", "and my identity card.", "wherever I travel."]
+          },
+          {
+            label: "Sentence 2: Purpose of Items",
+            starters: ["Comfortable shoes allow me to", "My medicine is necessary to", "A light jacket protects me from"],
+            connectors: ["walk long distances without pain", "keep my blood pressure stable", "unexpected cold rain"],
+            details: ["during sightseeing.", "every single day.", "or strong wind."]
+          },
+          {
+            label: "Sentence 3: Packing Mindset",
+            starters: ["Packing lightly makes traveling", "These simple items ensure I have", "I don't need heavy luggage to"],
+            connectors: ["much easier for seniors", "a safe and pleasant trip", "enjoy a short vacation"],
+            details: ["on buses and trains.", "without unnecessary stress.", "with my friends."]
+          }
+        ]
+      },
+      {
+        id: 16,
+        dayNumber: "Day 16",
+        category: "The 3-Item Constraint",
+        title: "3 Essentials for the Rainy Season",
+        vietnameseHint: "Liệt kê 3 món đồ không thể thiếu khi ra ngoài trong mùa mưa ở Việt Nam.",
+        situation: "What 3 items do you always carry in your raincoat box or bag during the rainy season in Vietnam?",
+        modelExample: "During rainy season, I always take a sturdy raincoat, a plastic bag for my phone, and non-slip sandals. These items keep me dry and safe on wet roads.",
+        rows: [
+          {
+            label: "Sentence 1: Rainy Essentials",
+            starters: ["In the rainy season, I always carry", "Three things in my motorbike box are", "To prepare for sudden rain, I bring"],
+            connectors: ["a durable double raincoat", "a waterproof bag for phone", "non-slip rubber sandals"],
+            details: ["wherever I drive.", "under my seat.", "during afternoon hours."]
+          },
+          {
+            label: "Sentence 2: Safety Function",
+            starters: ["A good raincoat keeps my body", "The plastic bag protects my belongings", "Wearing non-slip sandals prevents"],
+            connectors: ["warm and completely dry", "from heavy water splashes", "slipping on wet pavement"],
+            details: ["in heavy downpours.", "while driving home.", "near street drains."]
+          },
+          {
+            label: "Sentence 3: Practical Advice",
+            starters: ["With these three items, I can", "It is smart for everyone to", "Being prepared helps seniors stay"],
+            connectors: ["travel safely in bad weather", "check the sky before leaving", "confident and healthy"],
+            details: ["without getting soaked.", "the house each day.", "throughout rainy months."]
+          }
+        ]
+      },
+      {
+        id: 17,
+        dayNumber: "Day 17",
+        category: "Visual Scene Reflection",
+        title: "A Rainy Afternoon Street",
+        vietnameseHint: "Quan sát bức ảnh phố mưa và miêu tả cảm xúc, hoạt động trong hình.",
+        situation: "Look at this visual image of a rainy street scene in Vietnam. Describe what you see and how rainy weather makes you feel.",
+        modelExample: "In this picture, people wearing colorful raincoats are riding motorbikes under heavy rain. The reflection of street lights on wet roads looks peaceful.",
+        rows: [
+          {
+            label: "Sentence 1: Visual Description",
+            starters: ["In this picture, I can see", "The photo shows a street where", "Looking at the image, there are"],
+            connectors: ["people in bright raincoats", "motorbikes driving slowly", "wet glistening pavement"],
+            details: ["under heavy afternoon rain.", "through flooded streets.", "reflecting yellow lights."]
+          },
+          {
+            label: "Sentence 2: Street Atmosphere",
+            starters: ["Traffic moves cautiously because", "Street vendors are standing under", "The sky looks grey and"],
+            connectors: ["the road surface is slippery", "large canvas umbrellas", "the air feels cool"],
+            details: ["during the storm.", "near coffee shops.", "and very fresh."]
+          },
+          {
+            label: "Sentence 3: Personal Feeling",
+            starters: ["Rainy weather like this makes me feel", "I prefer staying inside to", "Watching rain from home brings"],
+            connectors: ["cozy and thoughtful", "drink warm tea", "a peaceful quiet feeling"],
+            details: ["while listening to rain drops.", "with family members.", "to my evening."]
+          }
+        ],
+        svgType: "rain"
+      },
+      {
+        id: 18,
+        dayNumber: "Day 18",
+        category: "Visual Scene Reflection",
+        title: "Morning Tea Table with Friends",
+        vietnameseHint: "Quan sát hình ảnh bàn trà buổi sáng và mô tả không khí trò chuyện ấm cúng.",
+        situation: "Look at this visual image of a traditional ceramic tea set on a wooden table. Describe a tea moment with old friends.",
+        modelExample: "On the wooden table, there is a teapot with small ceramic cups and green tea. Sitting with old friends to drink warm tea brings warm nostalgic memories.",
+        rows: [
+          {
+            label: "Sentence 1: Visual Details",
+            starters: ["On the wooden table, I see", "This image shows a traditional", "There is a warm ceramic teapot with"],
+            connectors: ["a ceramic teapot set", "steaming cup of hot green tea", "small tea cups"],
+            details: ["placed on a tray.", "next to fresh flowers.", "ready for guests."]
+          },
+          {
+            label: "Sentence 2: Traditional Custom",
+            starters: ["Drinking tea in the morning is", "In Vietnamese culture, offering tea shows", "Sharing tea with friends helps us"],
+            connectors: ["a beautiful long tradition", "warm hospitality and respect", "slow down busy lives"],
+            details: ["for older generations.", "to every visitor.", "and talk deeply."]
+          },
+          {
+            label: "Sentence 3: Emotional Connection",
+            starters: ["Sitting together with warm tea brings", "I love talking about old memories", "Simple moments like this are"],
+            connectors: ["peaceful joy to my heart", "with close neighbors", "the best part of retirement"],
+            details: ["on quiet mornings.", "over a hot brew.", "in my life."]
+          }
+        ],
+        svgType: "tea"
+      },
+      {
+        id: 19,
+        dayNumber: "Day 19",
+        category: "Finish the Mini-Story",
+        title: "Mr. Nam's Missing Wallet at the Market",
+        vietnameseHint: "Hoàn thiện câu chuyện khi chú Nam phát hiện quên ví ở chợ và phản ứng của người bán hàng.",
+        situation: "Setup: Yesterday, Mr. Nam picked out fresh fish at the market, but when he opened his pocket, his wallet was gone. How did the story end?",
+        modelExample: "Fortunately, the honest fish seller told him to pay tomorrow. Mr. Nam was very touched and brought her a small gift the next day.",
+        rows: [
+          {
+            label: "Sentence 1: What Happened Next",
+            starters: ["When Mr. Nam noticed his missing wallet, he felt", "He searched his deep coat pockets and", "Luckily, the honest market seller smiled and"],
+            connectors: ["very worried and embarrassed", "realized he left it at home", "told him not to worry"],
+            details: ["in front of the seller.", "on his desk.", "about the money."]
+          },
+          {
+            label: "Sentence 2: Seller's Kindness",
+            starters: ["The kind woman said he could pay", "She packed the fresh fish for him and", "She trusted him completely because"],
+            connectors: ["on his next visit tomorrow", "handed him the bag", "they were long-time neighbors"],
+            details: ["with a friendly smile.", "without any complaint.", "in the same ward."]
+          },
+          {
+            label: "Sentence 3: Story Resolution",
+            starters: ["Mr. Nam thanked her warmly and", "The next morning, he returned to pay and", "This simple kindness reminded him of"],
+            connectors: ["brought her fresh fruit", "cleared his debt promptly", "the warm community spirit"],
+            details: ["as a token of thanks.", "with extra gratitude.", "in his neighborhood."]
+          }
+        ]
+      },
+      {
+        id: 20,
+        dayNumber: "Day 20",
+        category: "Finish the Mini-Story",
+        title: "Meeting an Old Friend After 30 Years",
+        vietnameseHint: "Kể tiếp câu chuyện khi tình cờ gặp lại người bạn học cũ sau 30 năm xa cách.",
+        situation: "Setup: Mrs. Lan was sitting in a park when someone called her name. It was her high school classmate after 30 years! What happened next?",
+        modelExample: "They recognized each other immediately and hugged with joy. They sat together for two hours sharing stories about their families and grandchildren.",
+        rows: [
+          {
+            label: "Sentence 1: Emotional Reunion",
+            starters: ["When Mrs. Lan turned around, she", "They recognized each other's faces and", "It was a wonderful surprise because"],
+            connectors: ["hugged her old friend warmly", "screamed with joy and happiness", "they had not met"],
+            details: ["with tears in her eyes.", "in the middle of park.", "for over thirty years."]
+          },
+          {
+            label: "Sentence 2: Shared Conversation",
+            starters: ["They sat on a park bench to talk about", "They spent two hours sharing photos of", "They remembered funny stories from"],
+            connectors: ["their family lives and health", "their children and grandchildren", "their high school years"],
+            details: ["with continuous laughter.", "on their smartphones.", "in the countryside."]
+          },
+          {
+            label: "Sentence 3: Future Connection",
+            starters: ["Before saying goodbye, they exchanged", "They promised to meet every month for", "This unexpected meeting made her day"],
+            connectors: ["Zalo phone numbers", "morning tea together", "truly special and memorable"],
+            details: ["to stay in contact.", "at the local cafe.", "forever."]
+          }
+        ]
+      },
+      {
+        id: 21,
+        dayNumber: "Day 21",
+        category: "Proverb Reaction",
+        title: "Proverb: Early to Bed and Early to Rise",
+        vietnameseHint: "Nêu suy nghĩ về câu tục ngữ: 'Đi ngủ sớm, dậy sớm giúp con người khỏe mạnh và minh mẫn'.",
+        situation: "People say: 'Early to bed and early to rise makes a person healthy, wealthy, and wise.' Do you agree with this proverb?",
+        modelExample: "I completely agree with this proverb because sleeping early gives your body rest. Waking up at 5:30 AM allows me to exercise and feel clear-minded.",
+        rows: [
+          {
+            label: "Sentence 1: Agreement / Opinion",
+            starters: ["I completely agree with this saying because", "In my experience, this proverb is", "I think this advice is very true for"],
+            connectors: ["waking up early gives energy", "a wise rule for life", "maintaining good health"],
+            details: ["especially for seniors.", "in modern times.", "throughout the year."]
+          },
+          {
+            label: "Sentence 2: Personal Routine",
+            starters: ["I usually go to bed at 10:00 PM and", "My morning routine starts at 5:30 AM with", "Going to rest early allows my mind to"],
+            connectors: ["wake up feeling refreshed", "gentle garden stretch", "recharge completely"],
+            details: ["before sunrise.", "and warm water.", "during the night."]
+          },
+          {
+            label: "Sentence 3: Life Outcome",
+            starters: ["An early start gives me time to", "Starting the day quietly makes me feel", "Good sleeping habits bring"],
+            connectors: ["plan my day calmly", "peaceful and organized", "long-term health"],
+            details: ["without any rush.", "throughout the day.", "and mental clarity."]
+          }
+        ]
+      },
+      {
+        id: 22,
+        dayNumber: "Day 22",
+        category: "Proverb Reaction",
+        title: "Proverb: Better a Close Neighbor Than a Distant Relative",
+        vietnameseHint: "Chia sẻ góc nhìn về tục ngữ 'Bán anh em xa, mua láng giềng gần' trong đời sống hàng ngày.",
+        situation: "The Vietnamese proverb says: 'Bán anh em xa, mua láng giềng gần' (A close neighbor is better than a distant relative). How is this true in your life?",
+        modelExample: "I strongly agree with this saying because neighbors are always near when you need emergency help. Good neighbors share food and watch our house when we travel.",
+        rows: [
+          {
+            label: "Sentence 1: Proverb Agreement",
+            starters: ["This famous proverb is very true because", "I strongly believe that good neighbors are", "In daily life, having kind neighbors is"],
+            connectors: ["like second family members", "a great blessing for seniors", "essential for happiness"],
+            details: ["in our neighborhood.", "living next door.", "throughout our lives."]
+          },
+          {
+            label: "Sentence 2: Practical Assistance",
+            starters: ["When unexpected trouble happens, neighbors can", "We often exchange homemade food and", "Neighbors watch our house carefully whenever"],
+            connectors: ["help immediately in minutes", "share fresh vegetables", "we travel far away"],
+            details: ["before relatives arrive.", "from our garden.", "for holidays."]
+          },
+          {
+            label: "Sentence 3: Neighborly Harmony",
+            starters: ["Treating neighbors with kindness creates", "Building friendly relationships makes", "I am very grateful for"],
+            connectors: ["a safe living environment", "our alley peaceful", "the caring community"],
+            details: ["for everyone.", "and enjoyable.", "around my house."]
+          }
+        ]
+      },
+      {
+        id: 23,
+        dayNumber: "Day 23",
+        category: "Daily Small Win Check-In",
+        title: "Today's Meal, Conversation & Tomorrow's Plan",
+        vietnameseHint: "Tổng kết 3 điều đơn giản trong ngày: Món ăn ngon nhất, người bạn đã trò chuyện và kế hoạch ngày mai.",
+        situation: "Reflect on your day today: What was the best food you ate, who did you talk to, and what is one plan for tomorrow?",
+        modelExample: "Today the best food I ate was warm noodle soup cooked by my daughter. I had a long phone chat with my sister, and tomorrow I plan to visit the garden.",
+        rows: [
+          {
+            label: "Sentence 1: Best Food Today",
+            starters: ["Today, the best meal I ate was", "For lunch today, I enjoyed", "The most delicious dish today was"],
+            connectors: ["steamed fish with ginger", "a bowl of warm soup", "fresh spring rolls"],
+            details: ["prepared with love.", "at family meal time.", "with chili sauce."]
+          },
+          {
+            label: "Sentence 2: Social Connection",
+            starters: ["I had a pleasant conversation with", "I spent thirty minutes talking to", "I called my old friend to"],
+            connectors: ["my sister on Zalo", "my next-door neighbor", "my grandson about school"],
+            details: ["this afternoon.", "over the fence.", "in the evening."]
+          },
+          {
+            label: "Sentence 3: Plan for Tomorrow",
+            starters: ["Tomorrow, I am planning to", "My simple goal for tomorrow is to", "I look forward tomorrow to"],
+            connectors: ["water my balcony plants", "walk in the morning park", "visit the local library"],
+            details: ["early in the morning.", "with my companion.", "to read newspapers."]
+          }
+        ]
+      },
+      {
+        id: 24,
+        dayNumber: "Day 24",
+        category: "Daily Small Win Check-In",
+        title: "A Peaceful Moment & Evening Routine",
+        vietnameseHint: "Chia sẻ một khoảnh khắc bình yên nhất trong ngày hôm nay và thói quen buổi tối của bạn.",
+        situation: "What was your most peaceful moment today, and how do you like to spend your quiet evening before sleep?",
+        modelExample: "My most peaceful moment was sitting on the balcony at sunset with warm tea. In the evening, I listen to quiet instrumental music before going to sleep.",
+        rows: [
+          {
+            label: "Sentence 1: Peaceful Moment",
+            starters: ["My most peaceful moment today was", "The highlight of my day was", "I felt very serene when I"],
+            connectors: ["sitting on the balcony at sunset", "listening to birds singing", "resting after lunch"],
+            details: ["with a cup of warm tea.", "in my quiet garden.", "with soft music."]
+          },
+          {
+            label: "Sentence 2: Evening Habit",
+            starters: ["In the evening, I like to relax by", "Before going to bed, I usually", "My night routine includes"],
+            connectors: ["reading an interesting book", "soaking my feet in warm water", "watching evening news"],
+            details: ["for half an hour.", "with sea salt.", "on television."]
+          },
+          {
+            label: "Sentence 3: Gratitude Closing",
+            starters: ["Ending the day peacefully brings", "I am thankful for another", "Good sleep gives me strength for"],
+            connectors: ["deep calm and good sleep", "healthy and happy day", "another beautiful morning"],
+            details: ["to my mind and body.", "with my family.", "tomorrow."]
+          }
+        ]
+      }
+    ];
+
+    /* ==========================================================================
+       STATE MANAGEMENT
+       ========================================================================== */
+    let currentPromptIndex = 0;
+    let selectedChunks = [[], [], []]; // Array of chip objects per row
+    let currentSpeechSpeed = 0.85;
+    let completedDays = JSON.parse(localStorage.getItem('tts_completed_days') || '[]');
+
+    // MediaRecorder state
+    let mediaRecorder = null;
+    let audioChunks = [];
+    let isRecording = false;
+    let recordTimerInterval = null;
+    let recordSeconds = 0;
+
+    /* ==========================================================================
+       INITIALIZATION & NAVIGATION
+       ========================================================================== */
+    window.onload = function() {
+      // Load saved index if available
+      const savedIndex = localStorage.getItem('tts_current_prompt_index');
+      if (savedIndex !== null && !isNaN(parseInt(savedIndex))) {
+        currentPromptIndex = Math.min(Math.max(0, parseInt(savedIndex)), DAILY_PROMPTS.length - 1);
+      }
+      
+      updateCompletedCountUI();
+      renderPromptList();
+      loadPrompt(currentPromptIndex);
+    };
+
+    function updateCompletedCountUI() {
+      document.getElementById('completedCount').innerText = completedDays.length;
+    }
+
+    function toggleDrawer() {
+      const drawer = document.getElementById('drawer');
+      const backdrop = document.getElementById('drawerBackdrop');
+      const isHidden = drawer.classList.contains('-translate-x-full');
+
+      if (isHidden) {
+        drawer.classList.remove('-translate-x-full');
+        backdrop.classList.remove('hidden');
+      } else {
+        drawer.classList.add('-translate-x-full');
+        backdrop.classList.add('hidden');
+      }
+    }
+
+    function renderPromptList() {
+      const filter = document.getElementById('categoryFilter').value;
+      const container = document.getElementById('promptListContainer');
+      container.innerHTML = '';
+
+      DAILY_PROMPTS.forEach((p, index) => {
+        if (filter !== 'ALL' && p.category !== filter) return;
+
+        const isCompleted = completedDays.includes(p.id);
+        const isActive = index === currentPromptIndex;
+
+        const item = document.createElement('div');
+        item.className = `p-3.5 rounded-xl border transition cursor-pointer flex items-center justify-between ${
+          isActive 
+            ? 'bg-amber-100/70 border-amber-400 font-semibold text-charcoal shadow-sm' 
+            : 'bg-white border-borderline hover:bg-stone-50 text-charcoal'
+        }`;
+        item.onclick = () => {
+          currentPromptIndex = index;
+          localStorage.setItem('tts_current_prompt_index', index);
+          loadPrompt(index);
+          toggleDrawer();
+        };
+
+        item.innerHTML = `
+          <div class="flex items-center space-x-3 overflow-hidden">
+            <span class="text-xs font-bold px-2 py-1 rounded-md ${isActive ? 'bg-accent text-white' : 'bg-stone-100 text-stone-600'}">${p.dayNumber}</span>
+            <div class="truncate">
+              <div class="text-sm font-medium truncate">${p.title}</div>
+              <div class="text-xs text-mutedgray truncate">${p.category}</div>
+            </div>
+          </div>
+          ${isCompleted ? `
+            <span class="w-5 h-5 rounded-full bg-emerald-600 text-white flex items-center justify-center text-xs flex-shrink-0 ml-2" title="Completed">✓</span>
+          ` : ''}
+        `;
+
+        container.appendChild(item);
+      });
+    }
+
+    /* ==========================================================================
+       PROMPT RENDER ENGINE
+       ========================================================================== */
+    function loadPrompt(index) {
+      const prompt = DAILY_PROMPTS[index];
+      
+      // Reset state for new prompt
+      selectedChunks = [[], [], []];
+      resetAudioRecorderUI();
+
+      // Top Header Info
+      document.getElementById('badgeDay').innerText = prompt.dayNumber;
+      document.getElementById('badgeCategory').innerText = prompt.category;
+      document.getElementById('promptTitle').innerText = prompt.title;
+      document.getElementById('promptSituation').innerText = prompt.situation;
+      document.getElementById('vnHintContent').innerText = prompt.vietnameseHint;
+      document.getElementById('modelExampleText').innerText = `"${prompt.modelExample}"`;
+
+      // Hide model example accordion
+      document.getElementById('modelExampleCard').classList.add('hidden');
+      document.getElementById('modelToggleLabel').innerText = "View Sample Answer";
+
+      // Render SVG Illustrations if special day (Day 17 or 18)
+      renderSVGIllustration(prompt);
+
+      // Render Sentence Builder Rows
+      prompt.rows.forEach((rowData, rowIndex) => {
+        document.getElementById(`row${rowIndex+1}Label`).innerText = rowData.label;
+
+        // Populate Starters (Blue)
+        renderChipBank(`startersBank-${rowIndex}`, rowData.starters, 'starter', rowIndex);
+        // Populate Connectors (Amber)
+        renderChipBank(`connectorsBank-${rowIndex}`, rowData.connectors, 'connector', rowIndex);
+        // Populate Details (Green)
+        renderChipBank(`detailsBank-${rowIndex}`, rowData.details, 'detail', rowIndex);
+
+        // Custom placeholder
+        if(rowData.customPlaceholder) {
+          document.getElementById(`customInput-${rowIndex}`).placeholder = rowData.customPlaceholder;
+        }
+
+        // Render assembly track
+        updateAssemblyTrackUI(rowIndex);
+      });
+
+      // Update Teleprompter
+      updateTeleprompterUI();
+
+      // Update Sidebar highlights
+      renderPromptList();
+      
+      // Scroll workspace to top smoothly
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function renderSVGIllustration(prompt) {
+      const svgContainer = document.getElementById('svgIllustrationContainer');
+      svgContainer.innerHTML = '';
+
+      if (prompt.svgType === 'rain') {
+        svgContainer.classList.remove('hidden');
+        svgContainer.innerHTML = `
+          <div class="w-full h-48 md:h-56 bg-slate-900 rounded-xl overflow-hidden relative flex items-center justify-center p-4 border border-slate-700">
+            <svg class="w-full h-full" viewBox="0 0 400 180" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <!-- Dark rainy background skyline -->
+              <rect width="400" height="180" fill="#1E293B"/>
+              <path d="M0 140 L50 110 L100 130 L160 90 L220 120 L300 80 L360 110 L400 95 V180 H0 Z" fill="#334155"/>
+              <path d="M0 155 H400 V180 H0 Z" fill="#0F172A"/>
+              <!-- Reflections -->
+              <ellipse cx="120" cy="165" rx="40" ry="4" fill="#F59E0B" opacity="0.3"/>
+              <ellipse cx="280" cy="168" rx="60" ry="5" fill="#38BDF8" opacity="0.3"/>
+              <!-- Rain streaks -->
+              <line x1="40" y1="20" x2="20" y2="70" stroke="#94A3B8" stroke-width="1.5" opacity="0.6"/>
+              <line x1="120" y1="10" x2="100" y2="60" stroke="#94A3B8" stroke-width="1.5" opacity="0.6"/>
+              <line x1="200" y1="30" x2="180" y2="80" stroke="#94A3B8" stroke-width="1.5" opacity="0.6"/>
+              <line x1="290" y1="15" x2="270" y2="65" stroke="#94A3B8" stroke-width="1.5" opacity="0.6"/>
+              <line x1="360" y1="25" x2="340" y2="75" stroke="#94A3B8" stroke-width="1.5" opacity="0.6"/>
+              <!-- Scooter silhouette with raincoat -->
+              <path d="M150 145 C150 130 165 120 180 125 C190 120 210 130 215 145 Z" fill="#EF4444"/>
+              <circle cx="165" cy="155" r="10" fill="#475569"/>
+              <circle cx="205" cy="155" r="10" fill="#475569"/>
+              <circle cx="170" cy="118" r="7" fill="#FDE047"/>
+              <text x="130" y="40" fill="#F8FAFC" font-size="14" font-family="sans-serif" font-weight="bold">Rainy Afternoon in Vietnam</text>
+            </svg>
+          </div>
+        `;
+      } else if (prompt.svgType === 'tea') {
+        svgContainer.classList.remove('hidden');
+        svgContainer.innerHTML = `
+          <div class="w-full h-48 md:h-56 bg-stone-800 rounded-xl overflow-hidden relative flex items-center justify-center p-4 border border-stone-700">
+            <svg class="w-full h-full" viewBox="0 0 400 180" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <!-- Wooden table background -->
+              <rect width="400" height="180" fill="#44403C"/>
+              <rect y="140" width="400" height="40" fill="#292524"/>
+              <!-- Tray -->
+              <rect x="80" y="50" width="240" height="90" rx="12" fill="#78350F" stroke="#92400E" stroke-width="3"/>
+              <!-- Teapot -->
+              <circle cx="160" cy="90" r="30" fill="#D97706"/>
+              <path d="M125 90 C110 85 110 95 125 95 Z" fill="#B45309"/>
+              <path d="M190 85 C205 80 210 95 190 98 Z" fill="#B45309"/>
+              <circle cx="160" cy="85" r="8" fill="#F59E0B"/>
+              <!-- Tea cups -->
+              <circle cx="230" cy="75" r="12" fill="#FEF3C7" stroke="#D97706" stroke-width="2"/>
+              <circle cx="230" cy="75" r="8" fill="#15803D"/>
+              <circle cx="260" cy="105" r="12" fill="#FEF3C7" stroke="#D97706" stroke-width="2"/>
+              <circle cx="260" cy="105" r="8" fill="#15803D"/>
+              <!-- Steam -->
+              <path d="M230 55 Q233 45 230 35" stroke="#F59E0B" stroke-width="2" stroke-linecap="round" opacity="0.6"/>
+              <path d="M160 50 Q163 40 160 30" stroke="#F59E0B" stroke-width="2" stroke-linecap="round" opacity="0.6"/>
+              <text x="110" y="30" fill="#FEF3C7" font-size="14" font-family="sans-serif" font-weight="bold">Traditional Morning Tea Moment</text>
+            </svg>
+          </div>
+        `;
+      } else {
+        svgContainer.classList.add('hidden');
+      }
+    }
+
+    function toggleVietnameseHint() {
+      const box = document.getElementById('vnHintBox');
+      const text = document.getElementById('vnHintBtnText');
+      if (box.classList.contains('hidden')) {
+        box.classList.remove('hidden');
+        text.innerText = "Hide VN Hint (Ẩn gợi ý)";
+      } else {
+        box.classList.add('hidden');
+        text.innerText = "Show VN Hint (Gợi ý)";
+      }
+    }
+
+    function toggleModelExample() {
+      const card = document.getElementById('modelExampleCard');
+      const label = document.getElementById('modelToggleLabel');
+      if (card.classList.contains('hidden')) {
+        card.classList.remove('hidden');
+        label.innerText = "Hide Sample Answer";
+      } else {
+        card.classList.add('hidden');
+        label.innerText = "View Sample Answer";
+      }
+    }
+
+    /* ==========================================================================
+       CHIP BANK & ASSEMBLY LOGIC
+       ========================================================================== */
+    function renderChipBank(containerId, phrases, type, rowIndex) {
+      const container = document.getElementById(containerId);
+      container.innerHTML = '';
+
+      const typeStyles = {
+        starter: 'bg-starter-bg text-starter-text border-starter-border hover:bg-blue-100',
+        connector: 'bg-connector-bg text-connector-text border-connector-border hover:bg-amber-200',
+        detail: 'bg-detail-bg text-detail-text border-detail-border hover:bg-emerald-200'
+      };
+
+      phrases.forEach((phrase) => {
+        const btn = document.createElement('button');
+        btn.className = `chip-btn px-3 py-1.5 text-xs md:text-sm font-semibold rounded-lg border ${typeStyles[type]} text-left`;
+        btn.innerText = phrase;
+        btn.onclick = () => addChunkToRow(rowIndex, phrase, type);
+        container.appendChild(btn);
+      });
+    }
+
+    function addChunkToRow(rowIndex, text, type) {
+      selectedChunks[rowIndex].push({ text, type });
+      updateAssemblyTrackUI(rowIndex);
+      updateTeleprompterUI();
+    }
+
+    function addCustomChip(rowIndex) {
+      const input = document.getElementById(`customInput-${rowIndex}`);
+      const val = input.value.trim();
+      if (!val) return;
+
+      selectedChunks[rowIndex].push({ text: val, type: 'detail' });
+      input.value = '';
+      updateAssemblyTrackUI(rowIndex);
+      updateTeleprompterUI();
+      showToast("Custom word added!");
+    }
+
+    function removeChunkFromRow(rowIndex, chunkIndex) {
+      selectedChunks[rowIndex].splice(chunkIndex, 1);
+      updateAssemblyTrackUI(rowIndex);
+      updateTeleprompterUI();
+    }
+
+    function clearRow(rowIndex) {
+      selectedChunks[rowIndex] = [];
+      updateAssemblyTrackUI(rowIndex);
+      updateTeleprompterUI();
+    }
+
+    function updateAssemblyTrackUI(rowIndex) {
+      const track = document.getElementById(`assemblyTrack-${rowIndex}`);
+      const chunks = selectedChunks[rowIndex];
+
+      if (chunks.length === 0) {
+        track.innerHTML = `<span class="text-sm text-stone-400 italic pointer-events-none select-none">Tap chips below to build Sentence ${rowIndex + 1}...</span>`;
+        return;
+      }
+
+      const typeStyles = {
+        starter: 'bg-starter-bg text-starter-text border-starter-border',
+        connector: 'bg-connector-bg text-connector-text border-connector-border',
+        detail: 'bg-detail-bg text-detail-text border-detail-border'
+      };
+
+      track.innerHTML = '';
+      chunks.forEach((chunk, cIndex) => {
+        const chip = document.createElement('span');
+        chip.className = `inline-flex items-center px-3 py-1.5 rounded-lg border text-xs md:text-sm font-semibold ${typeStyles[chunk.type]} shadow-sm animate-fade-in cursor-pointer hover:opacity-80`;
+        chip.title = "Click to remove";
+        chip.onclick = () => removeChunkFromRow(rowIndex, cIndex);
+        chip.innerHTML = `
+          <span>${chunk.text}</span>
+          <svg class="w-3.5 h-3.5 ml-1.5 text-current opacity-60 hover:opacity-100" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+        `;
+        track.appendChild(chip);
+      });
+    }
+
+    function autoFillSampleResponse() {
+      const prompt = DAILY_PROMPTS[currentPromptIndex];
+      prompt.rows.forEach((row, rIndex) => {
+        selectedChunks[rIndex] = [
+          { text: row.starters[0], type: 'starter' },
+          { text: row.connectors[0], type: 'connector' },
+          { text: row.details[0], type: 'detail' }
+        ];
+        updateAssemblyTrackUI(rIndex);
+      });
+      updateTeleprompterUI();
+      showToast("Sample chips auto-filled!");
+    }
+
+    /* ==========================================================================
+       TELEPROMPTER & PHRASE CHUNKING DISPLAY
+       ========================================================================== */
+    function updateTeleprompterUI() {
+      const teleprompter = document.getElementById('teleprompterText');
+      const lines = [];
+
+      selectedChunks.forEach((row, rowIndex) => {
+        if (row.length > 0) {
+          // Join row phrases with breath pause markers '/'
+          const sentenceText = row.map(c => c.text).join(' / ');
+          lines.push({ index: rowIndex + 1, text: sentenceText });
+        }
+      });
+
+      if (lines.length === 0) {
+        teleprompter.innerHTML = `<p class="text-stone-500 italic text-xl">Your assembled sentences will appear here with rhythm pause markers ( / )...</p>`;
+        return;
+      }
+
+      teleprompter.innerHTML = lines.map(line => `
+        <div class="flex items-start space-x-3">
+          <span class="text-xs font-sans font-bold bg-amber-800/60 text-amber-200 px-2 py-1 rounded mt-1">${line.index}</span>
+          <p class="flex-1 font-serif text-2xl md:text-3xl text-amber-100 leading-relaxed">${formatSentenceWithPunctuation(line.text)}</p>
+        </div>
+      `).join('');
+    }
+
+    function formatSentenceWithPunctuation(str) {
+      let trimmed = str.trim();
+      if (!trimmed.endsWith('.')) trimmed += '.';
+      return trimmed;
+    }
+
+    function getComposedPlainText() {
+      const sentences = [];
+      selectedChunks.forEach(row => {
+        if (row.length > 0) {
+          let s = row.map(c => c.text).join(' ').trim();
+          if (!s.endsWith('.')) s += '.';
+          sentences.push(s);
+        }
+      });
+      return sentences.join(' ');
+    }
+
+    /* ==========================================================================
+       TEXT-TO-SPEECH (TTS) SCAFFOLDING
+       ========================================================================== */
+    function setSpeechSpeed(speed) {
+      currentSpeechSpeed = speed;
+      document.querySelectorAll('.speed-btn').forEach(b => {
+        b.classList.remove('bg-stone-200', 'text-charcoal');
+        b.classList.add('text-mutedgray');
+      });
+
+      if (speed === 0.75) document.getElementById('speed-075').classList.add('bg-stone-200', 'text-charcoal');
+      if (speed === 0.85) document.getElementById('speed-085').classList.add('bg-stone-200', 'text-charcoal');
+      if (speed === 1.0) document.getElementById('speed-100').classList.add('bg-stone-200', 'text-charcoal');
+    }
+
+    function speakText(text) {
+      if (!('speechSynthesis' in window)) {
+        alert("Text-to-speech is not supported in this browser.");
+        return;
+      }
+      window.speechSynthesis.cancel(); // Stop ongoing speech
+
+      const utterance = new SpeechSynthesisUtterance(text);
+      utterance.rate = currentSpeechSpeed;
+      utterance.lang = 'en-US';
+      window.speechSynthesis.speak(utterance);
+    }
+
+    function speakPromptText() {
+      const text = DAILY_PROMPTS[currentPromptIndex].situation;
+      speakText(text);
+    }
+
+    function speakModelExample() {
+      const text = DAILY_PROMPTS[currentPromptIndex].modelExample;
+      speakText(text);
+    }
+
+    function speakComposedText() {
+      const fullText = getComposedPlainText();
+      if (!fullText) {
+        showToast("Please compose at least one sentence first!");
+        return;
+      }
+      speakText(fullText);
+    }
+
+    function copyComposedText() {
+      const fullText = getComposedPlainText();
+      if (!fullText) {
+        showToast("No composed script to copy!");
+        return;
+      }
+
+      // Fallback copy execCommand for iframe safety
+      const textArea = document.createElement("textarea");
+      textArea.value = fullText;
+      document.body.appendChild(textArea);
+      textArea.select();
+      try {
+        document.execCommand('copy');
+        showToast("Composed script copied to clipboard!");
+      } catch (err) {
+        showToast("Failed to copy text.");
+      }
+      document.body.removeChild(textArea);
+    }
+
+    /* ==========================================================================
+       VOICE RECORDER (MediaRecorder API)
+       ========================================================================== */
+    async function toggleRecording() {
+      if (!isRecording) {
+        startRecording();
+      } else {
+        stopRecording();
+      }
+    }
+
+    async function startRecording() {
+      if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+        alert("Microphone access is not supported in your browser.");
+        return;
+      }
+
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        audioChunks = [];
+        mediaRecorder = new MediaRecorder(stream);
+
+        mediaRecorder.ondataavailable = (e) => {
+          if (e.data.size > 0) {
+            audioChunks.push(e.data);
+          }
+        };
+
+        mediaRecorder.onstop = () => {
+          const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
+          const audioUrl = URL.createObjectURL(audioBlob);
+          
+          const player = document.getElementById('audioPlayer');
+          player.src = audioUrl;
+
+          const downloadLink = document.getElementById('downloadAudioLink');
+          downloadLink.href = audioUrl;
+          downloadLink.download = `${DAILY_PROMPTS[currentPromptIndex].dayNumber}-speaking-practice.webm`;
+
+          document.getElementById('audioPlaybackContainer').classList.remove('hidden');
+        };
+
+        mediaRecorder.start();
+        isRecording = true;
+        startTimer();
+
+        // UI Updates
+        const recordBtn = document.getElementById('recordBtn');
+        recordBtn.classList.add('recording-pulse', 'bg-rose-600');
+        document.getElementById('recordIcon').className = "w-5 h-5 rounded-sm bg-white";
+        document.getElementById('recordStatusTitle').innerText = "Recording Your Voice...";
+        document.getElementById('recordStatusSubtitle').innerText = "Speak clearly into your microphone";
+        document.getElementById('audioWaveform').classList.remove('hidden');
+
+      } catch (err) {
+        alert("Could not access microphone: " + err.message);
+      }
+    }
+
+    function stopRecording() {
+      if (mediaRecorder && isRecording) {
+        mediaRecorder.stop();
+        // Stop all audio tracks
+        mediaRecorder.stream.getTracks().forEach(track => track.stop());
+        isRecording = false;
+        stopTimer();
+
+        // UI Updates
+        const recordBtn = document.getElementById('recordBtn');
+        recordBtn.classList.remove('recording-pulse', 'bg-rose-600');
+        document.getElementById('recordIcon').className = "w-6 h-6 rounded-full bg-white";
+        document.getElementById('recordStatusTitle').innerText = "Recording Complete!";
+        document.getElementById('recordStatusSubtitle').innerText = "Listen to your recording below or record again";
+        document.getElementById('audioWaveform').classList.add('hidden');
+        showToast("Voice recording saved!");
+      }
+    }
+
+    function resetAudioRecorderUI() {
+      if (isRecording) stopRecording();
+      document.getElementById('audioPlaybackContainer').classList.add('hidden');
+      document.getElementById('recordingTimer').innerText = "00:00";
+      document.getElementById('recordStatusTitle').innerText = "Ready to Record";
+      document.getElementById('recordStatusSubtitle').innerText = "Click the red button when you are ready to speak";
+    }
+
+    function startTimer() {
+      recordSeconds = 0;
+      document.getElementById('recordingTimer').innerText = "00:00";
+      recordTimerInterval = setInterval(() => {
+        recordSeconds++;
+        const mins = String(Math.floor(recordSeconds / 60)).padStart(2, '0');
+        const secs = String(recordSeconds % 60).padStart(2, '0');
+        document.getElementById('recordingTimer').innerText = `${mins}:${secs}`;
+      }, 1000);
+    }
+
+    function stopTimer() {
+      clearInterval(recordTimerInterval);
+    }
+
+    /* ==========================================================================
+       PROGRESS PERSISTENCE & TOASTS
+       ========================================================================== */
+    function markCurrentDayComplete() {
+      const currentId = DAILY_PROMPTS[currentPromptIndex].id;
+      if (!completedDays.includes(currentId)) {
+        completedDays.push(currentId);
+        localStorage.setItem('tts_completed_days', JSON.stringify(completedDays));
+        updateCompletedCountUI();
+        renderPromptList();
+        showToast("Day marked as completed! Great job!");
+      } else {
+        showToast("This day is already completed.");
+      }
+    }
+
+    function showToast(message) {
+      const toast = document.getElementById('toast');
+      document.getElementById('toastMsg').innerText = message;
+      toast.classList.remove('translate-y-20', 'opacity-0');
+      toast.classList.add('translate-y-0', 'opacity-100');
+
+      setTimeout(() => {
+        toast.classList.remove('translate-y-0', 'opacity-100');
+        toast.classList.add('translate-y-20', 'opacity-0');
+      }, 3000);
+    }
+  </script>
+</body>
+</html>

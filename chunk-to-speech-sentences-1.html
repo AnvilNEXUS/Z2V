@@ -1,0 +1,805 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chunk-to-Speech: Speaking Practice for Adult Learners</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Google Fonts: Inter & Newsreader for an elegant, warm editorial look -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Newsreader:ital,opsz,wght@0,6..72,500;0,6..72,600;1,6..72,500&display=swap" rel="stylesheet">
+  
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            linen: '#FAF8F5',
+            charcoal: '#1A202C',
+            cardBg: '#FFFFFF',
+            cardBorder: '#E8E3DD',
+            starter: {
+              bg: '#EBF0F6',
+              text: '#1E3A8A',
+              border: '#CBD5E1'
+            },
+            middle: {
+              bg: '#FEF6E8',
+              text: '#92400E',
+              border: '#FDE68A'
+            },
+            ending: {
+              bg: '#F0FDF4',
+              text: '#166534',
+              border: '#BBF7D0'
+            }
+          },
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+            serif: ['Newsreader', 'serif']
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    body {
+      background-color: #FAF8F5;
+      color: #1A202C;
+      font-family: 'Inter', sans-serif;
+      -webkit-tap-highlight-color: transparent;
+    }
+    
+    /* Tactile button animations and styling */
+    .chip-btn {
+      transition: all 0.15s ease-in-out;
+      user-select: none;
+    }
+    .chip-btn:active {
+      transform: scale(0.97);
+    }
+    
+    /* Subtle pulse for active record state */
+    @keyframes pulse-ring {
+      0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(220, 38, 38, 0.5); }
+      70% { transform: scale(1.02); box-shadow: 0 0 0 12px rgba(220, 38, 38, 0); }
+      100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(220, 38, 38, 0); }
+    }
+    .recording-pulse {
+      animation: pulse-ring 1.8s infinite ease-in-out;
+    }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col items-center p-4 sm:p-6 md:p-8">
+
+  <!-- Main Container -->
+  <main class="w-full max-w-2xl bg-linen flex flex-col flex-grow">
+
+    <!-- ==================== TOP NAVIGATION BAR ==================== -->
+    <header class="flex items-center justify-between py-3 mb-4 border-b border-cardBorder">
+      <div class="flex items-center gap-2">
+        <span class="text-xs font-bold uppercase tracking-widest px-2.5 py-1 rounded bg-stone-200 text-stone-700" id="topic-tag">
+          Local Guide
+        </span>
+      </div>
+
+      <!-- Prompt Pagination Switcher -->
+      <div class="flex items-center gap-3">
+        <button id="btn-prev-prompt" onclick="changePrompt(-1)" class="w-10 h-10 rounded-full border border-cardBorder bg-white flex items-center justify-center text-lg font-bold hover:bg-stone-100 disabled:opacity-30 disabled:cursor-not-allowed">
+          ‹
+        </button>
+        <span id="prompt-indicator" class="text-base font-semibold text-stone-600 min-w-[50px] text-center">
+          1 / 5
+        </span>
+        <button id="btn-next-prompt" onclick="changePrompt(1)" class="w-10 h-10 rounded-full border border-cardBorder bg-white flex items-center justify-center text-lg font-bold hover:bg-stone-100 disabled:opacity-30 disabled:cursor-not-allowed">
+          ›
+        </button>
+      </div>
+    </header>
+
+
+    <!-- ==================== VIEW 1: COMPOSE VIEW ==================== -->
+    <section id="view-compose" class="flex flex-col gap-6">
+
+      <!-- Situation Card -->
+      <div class="bg-cardBg border border-cardBorder rounded-2xl p-5 md:p-6 shadow-sm">
+        <div class="flex items-start justify-between gap-4 mb-2">
+          <h1 id="prompt-situation" class="font-serif text-xl sm:text-2xl text-charcoal leading-snug font-medium">
+            <!-- Dynamically populated situation text -->
+          </h1>
+          <button onclick="speakText(currentPrompt.situation)" title="Listen to prompt" class="flex-shrink-0 bg-stone-100 hover:bg-stone-200 text-stone-800 text-base font-medium px-3 py-2 rounded-xl border border-stone-200 flex items-center gap-1.5">
+            <svg class="w-5 h-5 text-stone-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z"/>
+            </svg>
+            <span>Listen</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Sentence Build Tracks (Numbered 1, 2, 3) -->
+      <div class="flex flex-col gap-3">
+        <h2 class="text-sm uppercase tracking-wider font-semibold text-stone-500 px-1">Compose Your Answer</h2>
+        
+        <div id="tracks-container" class="flex flex-col gap-3">
+          <!-- Sentence tracks 1, 2, 3 rendered here -->
+        </div>
+      </div>
+
+      <!-- Active Row Chip Bank -->
+      <div class="bg-white border border-cardBorder rounded-2xl p-4 sm:p-5 shadow-sm flex flex-col gap-4">
+        <div class="flex items-center justify-between border-b border-stone-100 pb-2">
+          <span id="chip-bank-label" class="text-base font-semibold text-stone-700">
+            Chips for Sentence 1
+          </span>
+          <span class="text-xs text-stone-400 font-normal">Tap chips to add</span>
+        </div>
+
+        <!-- Available Chips Container -->
+        <div id="chip-bank" class="flex flex-wrap gap-2.5 min-h-[90px] items-center">
+          <!-- Active row chips rendered here -->
+        </div>
+      </div>
+
+      <!-- Primary Action CTA -->
+      <div class="pt-2 pb-6">
+        <button id="btn-to-practice" onclick="goToPracticeView()" disabled class="w-full bg-stone-900 hover:bg-stone-800 disabled:bg-stone-300 disabled:cursor-not-allowed text-white text-lg font-semibold py-4 rounded-xl shadow-sm transition-colors flex items-center justify-center gap-2">
+          <span>Ready to Practice Speaking</span>
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/>
+          </svg>
+        </button>
+      </div>
+
+    </section>
+
+
+    <!-- ==================== VIEW 2: TELEPROMPTER & VOICE CHECK ==================== -->
+    <section id="view-practice" class="hidden flex-col gap-6">
+
+      <!-- Back / Edit Header -->
+      <div class="flex items-center justify-between">
+        <button onclick="goToComposeView()" class="text-stone-600 hover:text-stone-900 text-base font-semibold flex items-center gap-1.5 py-1">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
+          </svg>
+          <span>Edit Sentences</span>
+        </button>
+        <span class="text-xs uppercase tracking-wider font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2.5 py-1 rounded">
+          Speaking Teleprompter
+        </span>
+      </div>
+
+      <!-- Large Teleprompter Display Card -->
+      <div class="bg-cardBg border border-cardBorder rounded-2xl p-6 sm:p-8 shadow-sm">
+        <p class="text-xs uppercase tracking-widest text-stone-400 font-semibold mb-4">Read aloud naturally ( / = pause ):</p>
+        
+        <div id="teleprompter-text" class="font-serif text-2xl sm:text-3xl text-charcoal leading-relaxed font-medium space-y-4">
+          <!-- Composed response displayed here with rhythm pause slashes -->
+        </div>
+      </div>
+
+      <!-- Speech & Audio Action Grid -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        
+        <!-- 1. Hear Model Answer -->
+        <button onclick="speakComposedAnswer()" class="bg-white border border-cardBorder hover:bg-stone-50 text-stone-800 text-lg font-semibold py-4 px-5 rounded-2xl shadow-sm flex items-center justify-center gap-3">
+          <svg class="w-6 h-6 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z"/>
+          </svg>
+          <span>Hear My Answer</span>
+        </button>
+
+        <!-- 2. Voice Recorder Toggle Button -->
+        <button id="btn-record-toggle" onclick="toggleRecording()" class="bg-red-600 hover:bg-red-700 text-white text-lg font-semibold py-4 px-5 rounded-2xl shadow-sm flex items-center justify-center gap-3 transition-all">
+          <svg id="icon-record" class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 016 0v6a3 3 0 01-3 3z"/>
+          </svg>
+          <span id="text-record-toggle">Record Voice</span>
+        </button>
+
+      </div>
+
+      <!-- Recording Playback & Download Card (Hidden by default) -->
+      <div id="audio-result-card" class="hidden bg-white border border-cardBorder rounded-2xl p-5 flex flex-col gap-3 shadow-sm">
+        <div class="flex items-center justify-between">
+          <span class="text-sm font-semibold text-stone-700">Your Voice Recording</span>
+          <a id="btn-download-audio" download="speaking-practice.webm" class="text-xs font-semibold text-indigo-600 hover:text-indigo-800 flex items-center gap-1">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
+            </svg>
+            Save Audio
+          </a>
+        </div>
+        <audio id="audio-playback" controls class="w-full h-11 rounded-lg"></audio>
+      </div>
+
+      <!-- Microphone Permission Error Banner (Fallback) -->
+      <div id="mic-error-notice" class="hidden bg-amber-50 border border-amber-200 text-amber-900 rounded-xl p-4 text-sm leading-relaxed">
+        <strong>Microphone Notice:</strong> Voice recording requires microphone access. If you are in a preview frame or restricted browser, practice reading your response aloud out loud, or open this page in a direct tab!
+      </div>
+
+    </section>
+
+  </main>
+
+
+  <!-- ==================== JAVASCRIPT APPLICATION LOGIC ==================== -->
+  <script>
+    /* ==========================================================================
+       1. DAILY PROMPTS DATA ARCHITECTURE (Easily customisable for daily lessons)
+       ========================================================================== */
+    const DAILY_PROMPTS = [
+      {
+        id: "day-01-breakfast",
+        tag: "Local Guide",
+        situation: "A foreign visitor asks you where to eat breakfast near your home. Recommend a dish and tell them how to order it.",
+        rows: [
+          {
+            id: 1,
+            label: "1. Recommendation",
+            starters: ["You should try", "I recommend eating", "My favorite breakfast is"],
+            middles: [
+              { custom: true, placeholder: "dish (e.g., phở bò)" },
+              "broken rice with pork",
+              "hot noodle soup"
+            ],
+            endings: ["near my neighborhood.", "at a local street stall.", "near the morning market."]
+          },
+          {
+            id: 2,
+            label: "2. Why it is good",
+            starters: ["It is famous because", "I love it because", "It is great because"],
+            middles: ["the broth is fresh", "it is hot and savory", "the ingredients are fresh"],
+            endings: ["and not expensive.", "for starting your day.", "and very delicious."]
+          },
+          {
+            id: 3,
+            label: "3. Helpful Tip",
+            starters: ["You should go", "Try to arrive early", "Don't forget to order it"],
+            middles: ["before 8:00 AM", "with extra green herbs", "with hot green tea"],
+            endings: ["to get the best food.", "to avoid long lines.", "like a local person."]
+          }
+        ]
+      },
+      {
+        id: "day-02-then-now",
+        tag: "Then & Now",
+        situation: "Think about your city or neighborhood 30 years ago. Compare the streets and life back then with how things are today.",
+        rows: [
+          {
+            id: 1,
+            label: "1. In the Past",
+            starters: ["Thirty years ago,", "When I was younger,", "In the past,"],
+            middles: ["the streets were quiet", "there were many trees", "people rode bicycles"],
+            endings: ["everywhere in town.", "and life was simple.", "around my neighborhood."]
+          },
+          {
+            id: 2,
+            label: "2. Change Today",
+            starters: ["Today,", "Nowadays,", "In modern times,"],
+            middles: [
+              "there are many motorbikes",
+              { custom: true, placeholder: "change (e.g., tall buildings)" },
+              "the traffic is very busy"
+            ],
+            endings: ["throughout the day.", "and many shop houses.", "in all streets."]
+          },
+          {
+            id: 3,
+            label: "3. Your Opinion",
+            starters: ["I prefer today because", "I miss the past because", "I like both because"],
+            middles: ["life is more comfortable", "it was peaceful then", "my city is developing"],
+            endings: ["for my family.", "and less noisy.", "every single day."]
+          }
+        ]
+      },
+      {
+        id: "day-03-morning-walk",
+        tag: "Morning Walk",
+        situation: "Describe what you saw and felt during your morning walk or morning routine outside today.",
+        rows: [
+          {
+            id: 1,
+            label: "1. The Weather",
+            starters: ["This morning, the weather was", "Early today, it was", "Outside this morning, it felt"],
+            middles: ["cool and pleasant", "a little rainy", "sunny and bright"],
+            endings: ["in the early park.", "around 6:00 AM.", "when I woke up."]
+          },
+          {
+            id: 2,
+            label: "2. What You Saw",
+            starters: ["I saw many people", "Older people were", "My neighbors were"],
+            middles: ["doing morning exercises", "walking near the lake", "buying fresh breakfast"],
+            endings: ["with their friends.", "in the fresh air.", "at the local corner."]
+          },
+          {
+            id: 3,
+            label: "3. How You Felt",
+            starters: ["Walking outside made me feel", "It was a wonderful morning to", "I felt very happy to"],
+            middles: ["healthy and energized", "relax my mind", "greet my old friends"],
+            endings: ["for the whole day.", "before starting work.", "in my neighborhood."]
+          }
+        ]
+      },
+      {
+        id: "day-04-life-advice",
+        tag: "Life Advice",
+        situation: "A 20-year-old student stays up until 2:00 AM every night looking at their smartphone. Give them friendly advice.",
+        rows: [
+          {
+            id: 1,
+            label: "1. Your Main Advice",
+            starters: ["I think you should", "You really ought to", "My advice for you is to"],
+            middles: ["turn off your smartphone", "put your phone away", "go to sleep earlier"],
+            endings: ["before 10:00 PM.", "at night time.", "to rest your body."]
+          },
+          {
+            id: 2,
+            label: "2. Why It Matters",
+            starters: ["Staying up late is bad because", "If you sleep late,", "Your brain needs rest because"],
+            middles: ["you will feel tired", "it hurts your eyesight", "you cannot study well"],
+            endings: ["the next morning.", "in the long run.", "during daytime class."]
+          },
+          {
+            id: 3,
+            label: "3. Healthy Routine",
+            starters: ["Instead of your phone, try to", "Before sleeping, you can", "It is much better to"],
+            middles: [
+              "read a calm book",
+              "drink warm water",
+              { custom: true, placeholder: "activity (e.g., listen to soft music)" }
+            ],
+            endings: ["to relax your eyes.", "for peaceful sleep.", "every night."]
+          }
+        ]
+      },
+      {
+        id: "day-05-coffee-spot",
+        tag: "Coffee Spot",
+        situation: "Where do you prefer to drink coffee or tea: at a quiet cafe at home, or at a lively street corner?",
+        rows: [
+          {
+            id: 1,
+            label: "1. Preference",
+            starters: ["I prefer drinking coffee at", "I usually enjoy tea at", "My favorite place for coffee is"],
+            middles: ["a quiet sidewalk cafe", "a small table at home", "a busy street corner"],
+            endings: ["every morning.", "on weekend mornings.", "with my morning paper."]
+          },
+          {
+            id: 2,
+            label: "2. The Reason",
+            starters: ["I like this place because", "It is special to me because", "I choose it because"],
+            middles: ["I can watch people walk by", "it is peaceful and quiet", "the iced coffee is strong"],
+            endings: ["and feel relaxed.", "without any noise.", "just the way I like it."]
+          },
+          {
+            id: 3,
+            label: "3. Companionship",
+            starters: ["I usually go there with", "I often sit there with", "Sometimes I prefer going"],
+            middles: ["my long-time friends", "my family members", "by myself quietly"],
+            endings: ["to chat and laugh.", "to enjoy the morning.", "for half an hour."]
+          }
+        ]
+      }
+    ];
+
+    /* ==========================================================================
+       2. APPLICATION STATE
+       ========================================================================== */
+    let currentPromptIndex = 0;
+    let currentPrompt = DAILY_PROMPTS[0];
+    let activeRowIndex = 0; // 0, 1, or 2
+
+    // Stores selections for 3 rows: { starter: "", middle: "", customText: "", ending: "" }
+    let composedData = [
+      { starter: "", middle: "", customText: "", ending: "" },
+      { starter: "", middle: "", customText: "", ending: "" },
+      { starter: "", middle: "", customText: "", ending: "" }
+    ];
+
+    // MediaRecorder state
+    let mediaRecorder = null;
+    let audioChunks = [];
+    let isRecording = false;
+
+    /* ==========================================================================
+       3. INITIALIZATION & NAVIGATION
+       ========================================================================== */
+    window.addEventListener('DOMContentLoaded', () => {
+      loadPrompt(0);
+    });
+
+    function loadPrompt(index) {
+      currentPromptIndex = index;
+      currentPrompt = DAILY_PROMPTS[index];
+      activeRowIndex = 0;
+
+      // Reset composed data
+      composedData = [
+        { starter: "", middle: "", customText: "", ending: "" },
+        { starter: "", middle: "", customText: "", ending: "" },
+        { starter: "", middle: "", customText: "", ending: "" }
+      ];
+
+      // Update UI Header & Switcher
+      document.getElementById('topic-tag').textContent = currentPrompt.tag;
+      document.getElementById('prompt-indicator').textContent = `${index + 1} / ${DAILY_PROMPTS.length}`;
+      document.getElementById('prompt-situation').textContent = currentPrompt.situation;
+
+      document.getElementById('btn-prev-prompt').disabled = (index === 0);
+      document.getElementById('btn-next-prompt').disabled = (index === DAILY_PROMPTS.length - 1);
+
+      renderTracks();
+      renderChipBank();
+      updateCTAState();
+    }
+
+    function changePrompt(delta) {
+      const newIndex = currentPromptIndex + delta;
+      if (newIndex >= 0 && newIndex < DAILY_PROMPTS.length) {
+        loadPrompt(newIndex);
+      }
+    }
+
+    /* ==========================================================================
+       4. COMPOSE VIEW RENDERING & INTERACTION
+       ========================================================================== */
+    function renderTracks() {
+      const container = document.getElementById('tracks-container');
+      container.innerHTML = '';
+
+      currentPrompt.rows.forEach((row, rIndex) => {
+        const isActive = (rIndex === activeRowIndex);
+        const data = composedData[rIndex];
+
+        // Track Outer Box
+        const trackEl = document.createElement('div');
+        trackEl.onclick = () => selectRow(rIndex);
+        trackEl.className = `p-4 rounded-xl border-2 transition-all cursor-pointer flex flex-col gap-2 ${
+          isActive 
+            ? 'bg-white border-stone-900 shadow-md ring-1 ring-stone-900' 
+            : 'bg-white/80 border-cardBorder hover:border-stone-400'
+        }`;
+
+        // Row Label Header
+        const headerEl = document.createElement('div');
+        headerEl.className = 'flex items-center justify-between';
+        headerEl.innerHTML = `
+          <span class="text-xs font-bold uppercase tracking-wider ${isActive ? 'text-stone-900' : 'text-stone-400'}">
+            ${row.label}
+          </span>
+          ${data.starter || data.middle || data.ending ? `
+            <button onclick="event.stopPropagation(); clearRow(${rIndex})" class="text-xs text-stone-400 hover:text-red-600 font-semibold">
+              Clear
+            </button>
+          ` : ''}
+        `;
+        trackEl.appendChild(headerEl);
+
+        // Placed Chips Container
+        const chipsContainer = document.createElement('div');
+        chipsContainer.className = 'flex flex-wrap items-center gap-2 min-h-[44px]';
+
+        if (!data.starter && !data.middle && !data.ending) {
+          chipsContainer.innerHTML = `<span class="text-stone-300 italic text-base">Tap chips below to build this sentence...</span>`;
+        } else {
+          // Starter Chip
+          if (data.starter) {
+            chipsContainer.appendChild(createPlacedChip(data.starter, 'starter', () => removeChunk(rIndex, 'starter')));
+          }
+          // Middle Chip (Static or Custom Input)
+          if (data.middle) {
+            if (typeof data.middle === 'object' && data.middle.custom) {
+              const inputWrap = document.createElement('div');
+              inputWrap.className = 'inline-flex items-center bg-middle-bg text-middle-text border border-middle-border rounded-xl px-3 py-1.5 font-semibold text-lg';
+              
+              const input = document.createElement('input');
+              input.type = 'text';
+              input.placeholder = data.middle.placeholder || 'type here...';
+              input.value = data.customText || '';
+              input.className = 'bg-transparent border-b-2 border-amber-600 focus:outline-none px-1 py-0.5 text-stone-900 text-lg font-bold min-w-[120px] max-w-[200px]';
+              input.onclick = (e) => e.stopPropagation();
+              input.oninput = (e) => {
+                composedData[rIndex].customText = e.target.value;
+                updateCTAState();
+              };
+              
+              const removeBtn = document.createElement('button');
+              removeBtn.innerHTML = '✕';
+              removeBtn.className = 'ml-2 text-amber-700 hover:text-red-700 font-bold text-sm';
+              removeBtn.onclick = (e) => {
+                e.stopPropagation();
+                removeChunk(rIndex, 'middle');
+              };
+
+              inputWrap.appendChild(input);
+              inputWrap.appendChild(removeBtn);
+              chipsContainer.appendChild(inputWrap);
+            } else {
+              chipsContainer.appendChild(createPlacedChip(data.middle, 'middle', () => removeChunk(rIndex, 'middle')));
+            }
+          }
+          // Ending Chip
+          if (data.ending) {
+            chipsContainer.appendChild(createPlacedChip(data.ending, 'ending', () => removeChunk(rIndex, 'ending')));
+          }
+        }
+
+        trackEl.appendChild(chipsContainer);
+        container.appendChild(trackEl);
+      });
+
+      document.getElementById('chip-bank-label').textContent = `Chips for Sentence ${activeRowIndex + 1}`;
+    }
+
+    function createPlacedChip(text, role, onRemove) {
+      const chip = document.createElement('div');
+      let colorClasses = '';
+
+      if (role === 'starter') colorClasses = 'bg-starter-bg text-starter-text border-starter-border';
+      if (role === 'middle') colorClasses = 'bg-middle-bg text-middle-text border-middle-border';
+      if (role === 'ending') colorClasses = 'bg-ending-bg text-ending-text border-ending-border';
+
+      chip.className = `chip-btn border rounded-xl px-3.5 py-2 font-semibold text-lg flex items-center gap-2 shadow-sm ${colorClasses}`;
+      chip.innerHTML = `
+        <span>${text}</span>
+        <span class="opacity-60 hover:opacity-100 text-sm font-bold">✕</span>
+      `;
+      chip.onclick = (e) => {
+        e.stopPropagation();
+        onRemove();
+      };
+      return chip;
+    }
+
+    function selectRow(rIndex) {
+      activeRowIndex = rIndex;
+      renderTracks();
+      renderChipBank();
+    }
+
+    function clearRow(rIndex) {
+      composedData[rIndex] = { starter: "", middle: "", customText: "", ending: "" };
+      renderTracks();
+      renderChipBank();
+      updateCTAState();
+    }
+
+    function renderChipBank() {
+      const bank = document.getElementById('chip-bank');
+      bank.innerHTML = '';
+
+      const currentRow = currentPrompt.rows[activeRowIndex];
+      const data = composedData[activeRowIndex];
+
+      // 1. Starters
+      if (!data.starter) {
+        currentRow.starters.forEach(text => {
+          bank.appendChild(createBankChip(text, 'starter', () => placeChunk('starter', text)));
+        });
+      }
+
+      // 2. Middles
+      if (!data.middle) {
+        currentRow.middles.forEach(item => {
+          if (typeof item === 'object' && item.custom) {
+            bank.appendChild(createBankChip(`✎ ${item.placeholder}`, 'middle', () => placeChunk('middle', item)));
+          } else {
+            bank.appendChild(createBankChip(item, 'middle', () => placeChunk('middle', item)));
+          }
+        });
+      }
+
+      // 3. Endings
+      if (!data.ending) {
+        currentRow.endings.forEach(text => {
+          bank.appendChild(createBankChip(text, 'ending', () => placeChunk('ending', text)));
+        });
+      }
+
+      if (data.starter && data.middle && data.ending) {
+        bank.innerHTML = `
+          <div class="text-emerald-700 bg-emerald-50 border border-emerald-200 rounded-xl p-3 w-full text-center font-medium text-base">
+            ✓ Sentence ${activeRowIndex + 1} complete! Tap the next sentence track above.
+          </div>
+        `;
+      }
+    }
+
+    function createBankChip(text, role, onClick) {
+      const chip = document.createElement('button');
+      let colorClasses = '';
+
+      if (role === 'starter') colorClasses = 'bg-starter-bg text-starter-text border-starter-border hover:bg-blue-100';
+      if (role === 'middle') colorClasses = 'bg-middle-bg text-middle-text border-middle-border hover:bg-amber-100';
+      if (role === 'ending') colorClasses = 'bg-ending-bg text-ending-text border-ending-border hover:bg-green-100';
+
+      chip.className = `chip-btn border rounded-xl px-4 py-3 font-semibold text-lg text-left shadow-sm min-h-[52px] ${colorClasses}`;
+      chip.textContent = text;
+      chip.onclick = onClick;
+      return chip;
+    }
+
+    function placeChunk(role, value) {
+      composedData[activeRowIndex][role] = value;
+
+      // Auto advance to next incomplete sentence if current sentence finishes
+      const d = composedData[activeRowIndex];
+      if (d.starter && d.middle && d.ending) {
+        if (activeRowIndex < 2) {
+          activeRowIndex++;
+        }
+      }
+
+      renderTracks();
+      renderChipBank();
+      updateCTAState();
+    }
+
+    function removeChunk(rIndex, role) {
+      composedData[rIndex][role] = "";
+      if (role === 'middle') composedData[rIndex].customText = "";
+      renderTracks();
+      renderChipBank();
+      updateCTAState();
+    }
+
+    function updateCTAState() {
+      const btn = document.getElementById('btn-to-practice');
+      // Enable if at least 1 complete sentence exists
+      const hasCompleteSentence = composedData.some(d => {
+        if (!d.starter || !d.middle || !d.ending) return false;
+        if (typeof d.middle === 'object' && d.middle.custom && (!d.customText || !d.customText.trim())) {
+          return false;
+        }
+        return true;
+      });
+
+      btn.disabled = !hasCompleteSentence;
+    }
+
+    /* ==========================================================================
+       5. TELEPROMPTER VIEW & SPEECH SYNTHESIS
+       ========================================================================== */
+    function goToPracticeView() {
+      document.getElementById('view-compose').classList.add('hidden');
+      document.getElementById('view-practice').classList.remove('hidden');
+      document.getElementById('view-practice').classList.add('flex');
+
+      renderTeleprompter();
+    }
+
+    function goToComposeView() {
+      document.getElementById('view-practice').classList.add('hidden');
+      document.getElementById('view-practice').classList.remove('flex');
+      document.getElementById('view-compose').classList.remove('hidden');
+    }
+
+    function renderTeleprompter() {
+      const container = document.getElementById('teleprompter-text');
+      container.innerHTML = '';
+
+      composedData.forEach((d, idx) => {
+        if (!d.starter && !d.middle && !d.ending) return;
+
+        const middleText = (typeof d.middle === 'object' && d.middle.custom) 
+          ? (d.customText || '___') 
+          : d.middle;
+
+        const sentenceParagraph = document.createElement('p');
+        sentenceParagraph.className = 'leading-relaxed tracking-wide';
+        
+        // Chunk rhythm formatting with '/' break markers
+        sentenceParagraph.innerHTML = `
+          <span class="text-stone-900">${d.starter}</span>
+          <span class="text-stone-400 mx-1.5 font-mono text-xl font-normal">/</span>
+          <span class="text-stone-900 font-semibold underline decoration-amber-300 decoration-2">${middleText}</span>
+          <span class="text-stone-400 mx-1.5 font-mono text-xl font-normal">/</span>
+          <span class="text-stone-900">${d.ending}</span>
+        `;
+        
+        container.appendChild(sentenceParagraph);
+      });
+    }
+
+    function getFullComposedText() {
+      return composedData
+        .filter(d => d.starter && d.middle && d.ending)
+        .map(d => {
+          const m = (typeof d.middle === 'object' && d.middle.custom) ? d.customText : d.middle;
+          return `${d.starter} ${m} ${d.ending}`;
+        })
+        .join(' ');
+    }
+
+    function speakText(text) {
+      if (!('speechSynthesis' in window)) {
+        alert("Audio playback is not supported in this browser.");
+        return;
+      }
+      window.speechSynthesis.cancel(); // Stop any current speech
+      const utterance = new SpeechSynthesisUtterance(text);
+      utterance.rate = 0.88; // Slightly slower, clear pace for A1-A2 learners
+      utterance.lang = 'en-US';
+      window.speechSynthesis.speak(utterance);
+    }
+
+    function speakComposedAnswer() {
+      const text = getFullComposedText();
+      if (text) speakText(text);
+    }
+
+    /* ==========================================================================
+       6. VOICE RECORDER (MediaRecorder API)
+       ========================================================================== */
+    async function toggleRecording() {
+      if (!isRecording) {
+        startRecording();
+      } else {
+        stopRecording();
+      }
+    }
+
+    async function startRecording() {
+      audioChunks = [];
+      const errorNotice = document.getElementById('mic-error-notice');
+      errorNotice.classList.add('hidden');
+
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        mediaRecorder = new MediaRecorder(stream);
+
+        mediaRecorder.ondataavailable = (event) => {
+          if (event.data.size > 0) {
+            audioChunks.push(event.data);
+          }
+        };
+
+        mediaRecorder.onstop = () => {
+          const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
+          const audioUrl = URL.createObjectURL(audioBlob);
+          
+          const audioPlayback = document.getElementById('audio-playback');
+          const downloadBtn = document.getElementById('btn-download-audio');
+
+          audioPlayback.src = audioUrl;
+          downloadBtn.href = audioUrl;
+
+          document.getElementById('audio-result-card').classList.remove('hidden');
+        };
+
+        mediaRecorder.start();
+        isRecording = true;
+
+        // Update UI Button state
+        const btn = document.getElementById('btn-record-toggle');
+        btn.className = 'bg-stone-900 hover:bg-stone-800 text-white text-lg font-semibold py-4 px-5 rounded-2xl shadow-sm flex items-center justify-center gap-3 recording-pulse';
+        document.getElementById('text-record-toggle').textContent = 'Stop Recording';
+        document.getElementById('icon-record').innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 10a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1h-4a1 1 0 01-1-1v-4z"/>';
+
+      } catch (err) {
+        console.warn("Microphone access error:", err);
+        errorNotice.classList.remove('hidden');
+      }
+    }
+
+    function stopRecording() {
+      if (mediaRecorder && isRecording) {
+        mediaRecorder.stop();
+        // Stop all audio track streams
+        mediaRecorder.stream.getTracks().forEach(track => track.stop());
+        isRecording = false;
+
+        // Reset UI Button state
+        const btn = document.getElementById('btn-record-toggle');
+        btn.className = 'bg-red-600 hover:bg-red-700 text-white text-lg font-semibold py-4 px-5 rounded-2xl shadow-sm flex items-center justify-center gap-3 transition-all';
+        document.getElementById('text-record-toggle').textContent = 'Record Again';
+        document.getElementById('icon-record').innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 016 0v6a3 3 0 01-3 3z"/>';
+      }
+    }
+  </script>
+</body>
+</html>
