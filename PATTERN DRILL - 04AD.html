@@ -1,0 +1,2221 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Pattern Craft — A2 English Sentence Lab with Vietnamese Translation</title>
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;0,800;1,500;1,700&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet" />
+  
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+            mono: ['"JetBrains Mono"', 'monospace'],
+          },
+          colors: {
+            slot1: {
+              light: '#3b82f6',
+              bgLight: '#eff6ff',
+              borderLight: '#93c5fd',
+              dark: '#60a5fa',
+              bgDark: 'rgba(30, 58, 138, 0.35)',
+              borderDark: '#1e40af',
+            },
+            slot2: {
+              light: '#10b981',
+              bgLight: '#ecfdf5',
+              borderLight: '#6ee7b7',
+              dark: '#34d399',
+              bgDark: 'rgba(6, 78, 59, 0.35)',
+              borderDark: '#065f46',
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    :root {
+      --sentence-scale: 1.15;
+    }
+
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      transition: background-color 0.25s ease, color 0.25s ease;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .sentence-text {
+      font-size: calc(1.5rem * var(--sentence-scale));
+      line-height: 1.45;
+    }
+
+    .translation-text {
+      font-size: calc(1.15rem * var(--sentence-scale));
+      line-height: 1.55;
+    }
+
+    @media (min-width: 768px) {
+      .sentence-text {
+        font-size: calc(2rem * var(--sentence-scale));
+        line-height: 1.4;
+      }
+      .translation-text {
+        font-size: calc(1.35rem * var(--sentence-scale));
+        line-height: 1.5;
+      }
+    }
+
+    /* Slot pulse when empty */
+    @keyframes subtle-pulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.02); }
+    }
+    .empty-slot-pulse {
+      animation: subtle-pulse 3s infinite ease-in-out;
+    }
+
+    /* Pop in animation when slot is filled */
+    @keyframes pop-in {
+      0% { transform: scale(0.92); opacity: 0.6; }
+      70% { transform: scale(1.04); }
+      100% { transform: scale(1); opacity: 1; }
+    }
+    .slot-pop {
+      animation: pop-in 0.22s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    /* Sound wave animation while TTS is playing */
+    @keyframes wave-bar {
+      0%, 100% { height: 4px; }
+      50% { height: 18px; }
+    }
+    .wave-bar:nth-child(1) { animation: wave-bar 0.7s infinite ease-in-out; }
+    .wave-bar:nth-child(2) { animation: wave-bar 0.5s infinite ease-in-out 0.15s; }
+    .wave-bar:nth-child(3) { animation: wave-bar 0.65s infinite ease-in-out 0.3s; }
+    .wave-bar:nth-child(4) { animation: wave-bar 0.8s infinite ease-in-out 0.1s; }
+
+    /* Custom range slider thumb */
+    input[type=range]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      height: 18px;
+      width: 18px;
+      border-radius: 9999px;
+      background: #3b82f6;
+      cursor: pointer;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+      transition: transform 0.15s ease;
+    }
+    input[type=range]::-webkit-slider-thumb:hover {
+      transform: scale(1.2);
+    }
+    input[type=range]::-moz-range-thumb {
+      height: 18px;
+      width: 18px;
+      border-radius: 9999px;
+      background: #3b82f6;
+      cursor: pointer;
+      border: none;
+    }
+  </style>
+</head>
+<body class="h-full bg-slate-50 text-slate-900 dark:bg-slate-950 dark:text-slate-100 flex flex-col selection:bg-blue-500 selection:text-white">
+
+  <!-- ================= TOP HEADER UTILITY BAR ================= -->
+  <header class="w-full border-b border-slate-200 dark:border-slate-800 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md sticky top-0 z-40 transition-colors">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-4">
+      
+      <!-- Brand & Level Badge -->
+      <div class="flex items-center gap-3">
+        <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-blue-600 via-indigo-600 to-amber-500 text-white flex items-center justify-center font-black text-lg shadow-sm">
+          P
+        </div>
+        <div>
+          <div class="flex items-center gap-2">
+            <span class="font-extrabold tracking-tight text-base sm:text-lg">Pattern Craft</span>
+            <span class="text-[11px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-blue-100 dark:bg-blue-950 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-800">
+              A2 EFL
+            </span>
+          </div>
+          <p class="text-xs text-slate-500 dark:text-slate-400 hidden sm:block">Interactive Sentence Builder — Adult Daily Life in Vietnam</p>
+        </div>
+      </div>
+
+      <!-- Controls: Text Size & Theme -->
+      <div class="flex items-center gap-3 sm:gap-5">
+        
+        <!-- Text Size UX Slider -->
+        <div class="flex items-center gap-2 bg-slate-100 dark:bg-slate-800/80 py-1.5 px-3 rounded-full border border-slate-200 dark:border-slate-700/60">
+          <span class="text-xs font-bold text-slate-500 dark:text-slate-400">A</span>
+          <input 
+            type="range" 
+            id="fontSizeSlider" 
+            min="0.85" 
+            max="1.55" 
+            step="0.05" 
+            value="1.15" 
+            class="w-20 sm:w-28 h-1.5 bg-slate-300 dark:bg-slate-600 rounded-lg appearance-none cursor-pointer accent-blue-600"
+            title="Adjust Sentence Display Size"
+            aria-label="Sentence Font Size Slider"
+          />
+          <span class="text-base font-bold text-slate-800 dark:text-slate-200">A</span>
+        </div>
+
+        <!-- Light/Dark Mode Toggle -->
+        <button 
+          id="themeToggleBtn"
+          class="p-2 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700 transition"
+          title="Toggle Light/Dark Theme"
+          aria-label="Toggle Theme"
+        >
+          <!-- Sun icon -->
+          <svg id="sunIcon" class="w-5 h-5 hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+          </svg>
+          <!-- Moon icon -->
+          <svg id="moonIcon" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+          </svg>
+        </button>
+      </div>
+
+    </div>
+  </header>
+
+  <!-- ================= MAIN WORKSPACE ================= -->
+  <main class="flex-1 max-w-5xl w-full mx-auto px-4 sm:px-6 py-6 md:py-8 flex flex-col justify-between gap-4">
+
+    <!-- Top Pattern Bar: Navigation & Topic Badge -->
+    <div class="flex flex-wrap items-center justify-between gap-3">
+      
+      <!-- Pattern Selector & Quick Dropdown -->
+      <div class="flex items-center gap-2">
+        <label for="patternSelect" class="sr-only">Choose Pattern</label>
+        <div class="relative inline-block">
+          <select 
+            id="patternSelect" 
+            class="appearance-none font-bold text-sm bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl px-4 py-2 pr-8 shadow-sm text-slate-800 dark:text-slate-100 hover:border-slate-400 dark:hover:border-slate-600 focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer"
+          >
+            <!-- Generated dynamically via JS -->
+          </select>
+          <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2.5 text-slate-500 dark:text-slate-400">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+            </svg>
+          </div>
+        </div>
+
+        <span id="patternCategoryBadge" class="text-xs font-semibold px-2.5 py-1 rounded-lg bg-slate-200/80 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hidden md:inline-block">
+          Grammar Pattern
+        </span>
+      </div>
+
+      <!-- Quick Action Buttons -->
+      <div class="flex items-center gap-2">
+        <!-- Shuffle Fill Button -->
+        <button 
+          id="shuffleBtn"
+          class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs sm:text-sm font-semibold bg-white dark:bg-slate-900 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-200 border border-slate-300 dark:border-slate-700 shadow-sm active:scale-95 transition"
+          title="Randomly fill both slots"
+        >
+          <span>🎲</span>
+          <span class="hidden sm:inline">Random</span> Fill
+        </button>
+
+        <!-- Clear Pattern Button -->
+        <button 
+          id="clearBtn"
+          class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs sm:text-sm font-semibold bg-white dark:bg-slate-900 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-200 border border-slate-300 dark:border-slate-700 shadow-sm active:scale-95 transition"
+          title="Remove all slotted cards"
+        >
+          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+          <span>Clear</span>
+        </button>
+
+        <!-- Prev / Next Navigation -->
+        <div class="flex items-center rounded-xl border border-slate-300 dark:border-slate-700 overflow-hidden shadow-sm bg-white dark:bg-slate-900">
+          <button 
+            id="prevPatternBtn"
+            class="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-200 border-r border-slate-200 dark:border-slate-700 active:bg-slate-200 transition"
+            title="Previous Pattern (Left Arrow)"
+            aria-label="Previous Pattern"
+          >
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7" />
+            </svg>
+          </button>
+          <button 
+            id="nextPatternBtn"
+            class="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-200 active:bg-slate-200 transition"
+            title="Next Pattern (Right Arrow)"
+            aria-label="Next Pattern"
+          >
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7" />
+            </svg>
+          </button>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ================= 1. MAIN PLAY CARD: ENGLISH SENTENCE PATTERN ================= -->
+    <div class="relative w-full rounded-3xl bg-white dark:bg-slate-900 border-2 border-slate-200/90 dark:border-slate-800 p-6 sm:p-9 shadow-lg shadow-slate-200/40 dark:shadow-none flex flex-col justify-center items-center min-h-[210px] transition-all">
+      
+      <!-- Pattern Sentence Container -->
+      <div 
+        id="sentenceDisplay" 
+        class="sentence-text font-bold text-center text-slate-800 dark:text-slate-100 leading-relaxed flex flex-wrap items-center justify-center gap-x-2 gap-y-3"
+      >
+        <!-- Injected via JavaScript -->
+      </div>
+
+      <!-- Stage Bottom Toolbar: Audio Playback & Progress Status -->
+      <div class="mt-7 pt-4 w-full flex flex-wrap items-center justify-between gap-4 border-t border-slate-100 dark:border-slate-800/80">
+        
+        <!-- Speak / Text to Speech Action -->
+        <button 
+          id="speakSentenceBtn"
+          class="flex items-center gap-2.5 px-4 py-2 rounded-2xl bg-blue-600 hover:bg-blue-700 text-white font-semibold text-sm shadow-md shadow-blue-500/20 active:scale-95 transition-all group"
+          title="Listen to the English sentence read aloud (Spacebar)"
+        >
+          <!-- Audio Wave / Speaker Icon -->
+          <div id="audioWaveContainer" class="flex items-center gap-0.5 h-5">
+            <svg id="speakerDefaultIcon" class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072M18.364 5.636a9 9 0 010 12.728M11 5L6 9H2v6h4l5 4V5z" />
+            </svg>
+            <div id="waveBars" class="hidden items-center gap-0.5">
+              <span class="wave-bar w-1 bg-white rounded-full"></span>
+              <span class="wave-bar w-1 bg-white rounded-full"></span>
+              <span class="wave-bar w-1 bg-white rounded-full"></span>
+              <span class="wave-bar w-1 bg-white rounded-full"></span>
+            </div>
+          </div>
+          <span id="speakBtnLabel">Read Aloud (English)</span>
+        </button>
+
+        <!-- Status Helper Tip -->
+        <div id="statusTip" class="text-xs font-medium text-slate-400 dark:text-slate-500 flex items-center gap-1.5">
+          <span>Click cards below to complete or swap phrases</span>
+        </div>
+
+      </div>
+
+    </div>
+
+    <!-- ================= 2. SECOND CARD: VIETNAMESE TRANSLATION (CLICKABLE TOGGLE) ================= -->
+    <div 
+      id="vietnameseCard"
+      role="button"
+      tabindex="0"
+      aria-label="Click to toggle Vietnamese translation"
+      title="Click card to toggle Vietnamese translation"
+      class="relative w-full rounded-3xl bg-gradient-to-r from-amber-50/70 via-orange-50/40 to-amber-50/70 dark:from-slate-900/90 dark:via-slate-900 dark:to-slate-900/90 border-2 border-amber-200/70 hover:border-amber-400 dark:border-amber-900/40 dark:hover:border-amber-700/60 p-5 sm:p-7 shadow-sm transition-all flex flex-col justify-center items-center cursor-pointer select-none active:scale-[0.99] group"
+    >
+      <!-- Single Vietnamese Sentence Output Container -->
+      <div 
+        id="vietnameseDisplay" 
+        class="translation-text font-medium text-center text-slate-700 dark:text-slate-200 leading-relaxed flex flex-wrap items-center justify-center gap-x-1.5 gap-y-1.5 pointer-events-none"
+      >
+        <!-- Injected simultaneously by JavaScript -->
+      </div>
+    </div>
+
+    <!-- ================= COMPONENT CARDS TRAY ================= -->
+    <div class="space-y-4">
+      
+      <!-- Slot Sections Grid (2 Columns: Slot 1 vs Slot 2) -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+        
+        <!-- Column 1: Component Cards for Slot 1 -->
+        <div class="bg-blue-50/50 dark:bg-slate-900/40 p-4 sm:p-5 rounded-3xl border border-blue-100 dark:border-blue-950/60">
+          <div class="flex items-center justify-between mb-3 px-1">
+            <div class="flex items-center gap-2">
+              <span class="w-3 h-3 rounded-full bg-blue-500 inline-block"></span>
+              <span class="text-xs font-bold uppercase tracking-wider text-blue-700 dark:text-blue-400">
+                Part 1: <span id="slot1HeaderLabel">Placeholder</span>
+              </span>
+            </div>
+            <span class="text-[11px] font-semibold text-slate-400 dark:text-slate-500">Pick 1 of 3</span>
+          </div>
+
+          <div id="slot1CardsTray" class="grid grid-cols-1 gap-2.5">
+            <!-- Cards rendered via JS -->
+          </div>
+        </div>
+
+        <!-- Column 2: Component Cards for Slot 2 -->
+        <div class="bg-emerald-50/50 dark:bg-slate-900/40 p-4 sm:p-5 rounded-3xl border border-emerald-100 dark:border-emerald-950/60">
+          <div class="flex items-center justify-between mb-3 px-1">
+            <div class="flex items-center gap-2">
+              <span class="w-3 h-3 rounded-full bg-emerald-500 inline-block"></span>
+              <span class="text-xs font-bold uppercase tracking-wider text-emerald-700 dark:text-emerald-400">
+                Part 2: <span id="slot2HeaderLabel">Placeholder</span>
+              </span>
+            </div>
+            <span class="text-[11px] font-semibold text-slate-400 dark:text-slate-500">Pick 1 of 3</span>
+          </div>
+
+          <div id="slot2CardsTray" class="grid grid-cols-1 gap-2.5">
+            <!-- Cards rendered via JS -->
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+
+    <!-- Bottom Keyboard Navigation Tip -->
+    <footer class="text-center text-xs text-slate-400 dark:text-slate-600 pb-2">
+      <p class="hidden sm:inline">Use <kbd class="px-1.5 py-0.5 rounded bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-mono text-[10px]">←</kbd> and <kbd class="px-1.5 py-0.5 rounded bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-mono text-[10px]">→</kbd> to switch patterns. Tap any placed word to eject it. Tap the bottom card to show/hide Vietnamese.</p>
+    </footer>
+
+  </main>
+
+  <!-- ================= NOTIFICATION / TOAST (NO ALERT) ================= -->
+  <div id="toast" class="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 pointer-events-none opacity-0 transition-opacity duration-300 bg-slate-900 dark:bg-white text-white dark:text-slate-900 px-4 py-2.5 rounded-full text-xs sm:text-sm font-semibold shadow-xl flex items-center gap-2">
+    <span id="toastIcon">✨</span>
+    <span id="toastMsg">Notification message</span>
+  </div>
+
+  <!-- ================= JAVASCRIPT LOGIC ================= -->
+  <script>
+    /**
+     * 24 Exemplary Sentence Patterns for A2 EFL with simultaneous Vietnamese translations.
+     */
+    const PATTERNS_DATA = [
+      {
+            "id": 1,
+            "title": "Future Plan + Reason",
+            "category": "Future: Going To + Reason",
+            "template": [
+                  "I am going to ",
+                  "[slot1]",
+                  " because I need to ",
+                  "[slot2]",
+                  "."
+            ],
+            "viTemplate": [
+                  "Tôi dự định ",
+                  "[slot1]",
+                  " bởi vì tôi cần ",
+                  "[slot2]",
+                  "."
+            ],
+            "slot1Label": "action (base verb)",
+            "slot2Label": "reason (base verb)",
+            "slot1Options": [
+                  {
+                        "id": "s1_1",
+                        "text": "stop by the local market",
+                        "vi": "ghé qua chợ gần nhà"
+                  },
+                  {
+                        "id": "s1_2",
+                        "text": "go to the supermarket early",
+                        "vi": "đi siêu thị sớm"
+                  },
+                  {
+                        "id": "s1_3",
+                        "text": "order fresh groceries on my phone",
+                        "vi": "đặt mua thực phẩm tươi trên điện thoại"
+                  }
+            ],
+            "slot2Options": [
+                  {
+                        "id": "s2_1",
+                        "text": "cook dinner for my family tonight",
+                        "vi": "nấu bữa tối cho gia đình tối nay"
+                  },
+                  {
+                        "id": "s2_2",
+                        "text": "prepare healthy lunches for the week",
+                        "vi": "chuẩn bị bữa trưa lành mạnh cho cả tuần"
+                  },
+                  {
+                        "id": "s2_3",
+                        "text": "save time after a busy workday",
+                        "vi": "tiết kiệm thời gian sau một ngày làm việc bận rộn"
+                  }
+            ]
+      },
+      {
+            "id": 2,
+            "title": "Weekend Morning Routine",
+            "category": "Gerunds (-ing) & Companions",
+            "template": [
+                  "My favorite thing about the weekend is ",
+                  "[slot1]",
+                  " with ",
+                  "[slot2]",
+                  "."
+            ],
+            "viTemplate": [
+                  "Điều tôi thích nhất vào cuối tuần là ",
+                  "[slot1]",
+                  " cùng với ",
+                  "[slot2]",
+                  "."
+            ],
+            "slot1Label": "activity (gerund -ing)",
+            "slot2Label": "person / group",
+            "slot1Options": [
+                  {
+                        "id": "s1_1",
+                        "text": "drinking iced milk coffee",
+                        "vi": "uống cà phê sữa đá"
+                  },
+                  {
+                        "id": "s1_2",
+                        "text": "eating a hot bowl of pho",
+                        "vi": "ăn một tô phở nóng"
+                  },
+                  {
+                        "id": "s1_3",
+                        "text": "walking around the shady park",
+                        "vi": "đi dạo quanh công viên rợp bóng cây"
+                  }
+            ],
+            "slot2Options": [
+                  {
+                        "id": "s2_1",
+                        "text": "my close friends",
+                        "vi": "những người bạn thân của tôi"
+                  },
+                  {
+                        "id": "s2_2",
+                        "text": "my friendly neighbors",
+                        "vi": "những người hàng xóm thân thiện"
+                  },
+                  {
+                        "id": "s2_3",
+                        "text": "my family members",
+                        "vi": "các thành viên trong gia đình"
+                  }
+            ]
+      },
+      {
+            "id": 3,
+            "title": "Concession: Even Though",
+            "category": "Contrast: Even though...",
+            "template": [
+                  "Even though it was ",
+                  "[slot1]",
+                  ", we still decided to ",
+                  "[slot2]",
+                  "."
+            ],
+            "viTemplate": [
+                  "Mặc dù ",
+                  "[slot1]",
+                  ", chúng tôi vẫn quyết định ",
+                  "[slot2]",
+                  "."
+            ],
+            "slot1Label": "weather / road condition",
+            "slot2Label": "evening plan (base verb)",
+            "slot1Options": [
+                  {
+                        "id": "s1_1",
+                        "text": "raining heavily outside",
+                        "vi": "bên ngoài trời đang mưa rất to"
+                  },
+                  {
+                        "id": "s1_2",
+                        "text": "hot and humid all afternoon",
+                        "vi": "trời nóng và ẩm suốt cả buổi chiều"
+                  },
+                  {
+                        "id": "s1_3",
+                        "text": "crowded on the main roads",
+                        "vi": "đường phố chính rất đông đúc"
+                  }
+            ],
+            "slot2Options": [
+                  {
+                        "id": "s2_1",
+                        "text": "meet for dinner in District 1",
+                        "vi": "hẹn ăn tối ở Quận 1"
+                  },
+                  {
+                        "id": "s2_2",
+                        "text": "visit the weekend night market",
+                        "vi": "đi dạo chợ đêm cuối tuần"
+                  },
+                  {
+                        "id": "s2_3",
+                        "text": "try the new seafood restaurant",
+                        "vi": "thử nhà hàng hải sản mới mở"
+                  }
+            ]
+      },
+      {
+            "id": 4,
+            "title": "Cause & Effect at Work",
+            "category": "Past Simple: Cause & Result",
+            "template": [
+                  "Because I ",
+                  "[slot1]",
+                  ", my manager ",
+                  "[slot2]",
+                  "."
+            ],
+            "viTemplate": [
+                  "Bởi vì tôi ",
+                  "[slot1]",
+                  ", quản lý của tôi ",
+                  "[slot2]",
+                  "."
+            ],
+            "slot1Label": "work action (past)",
+            "slot2Label": "manager's reaction (past)",
+            "slot1Options": [
+                  {
+                        "id": "s1_1",
+                        "text": "finished the project ahead of schedule",
+                        "vi": "đã hoàn thành dự án sớm hơn tiến độ"
+                  },
+                  {
+                        "id": "s1_2",
+                        "text": "solved the client's problem quickly",
+                        "vi": "đã giải quyết nhanh vấn đề của khách hàng"
+                  },
+                  {
+                        "id": "s1_3",
+                        "text": "organized the team meeting clearly",
+                        "vi": "đã tổ chức buổi họp nhóm rất rõ ràng"
+                  }
+            ],
+            "slot2Options": [
+                  {
+                        "id": "s2_1",
+                        "text": "praised my hard work in the meeting",
+                        "vi": "đã khen ngợi sự nỗ lực của tôi trong cuộc họp"
+                  },
+                  {
+                        "id": "s2_2",
+                        "text": "let me leave the office early on Friday",
+                        "vi": "đã cho tôi về sớm vào chiều thứ Sáu"
+                  },
+                  {
+                        "id": "s2_3",
+                        "text": "thanked me with a cup of specialty coffee",
+                        "vi": "đã cảm ơn tôi bằng một ly cà phê đặc sản"
+                  }
+            ]
+      },
+      {
+            "id": 5,
+            "title": "First Time Experience",
+            "category": "Past Simple Experience",
+            "template": [
+                  "Last Saturday, I ",
+                  "[slot1]",
+                  " for the first time and it was ",
+                  "[slot2]",
+                  "."
+            ],
+            "viTemplate": [
+                  "Thứ Bảy tuần trước, tôi ",
+                  "[slot1]",
+                  " lần đầu tiên và trải nghiệm đó ",
+                  "[slot2]",
+                  "."
+            ],
+            "slot1Label": "past simple activity",
+            "slot2Label": "opinion adjective",
+            "slot1Options": [
+                  {
+                        "id": "s1_1",
+                        "text": "took the metro train across the city",
+                        "vi": "đã đi tàu điện metro qua thành phố"
+                  },
+                  {
+                        "id": "s1_2",
+                        "text": "made fresh spring rolls at home",
+                        "vi": "đã tự cuốn gỏi cuốn tươi tại nhà"
+                  },
+                  {
+                        "id": "s1_3",
+                        "text": "rode a motorbike to Vung Tau",
+                        "vi": "đã lái xe máy đi Vũng Tàu"
+                  }
+            ],
+            "slot2Options": [
+                  {
+                        "id": "s2_1",
+                        "text": "surprisingly easy and convenient",
+                        "vi": "dễ dàng và thuận tiện đến bất ngờ"
+                  },
+                  {
+                        "id": "s2_2",
+                        "text": "much more relaxing than I expected",
+                        "vi": "thư giãn hơn nhiều so với tôi nghĩ"
+                  },
+                  {
+                        "id": "s2_3",
+                        "text": "really fun and memorable",
+                        "vi": "thực sự thú vị và đáng nhớ"
+                  }
+            ]
+      },
+      {
+            "id": 6,
+            "title": "First Conditional: If I find...",
+            "category": "Conditionals: Present & Future",
+            "template": [
+                  "If I find ",
+                  "[slot1]",
+                  ", I will immediately ",
+                  "[slot2]",
+                  "."
+            ],
+            "viTemplate": [
+                  "Nếu tôi tìm thấy ",
+                  "[slot1]",
+                  ", tôi sẽ ngay lập tức ",
+                  "[slot2]",
+                  "."
+            ],
+            "slot1Label": "good place (noun phrase)",
+            "slot2Label": "immediate action (base verb)",
+            "slot1Options": [
+                  {
+                        "id": "s1_1",
+                        "text": "a quiet cafe with fast Wi-Fi",
+                        "vi": "một quán cà phê yên tĩnh có Wi-Fi mạnh"
+                  },
+                  {
+                        "id": "s1_2",
+                        "text": "a cozy local restaurant in this alley",
+                        "vi": "một quán ăn địa phương ấm cúng trong con hẻm này"
+                  },
+                  {
+                        "id": "s1_3",
+                        "text": "a breezy spot by the river",
+                        "vi": "một chỗ ngồi thoáng mát bên bờ sông"
+                  }
+            ],
+            "slot2Options": [
+                  {
+                        "id": "s2_1",
+                        "text": "send the location to my friends",
+                        "vi": "gửi định vị cho bạn bè của tôi"
+                  },
+                  {
+                        "id": "s2_2",
+                        "text": "save the address on Google Maps",
+                        "vi": "lưu địa chỉ đó trên Google Maps"
+                  },
+                  {
+                        "id": "s2_3",
+                        "text": "invite my colleagues to come over",
+                        "vi": "mời các đồng nghiệp cùng ghé qua"
+                  }
+            ]
+      },
+      {
+            "id": 7,
+            "title": "Unexpected Work Delay",
+            "category": "Past Simple: Explaining a Delay",
+            "template": [
+                  "I couldn't finish my report on time because my ",
+                  "[slot1]",
+                  " suddenly ",
+                  "[slot2]",
+                  "."
+            ],
+            "viTemplate": [
+                  "Tôi không thể hoàn thành báo cáo đúng hạn vì ",
+                  "[slot1]",
+                  " của tôi đột nhiên ",
+                  "[slot2]",
+                  "."
+            ],
+            "slot1Label": "device / connection",
+            "slot2Label": "technical issue (past)",
+            "slot1Options": [
+                  {
+                        "id": "s1_1",
+                        "text": "home internet connection",
+                        "vi": "mạng internet ở nhà"
+                  },
+                  {
+                        "id": "s1_2",
+                        "text": "office laptop computer",
+                        "vi": "máy tính xách tay ở văn phòng"
+                  },
+                  {
+                        "id": "s1_3",
+                        "text": "wireless Wi-Fi router",
+                        "vi": "bộ phát Wi-Fi không dây"
+                  }
+            ],
+            "slot2Options": [
+                  {
+                        "id": "s2_1",
+                        "text": "stopped working for two hours",
+                        "vi": "ngừng hoạt động suốt hai tiếng đồng hồ"
+                  },
+                  {
+                        "id": "s2_2",
+                        "text": "lost power during the afternoon storm",
+                        "vi": "bị mất nguồn điện trong cơn mưa giông buổi chiều"
+                  },
+                  {
+                        "id": "s2_3",
+                        "text": "restarted right in the middle of my work",
+                        "vi": "tự khởi động lại ngay lúc tôi đang làm dở việc"
+                  }
+            ]
+      },
+      {
+            "id": 8,
+            "title": "Advice with While",
+            "category": "Modal: Should Never + While",
+            "template": [
+                  "You should never ",
+                  "[slot1]",
+                  " while you are ",
+                  "[slot2]",
+                  "!"
+            ],
+            "viTemplate": [
+                  "Bạn không bao giờ nên ",
+                  "[slot1]",
+                  " trong khi bạn đang ",
+                  "[slot2]",
+                  "!"
+            ],
+            "slot1Label": "unsafe action (base verb)",
+            "slot2Label": "activity (gerund -ing)",
+            "slot1Options": [
+                  {
+                        "id": "s1_1",
+                        "text": "send text messages on your phone",
+                        "vi": "nhắn tin trên điện thoại"
+                  },
+                  {
+                        "id": "s1_2",
+                        "text": "check directions on a map app",
+                        "vi": "xem đường trên ứng dụng bản đồ"
+                  },
+                  {
+                        "id": "s1_3",
+                        "text": "answer a video call",
+                        "vi": "nghe một cuộc gọi video"
+                  }
+            ],
+            "slot2Options": [
+                  {
+                        "id": "s2_1",
+                        "text": "riding a motorbike in heavy traffic",
+                        "vi": "lái xe máy giữa dòng giao thông đông đúc"
+                  },
+                  {
+                        "id": "s2_2",
+                        "text": "crossing a busy intersection",
+                        "vi": "băng qua một ngã tư đông xe"
+                  },
+                  {
+                        "id": "s2_3",
+                        "text": "driving home in the rain",
+                        "vi": "lái xe về nhà dưới trời mưa"
+                  }
+            ]
+      },
+      {
+            "id": 9,
+            "title": "Superlative: The Fastest Way",
+            "category": "Superlative & Practical Strategy",
+            "template": [
+                  "The fastest way to ",
+                  "[slot1]",
+                  " is to ",
+                  "[slot2]",
+                  "."
+            ],
+            "viTemplate": [
+                  "Cách nhanh nhất để ",
+                  "[slot1]",
+                  " là ",
+                  "[slot2]",
+                  "."
+            ],
+            "slot1Label": "goal (base verb)",
+            "slot2Label": "smart method (base verb)",
+            "slot1Options": [
+                  {
+                        "id": "s1_1",
+                        "text": "improve your spoken Vietnamese",
+                        "vi": "cải thiện kỹ năng nói tiếng Việt"
+                  },
+                  {
+                        "id": "s1_2",
+                        "text": "learn everyday local expressions",
+                        "vi": "học các cách diễn đạt đời thường ở địa phương"
+                  },
+                  {
+                        "id": "s1_3",
+                        "text": "feel at home in a new neighborhood",
+                        "vi": "cảm thấy thân thuộc ở một khu phố mới"
+                  }
+            ],
+            "slot2Options": [
+                  {
+                        "id": "s2_1",
+                        "text": "chat with street food vendors every morning",
+                        "vi": "trò chuyện với người bán đồ ăn sáng mỗi ngày"
+                  },
+                  {
+                        "id": "s2_2",
+                        "text": "practice short conversations with your neighbors",
+                        "vi": "luyện các cuộc hội thoại ngắn với hàng xóm"
+                  },
+                  {
+                        "id": "s2_3",
+                        "text": "visit the same local coffee shop regularly",
+                        "vi": "ghé cùng một quán cà phê quen thường xuyên"
+                  }
+            ]
+      },
+      {
+            "id": 10,
+            "title": "Past Continuous: Quiet Moments",
+            "category": "Past Continuous vs Past Simple",
+            "template": [
+                  "While my family was ",
+                  "[slot1]",
+                  ", I quietly ",
+                  "[slot2]",
+                  "."
+            ],
+            "viTemplate": [
+                  "Trong khi gia đình tôi đang ",
+                  "[slot1]",
+                  ", tôi đã lặng lẽ ",
+                  "[slot2]",
+                  "."
+            ],
+            "slot1Label": "family activity (-ing)",
+            "slot2Label": "calm past action",
+            "slot1Options": [
+                  {
+                        "id": "s1_1",
+                        "text": "resting after Sunday lunch",
+                        "vi": "nghỉ ngơi sau bữa trưa Chủ Nhật"
+                  },
+                  {
+                        "id": "s1_2",
+                        "text": "watching a movie in the living room",
+                        "vi": "xem phim ở phòng khách"
+                  },
+                  {
+                        "id": "s1_3",
+                        "text": "chatting together on the balcony",
+                        "vi": "trò chuyện cùng nhau ngoài ban công"
+                  }
+            ],
+            "slot2Options": [
+                  {
+                        "id": "s2_1",
+                        "text": "brewed a pot of hot lotus tea",
+                        "vi": "pha một ấm trà sen nóng"
+                  },
+                  {
+                        "id": "s2_2",
+                        "text": "read two chapters of my favorite book",
+                        "vi": "đọc hai chương trong cuốn sách yêu thích"
+                  },
+                  {
+                        "id": "s2_3",
+                        "text": "watered the green plants on the porch",
+                        "vi": "tưới những chậu cây xanh ngoài hiên nhà"
+                  }
+            ]
+      },
+      {
+            "id": 11,
+            "title": "Awkward Workplace Moments",
+            "category": "Complex Sentence: When...",
+            "template": [
+                  "I was so embarrassed when I ",
+                  "[slot1]",
+                  " right in front of ",
+                  "[slot2]",
+                  "."
+            ],
+            "viTemplate": [
+                  "Tôi đã rất ngại khi mình ",
+                  "[slot1]",
+                  " ngay trước mặt ",
+                  "[slot2]",
+                  "."
+            ],
+            "slot1Label": "awkward mistake (past)",
+            "slot2Label": "audience / person",
+            "slot1Options": [
+                  {
+                        "id": "s1_1",
+                        "text": "forgot the new client's name",
+                        "vi": "quên mất tên của vị khách hàng mới"
+                  },
+                  {
+                        "id": "s1_2",
+                        "text": "spilled iced coffee on my white shirt",
+                        "vi": "làm đổ cà phê đá lên chiếc áo sơ mi trắng"
+                  },
+                  {
+                        "id": "s1_3",
+                        "text": "walked into the wrong meeting room",
+                        "vi": "bước nhầm vào phòng họp khác"
+                  }
+            ],
+            "slot2Options": [
+                  {
+                        "id": "s2_1",
+                        "text": "the entire project team",
+                        "vi": "toàn bộ nhóm dự án"
+                  },
+                  {
+                        "id": "s2_2",
+                        "text": "our visiting business partners",
+                        "vi": "các đối tác kinh doanh đến thăm công ty"
+                  },
+                  {
+                        "id": "s2_3",
+                        "text": "the company director",
+                        "vi": "giám đốc công ty"
+                  }
+            ]
+      },
+      {
+            "id": 12,
+            "title": "Adjective + Enough To",
+            "category": "Enough to + Infinitive",
+            "template": [
+                  "My best friend is ",
+                  "[slot1]",
+                  " enough to ",
+                  "[slot2]",
+                  "."
+            ],
+            "viTemplate": [
+                  "Người bạn thân nhất của tôi đủ ",
+                  "[slot1]",
+                  " để ",
+                  "[slot2]",
+                  "."
+            ],
+            "slot1Label": "personality adjective",
+            "slot2Label": "impressive skill (base verb)",
+            "slot1Options": [
+                  {
+                        "id": "s1_1",
+                        "text": "patient and calm",
+                        "vi": "kiên nhẫn và điềm tĩnh"
+                  },
+                  {
+                        "id": "s1_2",
+                        "text": "skilled and confident",
+                        "vi": "khéo léo và tự tin"
+                  },
+                  {
+                        "id": "s1_3",
+                        "text": "experienced and reliable",
+                        "vi": "giàu kinh nghiệm và đáng tin cậy"
+                  }
+            ],
+            "slot2Options": [
+                  {
+                        "id": "s2_1",
+                        "text": "drive through rush-hour traffic with a smile",
+                        "vi": "lái xe qua giờ cao điểm với một nụ cười"
+                  },
+                  {
+                        "id": "s2_2",
+                        "text": "bargain for great prices at the local market",
+                        "vi": "thương lượng được giá tốt ở khu chợ địa phương"
+                  },
+                  {
+                        "id": "s2_3",
+                        "text": "prepare a delicious dinner for ten guests",
+                        "vi": "chuẩn bị một bữa tối ngon miệng cho mười vị khách"
+                  }
+            ]
+      },
+      {
+            "id": 13,
+            "title": "Morning Habit: So that...",
+            "category": "Purpose: So that I can...",
+            "template": [
+                  "Before a busy workday, I always ",
+                  "[slot1]",
+                  " so that I can ",
+                  "[slot2]",
+                  "."
+            ],
+            "viTemplate": [
+                  "Trước một ngày làm việc bận rộn, tôi luôn ",
+                  "[slot1]",
+                  " để có thể ",
+                  "[slot2]",
+                  "."
+            ],
+            "slot1Label": "morning routine (base verb)",
+            "slot2Label": "desired outcome (base verb)",
+            "slot1Options": [
+                  {
+                        "id": "s1_1",
+                        "text": "do fifteen minutes of morning stretching",
+                        "vi": "tập giãn cơ mười lăm phút buổi sáng"
+                  },
+                  {
+                        "id": "s1_2",
+                        "text": "eat a nutritious breakfast at home",
+                        "vi": "ăn một bữa sáng đầy đủ dinh dưỡng tại nhà"
+                  },
+                  {
+                        "id": "s1_3",
+                        "text": "write down my top three tasks for the day",
+                        "vi": "viết ra ba công việc quan trọng nhất trong ngày"
+                  }
+            ],
+            "slot2Options": [
+                  {
+                        "id": "s2_1",
+                        "text": "stay completely focused all morning",
+                        "vi": "giữ sự tập trung hoàn toàn suốt buổi sáng"
+                  },
+                  {
+                        "id": "s2_2",
+                        "text": "keep my energy steady until evening",
+                        "vi": "duy trì năng lượng ổn định cho đến tối"
+                  },
+                  {
+                        "id": "s2_3",
+                        "text": "handle unexpected problems calmly",
+                        "vi": "xử lý các vấn đề phát sinh một cách bình tĩnh"
+                  }
+            ]
+      },
+      {
+            "id": 14,
+            "title": "Preference: Would Rather",
+            "category": "Preference: Would Rather... Than",
+            "template": [
+                  "I would much rather ",
+                  "[slot1]",
+                  " than ",
+                  "[slot2]",
+                  "."
+            ],
+            "viTemplate": [
+                  "Tôi thà ",
+                  "[slot1]",
+                  " còn hơn là ",
+                  "[slot2]",
+                  "."
+            ],
+            "slot1Label": "preferred activity (base verb)",
+            "slot2Label": "tiring alternative (base verb)",
+            "slot1Options": [
+                  {
+                        "id": "s1_1",
+                        "text": "wake up early for a quiet morning walk",
+                        "vi": "thức dậy sớm để đi bộ buổi sáng yên tĩnh"
+                  },
+                  {
+                        "id": "s1_2",
+                        "text": "cook a simple dinner at home",
+                        "vi": "nấu một bữa tối đơn giản tại nhà"
+                  },
+                  {
+                        "id": "s1_3",
+                        "text": "read a good book at a garden cafe",
+                        "vi": "đọc một cuốn sách hay ở quán cà phê sân vườn"
+                  }
+            ],
+            "slot2Options": [
+                  {
+                        "id": "s2_1",
+                        "text": "sit in heavy traffic during rush hour",
+                        "vi": "ngồi chịu cảnh kẹt xe vào giờ cao điểm"
+                  },
+                  {
+                        "id": "s2_2",
+                        "text": "wait in a long line at a crowded mall",
+                        "vi": "xếp hàng dài chờ đợi ở trung tâm thương mại đông đúc"
+                  },
+                  {
+                        "id": "s2_3",
+                        "text": "spend all evening scrolling on my phone",
+                        "vi": "dành cả buổi tối chỉ để lướt điện thoại"
+                  }
+            ]
+      },
+      {
+            "id": 15,
+            "title": "Whenever + Feel Like",
+            "category": "Habit & Sensation",
+            "template": [
+                  "Whenever I eat ",
+                  "[slot1]",
+                  ", I instantly feel like ",
+                  "[slot2]",
+                  "."
+            ],
+            "viTemplate": [
+                  "Bất cứ khi nào ăn ",
+                  "[slot1]",
+                  ", tôi liền cảm thấy như ",
+                  "[slot2]",
+                  "."
+            ],
+            "slot1Label": "favorite Vietnamese food",
+            "slot2Label": "feeling / wish",
+            "slot1Options": [
+                  {
+                        "id": "s1_1",
+                        "text": "a hot bowl of Hue beef noodle soup",
+                        "vi": "một tô bún bò Huế nóng hổi"
+                  },
+                  {
+                        "id": "s1_2",
+                        "text": "a crispy banh mi with fresh herbs",
+                        "vi": "một ổ bánh mì giòn rụm kèm rau thơm tươi"
+                  },
+                  {
+                        "id": "s1_3",
+                        "text": "sweet mango sticky rice",
+                        "vi": "món xôi xoài ngọt dịu"
+                  }
+            ],
+            "slot2Options": [
+                  {
+                        "id": "s2_1",
+                        "text": "I have plenty of energy for the whole day",
+                        "vi": "mình có tràn đầy năng lượng cho cả ngày dài"
+                  },
+                  {
+                        "id": "s2_2",
+                        "text": "ordering another portion for my family",
+                        "vi": "muốn gọi thêm một phần nữa đem về cho gia đình"
+                  },
+                  {
+                        "id": "s2_3",
+                        "text": "taking a relaxing afternoon nap",
+                        "vi": "muốn chợp mắt nghỉ trưa thật thư thái"
+                  }
+            ]
+      },
+      {
+            "id": 16,
+            "title": "Neighborhood Moment",
+            "category": "Narrative Past Simple",
+            "template": [
+                  "Suddenly someone shouted '",
+                  "[slot1]",
+                  "' and everyone ",
+                  "[slot2]",
+                  "."
+            ],
+            "viTemplate": [
+                  "Đột nhiên ai đó gọi lớn '",
+                  "[slot1]",
+                  "' và tất cả mọi người ",
+                  "[slot2]",
+                  "."
+            ],
+            "slot1Label": "urgent announcement",
+            "slot2Label": "crowd reaction (past)",
+            "slot1Options": [
+                  {
+                        "id": "s1_1",
+                        "text": "It is starting to rain heavily!",
+                        "vi": "Trời bắt đầu đổ mưa to rồi kìa!"
+                  },
+                  {
+                        "id": "s1_2",
+                        "text": "The delivery driver is waiting outside!",
+                        "vi": "Anh giao hàng đang đợi ngoài cổng kìa!"
+                  },
+                  {
+                        "id": "s1_3",
+                        "text": "The lion dance team is coming down the street!",
+                        "vi": "Đoàn múa lân đang đi tới đầu phố kìa!"
+                  }
+            ],
+            "slot2Options": [
+                  {
+                        "id": "s2_1",
+                        "text": "stopped what they were doing right away",
+                        "vi": "đã lập tức dừng công việc đang làm lại"
+                  },
+                  {
+                        "id": "s2_2",
+                        "text": "stood up and walked toward the front door",
+                        "vi": "đã đứng dậy và bước nhanh ra phía cửa trước"
+                  },
+                  {
+                        "id": "s2_3",
+                        "text": "looked outside to see what was happening",
+                        "vi": "đã nhìn ra ngoài xem chuyện gì đang diễn ra"
+                  }
+            ]
+      },
+      {
+            "id": 17,
+            "title": "The Golden Rule of Traffic",
+            "category": "Rules: Never + When",
+            "template": [
+                  "The golden rule of city traffic is never to ",
+                  "[slot1]",
+                  " when you are ",
+                  "[slot2]",
+                  "."
+            ],
+            "viTemplate": [
+                  "Nguyên tắc vàng khi đi đường trong thành phố là không bao giờ ",
+                  "[slot1]",
+                  " khi bạn đang ",
+                  "[slot2]",
+                  "."
+            ],
+            "slot1Label": "unsafe mistake (base verb)",
+            "slot2Label": "traffic situation (-ing)",
+            "slot1Options": [
+                  {
+                        "id": "s1_1",
+                        "text": "brake suddenly without checking your mirrors",
+                        "vi": "phanh gấp mà không nhìn gương chiếu hậu"
+                  },
+                  {
+                        "id": "s1_2",
+                        "text": "turn without using your signal light",
+                        "vi": "rẽ hướng mà không bật đèn xi-nhan"
+                  },
+                  {
+                        "id": "s1_3",
+                        "text": "lose your patience with other riders",
+                        "vi": "mất kiên nhẫn với những người đi đường khác"
+                  }
+            ],
+            "slot2Options": [
+                  {
+                        "id": "s2_1",
+                        "text": "entering a busy roundabout",
+                        "vi": "đi vào một vòng xoay đông xe"
+                  },
+                  {
+                        "id": "s2_2",
+                        "text": "riding across a crowded bridge",
+                        "vi": "chạy xe qua một cây cầu đông đúc"
+                  },
+                  {
+                        "id": "s2_3",
+                        "text": "merging into the main traffic lane",
+                        "vi": "nhập vào làn đường giao thông chính"
+                  }
+            ]
+      },
+      {
+            "id": 18,
+            "title": "Forgotten Item Substitute",
+            "category": "Obligation: Had to use... instead",
+            "template": [
+                  "I forgot my ",
+                  "[slot1]",
+                  ", so I had to use ",
+                  "[slot2]",
+                  " instead."
+            ],
+            "viTemplate": [
+                  "Tôi đã quên mang ",
+                  "[slot1]",
+                  ", nên tôi đành phải dùng ",
+                  "[slot2]",
+                  " để thay thế."
+            ],
+            "slot1Label": "forgotten rain gear",
+            "slot2Label": "practical substitute",
+            "slot1Options": [
+                  {
+                        "id": "s1_1",
+                        "text": "heavy motorbike raincoat",
+                        "vi": "chiếc áo mưa đi xe máy dày dặn"
+                  },
+                  {
+                        "id": "s1_2",
+                        "text": "compact folding umbrella",
+                        "vi": "chiếc ô gấp nhỏ gọn"
+                  },
+                  {
+                        "id": "s1_3",
+                        "text": "waterproof windbreaker jacket",
+                        "vi": "chiếc áo khoác gió chống thấm nước"
+                  }
+            ],
+            "slot2Options": [
+                  {
+                        "id": "s2_1",
+                        "text": "a thin plastic poncho from a roadside shop",
+                        "vi": "chiếc áo mưa tiện lợi mua ở tiệm ven đường"
+                  },
+                  {
+                        "id": "s2_2",
+                        "text": "a borrowed umbrella from the security guard",
+                        "vi": "chiếc ô mượn của bác bảo vệ"
+                  },
+                  {
+                        "id": "s2_3",
+                        "text": "an old spare raincoat under my motorbike seat",
+                        "vi": "chiếc áo mưa cũ dự phòng dưới cốp xe máy"
+                  }
+            ]
+      },
+      {
+            "id": 19,
+            "title": "Manager's Promise",
+            "category": "Time Clause: After + Past Simple",
+            "template": [
+                  "After our team ",
+                  "[slot1]",
+                  ", our manager promised to ",
+                  "[slot2]",
+                  "."
+            ],
+            "viTemplate": [
+                  "Sau khi nhóm của chúng tôi ",
+                  "[slot1]",
+                  ", quản lý đã hứa sẽ ",
+                  "[slot2]",
+                  "."
+            ],
+            "slot1Label": "team achievement (past)",
+            "slot2Label": "promised reward (base verb)",
+            "slot1Options": [
+                  {
+                        "id": "s1_1",
+                        "text": "completed the quarterly targets early",
+                        "vi": "hoàn thành sớm chỉ tiêu quý"
+                  },
+                  {
+                        "id": "s1_2",
+                        "text": "signed the contract with the new partner",
+                        "vi": "ký được hợp đồng với đối tác mới"
+                  },
+                  {
+                        "id": "s1_3",
+                        "text": "launched the new service successfully",
+                        "vi": "ra mắt thành công dịch vụ mới"
+                  }
+            ],
+            "slot2Options": [
+                  {
+                        "id": "s2_1",
+                        "text": "treat everyone to a seafood hotpot dinner",
+                        "vi": "đãi cả nhóm một bữa lẩu hải sản"
+                  },
+                  {
+                        "id": "s2_2",
+                        "text": "give the whole department an extra day off",
+                        "vi": "thưởng cho cả phòng thêm một ngày nghỉ phép"
+                  },
+                  {
+                        "id": "s2_3",
+                        "text": "organize a weekend team trip to Da Lat",
+                        "vi": "tổ chức chuyến đi chơi cuối tuần ở Đà Lạt cho cả nhóm"
+                  }
+            ]
+      },
+      {
+            "id": 20,
+            "title": "Ability: Can't Without -ing",
+            "category": "Negative Ability + Without",
+            "template": [
+                  "Nobody in my office can ",
+                  "[slot1]",
+                  " without ",
+                  "[slot2]",
+                  "."
+            ],
+            "viTemplate": [
+                  "Không ai trong văn phòng tôi có thể ",
+                  "[slot1]",
+                  " mà không ",
+                  "[slot2]",
+                  "."
+            ],
+            "slot1Label": "workday task (base verb)",
+            "slot2Label": "essential habit (-ing)",
+            "slot1Options": [
+                  {
+                        "id": "s1_1",
+                        "text": "start the Monday morning meeting",
+                        "vi": "bắt đầu cuộc họp sáng thứ Hai"
+                  },
+                  {
+                        "id": "s1_2",
+                        "text": "get through a busy afternoon",
+                        "vi": "vượt qua buổi chiều làm việc bận rộn"
+                  },
+                  {
+                        "id": "s1_3",
+                        "text": "finish a long financial report",
+                        "vi": "hoàn thành một bản báo cáo tài chính dài"
+                  }
+            ],
+            "slot2Options": [
+                  {
+                        "id": "s2_1",
+                        "text": "drinking a strong cup of iced coffee",
+                        "vi": "uống một ly cà phê đá đậm đà"
+                  },
+                  {
+                        "id": "s2_2",
+                        "text": "taking a short break for fresh air",
+                        "vi": "nghỉ giải lao ít phút để hít thở không khí"
+                  },
+                  {
+                        "id": "s2_3",
+                        "text": "sharing some fresh tropical fruit together",
+                        "vi": "cùng nhau ăn một ít trái cây nhiệt đới tươi mát"
+                  }
+            ]
+      },
+      {
+            "id": 21,
+            "title": "Friendly Office Favor",
+            "category": "First Conditional: If you bring...",
+            "template": [
+                  "If you bring me ",
+                  "[slot1]",
+                  ", I will happily ",
+                  "[slot2]",
+                  " for you."
+            ],
+            "viTemplate": [
+                  "Nếu bạn mang cho tôi ",
+                  "[slot1]",
+                  ", tôi sẽ sẵn lòng ",
+                  "[slot2]",
+                  " giúp bạn."
+            ],
+            "slot1Label": "afternoon treat",
+            "slot2Label": "helpful favor (base verb)",
+            "slot1Options": [
+                  {
+                        "id": "s1_1",
+                        "text": "a cup of salted cream coffee",
+                        "vi": "một ly cà phê muối"
+                  },
+                  {
+                        "id": "s1_2",
+                        "text": "a hot crispy pork banh mi",
+                        "vi": "một ổ bánh mì thịt nướng nóng giòn"
+                  },
+                  {
+                        "id": "s1_3",
+                        "text": "a glass of cold sugarcane juice",
+                        "vi": "một ly nước mía mát lạnh"
+                  }
+            ],
+            "slot2Options": [
+                  {
+                        "id": "s2_1",
+                        "text": "check your English presentation slides",
+                        "vi": "kiểm tra giúp các trang thuyết trình tiếng Anh của bạn"
+                  },
+                  {
+                        "id": "s2_2",
+                        "text": "translate this document into English",
+                        "vi": "dịch tài liệu này sang tiếng Anh"
+                  },
+                  {
+                        "id": "s2_3",
+                        "text": "pick up your delivery at the front gate",
+                        "vi": "nhận giúp đơn hàng của bạn ở cổng trước"
+                  }
+            ]
+      },
+      {
+            "id": 22,
+            "title": "Hobby & Feeling",
+            "category": "Enjoy + -ing & Causative",
+            "template": [
+                  "I really enjoy ",
+                  "[slot1]",
+                  " because it makes me feel ",
+                  "[slot2]",
+                  "."
+            ],
+            "viTemplate": [
+                  "Tôi thực sự thích ",
+                  "[slot1]",
+                  " bởi vì việc đó khiến tôi cảm thấy ",
+                  "[slot2]",
+                  "."
+            ],
+            "slot1Label": "hobby (gerund -ing)",
+            "slot2Label": "emotion / state",
+            "slot1Options": [
+                  {
+                        "id": "s1_1",
+                        "text": "practicing martial arts in the evening",
+                        "vi": "tập võ vào buổi tối"
+                  },
+                  {
+                        "id": "s1_2",
+                        "text": "baking fresh bread at home on Sundays",
+                        "vi": "tự nướng bánh mì tươi tại nhà vào ngày Chủ Nhật"
+                  },
+                  {
+                        "id": "s1_3",
+                        "text": "cycling along the river at sunrise",
+                        "vi": "đạp xe dọc bờ sông lúc bình minh"
+                  }
+            ],
+            "slot2Options": [
+                  {
+                        "id": "s2_1",
+                        "text": "calm and mentally refreshed",
+                        "vi": "bình tâm và sảng khoái tinh thần"
+                  },
+                  {
+                        "id": "s2_2",
+                        "text": "healthy and full of positive energy",
+                        "vi": "khỏe khoắn và tràn đầy năng lượng tích cực"
+                  },
+                  {
+                        "id": "s2_3",
+                        "text": "relaxed after a demanding week",
+                        "vi": "thư thái sau một tuần làm việc căng thẳng"
+                  }
+            ]
+      },
+      {
+            "id": 23,
+            "title": "After the Rain Stopped",
+            "category": "Time Connector: As soon as...",
+            "template": [
+                  "As soon as the rain stopped, we ",
+                  "[slot1]",
+                  " so we could ",
+                  "[slot2]",
+                  "."
+            ],
+            "viTemplate": [
+                  "Ngay khi trời vừa tạnh mưa, chúng tôi ",
+                  "[slot1]",
+                  " để có thể ",
+                  "[slot2]",
+                  "."
+            ],
+            "slot1Label": "immediate action (past)",
+            "slot2Label": "evening mission (base verb)",
+            "slot1Options": [
+                  {
+                        "id": "s1_1",
+                        "text": "folded up our wet raincoats",
+                        "vi": "gấp gọn những chiếc áo mưa ướt"
+                  },
+                  {
+                        "id": "s1_2",
+                        "text": "left the coffee shop right away",
+                        "vi": "rời quán cà phê ngay lập tức"
+                  },
+                  {
+                        "id": "s1_3",
+                        "text": "started our motorbikes quickly",
+                        "vi": "nhanh chóng nổ máy xe"
+                  }
+            ],
+            "slot2Options": [
+                  {
+                        "id": "s2_1",
+                        "text": "get home before evening rush hour",
+                        "vi": "về đến nhà trước giờ cao điểm buổi tối"
+                  },
+                  {
+                        "id": "s2_2",
+                        "text": "enjoy the cool breeze along the river",
+                        "vi": "tận hưởng làn gió mát dọc bờ sông"
+                  },
+                  {
+                        "id": "s2_3",
+                        "text": "buy fresh vegetables at the afternoon market",
+                        "vi": "mua rau tươi ở khu chợ chiều"
+                  }
+            ]
+      },
+      {
+            "id": 24,
+            "title": "Good Intentions vs Reality",
+            "category": "Contrast: Promised vs Instead",
+            "template": [
+                  "I promised myself I would ",
+                  "[slot1]",
+                  ", but instead I ",
+                  "[slot2]",
+                  "."
+            ],
+            "viTemplate": [
+                  "Tôi đã tự hứa với bản thân sẽ ",
+                  "[slot1]",
+                  ", nhưng thay vào đó tôi lại ",
+                  "[slot2]",
+                  "."
+            ],
+            "slot1Label": "good intention (base verb)",
+            "slot2Label": "relaxing reality (past)",
+            "slot1Options": [
+                  {
+                        "id": "s1_1",
+                        "text": "clean the entire apartment this morning",
+                        "vi": "dọn dẹp toàn bộ căn hộ vào sáng nay"
+                  },
+                  {
+                        "id": "s1_2",
+                        "text": "organize my monthly bills and receipts",
+                        "vi": "sắp xếp lại các hóa đơn chi tiêu hằng tháng"
+                  },
+                  {
+                        "id": "s1_3",
+                        "text": "exercise for an hour after work",
+                        "vi": "tập thể dục một tiếng đồng hồ sau giờ làm"
+                  }
+            ],
+            "slot2Options": [
+                  {
+                        "id": "s2_1",
+                        "text": "took a two-hour nap under the ceiling fan",
+                        "vi": "ngủ một giấc hai tiếng dưới quạt trần"
+                  },
+                  {
+                        "id": "s2_2",
+                        "text": "sat on the balcony drinking iced tea",
+                        "vi": "ngồi ngoài ban công nhâm nhi ly trà đá"
+                  },
+                  {
+                        "id": "s2_3",
+                        "text": "chatted with my neighbors over coffee",
+                        "vi": "ngồi uống cà phê trò chuyện với hàng xóm"
+                  }
+            ]
+      }
+];
+
+    // ================= STATE MANAGEMENT =================
+    let state = {
+      currentIndex: 0,
+      slot1CardId: null,
+      slot2CardId: null,
+      isSpeaking: false,
+      theme: 'light',
+      fontSizeScale: 1.15,
+      showTranslation: true // Toggled by clicking the card
+    };
+
+    // DOM Elements
+    const sentenceDisplayEl = document.getElementById('sentenceDisplay');
+    const vietnameseCardEl = document.getElementById('vietnameseCard');
+    const vietnameseDisplayEl = document.getElementById('vietnameseDisplay');
+    const slot1TrayEl = document.getElementById('slot1CardsTray');
+    const slot2TrayEl = document.getElementById('slot2CardsTray');
+    const slot1HeaderLabel = document.getElementById('slot1HeaderLabel');
+    const slot2HeaderLabel = document.getElementById('slot2HeaderLabel');
+    const patternSelectEl = document.getElementById('patternSelect');
+    const patternCategoryBadgeEl = document.getElementById('patternCategoryBadge');
+    const prevBtn = document.getElementById('prevPatternBtn');
+    const nextBtn = document.getElementById('nextPatternBtn');
+    const shuffleBtn = document.getElementById('shuffleBtn');
+    const clearBtn = document.getElementById('clearBtn');
+    const speakBtn = document.getElementById('speakSentenceBtn');
+    const speakBtnLabel = document.getElementById('speakBtnLabel');
+    const speakerDefaultIcon = document.getElementById('speakerDefaultIcon');
+    const waveBars = document.getElementById('waveBars');
+    const fontSizeSlider = document.getElementById('fontSizeSlider');
+    const themeToggleBtn = document.getElementById('themeToggleBtn');
+    const sunIcon = document.getElementById('sunIcon');
+    const moonIcon = document.getElementById('moonIcon');
+    const toast = document.getElementById('toast');
+    const toastMsg = document.getElementById('toastMsg');
+    const toastIcon = document.getElementById('toastIcon');
+
+    // ================= INITIALIZATION =================
+    function init() {
+      // 1. Initialize Theme from localStorage or system preference
+      const savedTheme = localStorage.getItem('pattern_craft_theme');
+      if (savedTheme) {
+        setTheme(savedTheme);
+      } else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        setTheme('dark');
+      } else {
+        setTheme('light');
+      }
+
+      // 2. Initialize Font Size scale
+      const savedScale = localStorage.getItem('pattern_craft_font_scale');
+      if (savedScale) {
+        state.fontSizeScale = parseFloat(savedScale);
+        fontSizeSlider.value = savedScale;
+      }
+      applyFontSize(state.fontSizeScale);
+
+      // 3. Populate Pattern Selector Dropdown
+      patternSelectEl.innerHTML = '';
+      PATTERNS_DATA.forEach((pat, idx) => {
+        const opt = document.createElement('option');
+        opt.value = idx;
+        opt.textContent = `${idx + 1}. ${pat.title}`;
+        patternSelectEl.appendChild(opt);
+      });
+
+      // 4. Attach Event Listeners
+      patternSelectEl.addEventListener('change', (e) => {
+        loadPattern(parseInt(e.target.value, 10));
+      });
+
+      prevBtn.addEventListener('click', () => navigatePattern(-1));
+      nextBtn.addEventListener('click', () => navigatePattern(1));
+      shuffleBtn.addEventListener('click', shuffleFill);
+      clearBtn.addEventListener('click', clearSlots);
+      speakBtn.addEventListener('click', speakSentence);
+
+      // Click card itself to toggle Vietnamese visibility
+      vietnameseCardEl.addEventListener('click', toggleTranslationVisibility);
+      vietnameseCardEl.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          toggleTranslationVisibility();
+        }
+      });
+
+      fontSizeSlider.addEventListener('input', (e) => {
+        const val = parseFloat(e.target.value);
+        state.fontSizeScale = val;
+        applyFontSize(val);
+        localStorage.setItem('pattern_craft_font_scale', val);
+      });
+
+      themeToggleBtn.addEventListener('click', toggleTheme);
+
+      // Keyboard navigation
+      window.addEventListener('keydown', handleKeyboardShortcuts);
+
+      // Render initial pattern
+      loadPattern(0);
+    }
+
+    // ================= THEME & UI CONTROLS =================
+    function setTheme(theme) {
+      state.theme = theme;
+      if (theme === 'dark') {
+        document.documentElement.classList.add('dark');
+        sunIcon.classList.remove('hidden');
+        moonIcon.classList.add('hidden');
+      } else {
+        document.documentElement.classList.remove('dark');
+        sunIcon.classList.add('hidden');
+        moonIcon.classList.remove('hidden');
+      }
+      localStorage.setItem('pattern_craft_theme', theme);
+    }
+
+    function toggleTheme() {
+      setTheme(state.theme === 'light' ? 'dark' : 'light');
+    }
+
+    function applyFontSize(scale) {
+      document.documentElement.style.setProperty('--sentence-scale', scale);
+    }
+
+    function showToast(text, icon = '✨') {
+      toastMsg.textContent = text;
+      toastIcon.textContent = icon;
+      toast.classList.remove('opacity-0');
+      toast.classList.add('opacity-100');
+      clearTimeout(window._toastTimer);
+      window._toastTimer = setTimeout(() => {
+        toast.classList.remove('opacity-100');
+        toast.classList.add('opacity-0');
+      }, 1900);
+    }
+
+    // ================= TOGGLE VIETNAMESE CARD DISPLAY =================
+    function toggleTranslationVisibility() {
+      state.showTranslation = !state.showTranslation;
+      renderVietnameseSentence();
+      showToast(
+        state.showTranslation ? 'Translation displayed' : 'Translation hidden',
+        state.showTranslation ? '👁️' : '🙈'
+      );
+    }
+
+    // ================= PATTERN LOADING & RENDERING =================
+    function loadPattern(index) {
+      if (index < 0) index = PATTERNS_DATA.length - 1;
+      if (index >= PATTERNS_DATA.length) index = 0;
+
+      state.currentIndex = index;
+      state.slot1CardId = null;
+      state.slot2CardId = null;
+
+      // Update dropdown & info badges
+      patternSelectEl.value = index;
+      const currentPattern = PATTERNS_DATA[index];
+      patternCategoryBadgeEl.textContent = currentPattern.category;
+      slot1HeaderLabel.textContent = currentPattern.slot1Label;
+      slot2HeaderLabel.textContent = currentPattern.slot2Label;
+
+      renderBothSentences();
+      renderComponentCards();
+    }
+
+    function navigatePattern(direction) {
+      loadPattern(state.currentIndex + direction);
+    }
+
+    function handleKeyboardShortcuts(e) {
+      if (['INPUT', 'SELECT', 'TEXTAREA'].includes(document.activeElement.tagName)) {
+        return;
+      }
+      if (e.key === 'ArrowLeft') {
+        navigatePattern(-1);
+      } else if (e.key === 'ArrowRight') {
+        navigatePattern(1);
+      } else if (e.key === ' ' || e.code === 'Space') {
+        e.preventDefault();
+        speakSentence();
+      }
+    }
+
+    // ================= SIMULTANEOUS RENDERING OF BOTH CARDS =================
+    function renderBothSentences() {
+      renderEnglishSentence();
+      renderVietnameseSentence();
+    }
+
+    // 1. Render Main Play Card (English)
+    function renderEnglishSentence() {
+      const pattern = PATTERNS_DATA[state.currentIndex];
+      sentenceDisplayEl.innerHTML = '';
+
+      pattern.template.forEach((token) => {
+        if (token === '[slot1]') {
+          const slotEl = createSlotElement(1);
+          sentenceDisplayEl.appendChild(slotEl);
+        } else if (token === '[slot2]') {
+          const slotEl = createSlotElement(2);
+          sentenceDisplayEl.appendChild(slotEl);
+        } else {
+          const span = document.createElement('span');
+          span.textContent = token;
+          span.className = 'inline-block transition-colors';
+          sentenceDisplayEl.appendChild(span);
+        }
+      });
+    }
+
+    function createSlotElement(slotNumber) {
+      const pattern = PATTERNS_DATA[state.currentIndex];
+      const isSlot1 = slotNumber === 1;
+      const cardId = isSlot1 ? state.slot1CardId : state.slot2CardId;
+      const options = isSlot1 ? pattern.slot1Options : pattern.slot2Options;
+      const label = isSlot1 ? pattern.slot1Label : pattern.slot2Label;
+
+      const slotBtn = document.createElement('button');
+      slotBtn.type = 'button';
+      slotBtn.setAttribute('data-slot', slotNumber);
+
+      if (!cardId) {
+        slotBtn.className = `group inline-flex items-center gap-1.5 px-3.5 py-1.5 my-1 rounded-2xl border-2 border-dashed font-semibold text-xs sm:text-base tracking-wide transition-all empty-slot-pulse cursor-pointer ${
+          isSlot1 
+            ? 'border-blue-400 dark:border-blue-500 text-blue-600 dark:text-blue-300 bg-blue-50/70 hover:bg-blue-100 dark:bg-blue-950/40 dark:hover:bg-blue-900/40' 
+            : 'border-emerald-400 dark:border-emerald-500 text-emerald-600 dark:text-emerald-300 bg-emerald-50/70 hover:bg-emerald-100 dark:bg-emerald-950/40 dark:hover:bg-emerald-900/40'
+        }`;
+        
+        slotBtn.innerHTML = `
+          <span class="opacity-70 group-hover:scale-125 transition-transform">+</span>
+          <span>[ ${label} ]</span>
+        `;
+        slotBtn.title = `Click or choose a card below for ${label}`;
+        slotBtn.addEventListener('click', () => {
+          toggleCardSelection(slotNumber, options[0].id);
+        });
+      } else {
+        const selectedCard = options.find(opt => opt.id === cardId);
+        const cardText = selectedCard ? selectedCard.text : '';
+
+        slotBtn.className = `group inline-flex items-center gap-2 px-4 py-1.5 my-1 rounded-2xl font-bold shadow-sm border transition-all slot-pop cursor-pointer ${
+          isSlot1 
+            ? 'bg-blue-600 dark:bg-blue-500 text-white border-blue-700 hover:bg-blue-700' 
+            : 'bg-emerald-600 dark:bg-emerald-500 text-white border-emerald-700 hover:bg-emerald-700'
+        }`;
+
+        slotBtn.innerHTML = `
+          <span>${cardText}</span>
+          <span class="w-4 h-4 rounded-full bg-black/20 group-hover:bg-black/30 flex items-center justify-center text-[10px] ml-0.5" title="Click to remove">✕</span>
+        `;
+        slotBtn.title = `Click to remove "${cardText}"`;
+        slotBtn.addEventListener('click', () => {
+          ejectSlot(slotNumber);
+        });
+      }
+
+      return slotBtn;
+    }
+
+    // 2. Render Second Card (Vietnamese Translation - Enabled/Disabled by Card Click)
+    function renderVietnameseSentence() {
+      const pattern = PATTERNS_DATA[state.currentIndex];
+      vietnameseDisplayEl.innerHTML = '';
+
+      if (!state.showTranslation) {
+        // Disabled / Hidden State
+        vietnameseDisplayEl.innerHTML = `
+          <div class="flex items-center gap-2 text-sm sm:text-base font-semibold text-slate-400 dark:text-slate-500 italic py-1 tracking-wide">
+            <svg class="w-4 h-4 opacity-75" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l18 18" />
+            </svg>
+            <span>Tap card to show Vietnamese translation</span>
+          </div>
+        `;
+        return;
+      }
+
+      // Enabled State: Single Vietnamese Sentence with placed phrases
+      pattern.viTemplate.forEach((token) => {
+        if (token === '[slot1]') {
+          const span = document.createElement('span');
+          if (state.slot1CardId) {
+            const card = pattern.slot1Options.find(o => o.id === state.slot1CardId);
+            span.textContent = card ? card.vi : '...';
+            span.className = 'font-bold text-blue-600 dark:text-blue-400 underline decoration-blue-300 dark:decoration-blue-700 underline-offset-4 px-1 transition-all';
+          } else {
+            span.textContent = '[ ... ]';
+            span.className = 'font-semibold text-slate-400 dark:text-slate-500 italic px-1';
+          }
+          vietnameseDisplayEl.appendChild(span);
+        } else if (token === '[slot2]') {
+          const span = document.createElement('span');
+          if (state.slot2CardId) {
+            const card = pattern.slot2Options.find(o => o.id === state.slot2CardId);
+            span.textContent = card ? card.vi : '...';
+            span.className = 'font-bold text-emerald-600 dark:text-emerald-400 underline decoration-emerald-300 dark:decoration-emerald-700 underline-offset-4 px-1 transition-all';
+          } else {
+            span.textContent = '[ ... ]';
+            span.className = 'font-semibold text-slate-400 dark:text-slate-500 italic px-1';
+          }
+          vietnameseDisplayEl.appendChild(span);
+        } else {
+          const span = document.createElement('span');
+          span.textContent = token;
+          span.className = 'inline-block transition-colors';
+          vietnameseDisplayEl.appendChild(span);
+        }
+      });
+    }
+
+    // ================= RENDER COMPONENT CARDS =================
+    function renderComponentCards() {
+      const pattern = PATTERNS_DATA[state.currentIndex];
+      renderTrayCards(1, pattern.slot1Options, slot1TrayEl, state.slot1CardId);
+      renderTrayCards(2, pattern.slot2Options, slot2TrayEl, state.slot2CardId);
+    }
+
+    function renderTrayCards(slotNumber, options, containerEl, currentSelectedId) {
+      containerEl.innerHTML = '';
+      const isSlot1 = slotNumber === 1;
+
+      options.forEach((opt, idx) => {
+        const isSelected = opt.id === currentSelectedId;
+        const cardBtn = document.createElement('button');
+        cardBtn.type = 'button';
+        cardBtn.className = `w-full text-left p-3.5 rounded-2xl border transition-all duration-150 flex items-center justify-between group active:scale-[0.98] ${
+          isSelected 
+            ? isSlot1 
+              ? 'bg-blue-600 text-white border-blue-700 shadow-md ring-2 ring-blue-400/50 dark:ring-blue-500/50' 
+              : 'bg-emerald-600 text-white border-emerald-700 shadow-md ring-2 ring-emerald-400/50 dark:ring-emerald-500/50'
+            : isSlot1 
+              ? 'bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 border-slate-200 dark:border-slate-700 hover:border-blue-400 dark:hover:border-blue-500 hover:bg-blue-50/40 dark:hover:bg-blue-950/20' 
+              : 'bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 border-slate-200 dark:border-slate-700 hover:border-emerald-400 dark:hover:border-emerald-500 hover:bg-emerald-50/40 dark:hover:bg-emerald-950/20'
+        }`;
+
+        cardBtn.innerHTML = `
+          <div class="flex items-center gap-3">
+            <span class="w-6 h-6 rounded-lg text-xs font-bold flex items-center justify-center shrink-0 ${
+              isSelected 
+                ? 'bg-white/20 text-white' 
+                : isSlot1 
+                  ? 'bg-blue-100 text-blue-700 dark:bg-slate-700 dark:text-blue-300' 
+                  : 'bg-emerald-100 text-emerald-700 dark:bg-slate-700 dark:text-emerald-300'
+            }">
+              ${idx + 1}
+            </span>
+            <div>
+              <div class="font-bold text-sm sm:text-base leading-snug">${opt.text}</div>
+              <div class="text-xs font-normal opacity-75 mt-0.5">${opt.vi}</div>
+            </div>
+          </div>
+
+          <!-- Status Indicator Pill -->
+          <span class="ml-2 shrink-0 text-xs font-bold px-2 py-0.5 rounded-md ${
+            isSelected 
+              ? 'bg-white/25 text-white' 
+              : 'opacity-0 group-hover:opacity-100 text-slate-400 dark:text-slate-500'
+          }">
+            ${isSelected ? '✓ In Place' : 'Use +'}
+          </span>
+        `;
+
+        cardBtn.addEventListener('click', () => {
+          toggleCardSelection(slotNumber, opt.id);
+        });
+
+        containerEl.appendChild(cardBtn);
+      });
+    }
+
+    // ================= CARD SELECTION / EJECTION =================
+    function toggleCardSelection(slotNumber, cardId) {
+      if (slotNumber === 1) {
+        if (state.slot1CardId === cardId) {
+          state.slot1CardId = null;
+          showToast('Removed phrase from Slot 1', '↩️');
+        } else {
+          state.slot1CardId = cardId;
+        }
+      } else {
+        if (state.slot2CardId === cardId) {
+          state.slot2CardId = null;
+          showToast('Removed phrase from Slot 2', '↩️');
+        } else {
+          state.slot2CardId = cardId;
+        }
+      }
+
+      renderBothSentences();
+      renderComponentCards();
+
+      if (state.slot1CardId && state.slot2CardId) {
+        showToast('Sentence Completed! Listen to English 🔊', '🎉');
+      }
+    }
+
+    function ejectSlot(slotNumber) {
+      if (slotNumber === 1) {
+        state.slot1CardId = null;
+      } else {
+        state.slot2CardId = null;
+      }
+      renderBothSentences();
+      renderComponentCards();
+      showToast(`Slot ${slotNumber} cleared`, '↩️');
+    }
+
+    function clearSlots() {
+      state.slot1CardId = null;
+      state.slot2CardId = null;
+      renderBothSentences();
+      renderComponentCards();
+      showToast('Sentence cleared', '🧹');
+    }
+
+    function shuffleFill() {
+      const pattern = PATTERNS_DATA[state.currentIndex];
+      const rand1 = Math.floor(Math.random() * pattern.slot1Options.length);
+      const rand2 = Math.floor(Math.random() * pattern.slot2Options.length);
+
+      state.slot1CardId = pattern.slot1Options[rand1].id;
+      state.slot2CardId = pattern.slot2Options[rand2].id;
+
+      renderBothSentences();
+      renderComponentCards();
+      showToast('Random combinations slotted!', '🎲');
+    }
+
+    // ================= TEXT TO SPEECH (TTS) =================
+    function getFullEnglishSentenceText() {
+      const pattern = PATTERNS_DATA[state.currentIndex];
+      let sentenceParts = [];
+
+      pattern.template.forEach(token => {
+        if (token === '[slot1]') {
+          const card = pattern.slot1Options.find(o => o.id === state.slot1CardId);
+          sentenceParts.push(card ? card.text : 'something');
+        } else if (token === '[slot2]') {
+          const card = pattern.slot2Options.find(o => o.id === state.slot2CardId);
+          sentenceParts.push(card ? card.text : 'something');
+        } else {
+          sentenceParts.push(token);
+        }
+      });
+
+      return sentenceParts.join('').replace(/\s+/g, ' ').trim();
+    }
+
+    function speakSentence() {
+      if (!('speechSynthesis' in window)) {
+        showToast('Text-to-speech is not supported on this browser', '⚠️');
+        return;
+      }
+
+      window.speechSynthesis.cancel();
+
+      const textToSpeak = getFullEnglishSentenceText();
+      const utterance = new SpeechSynthesisUtterance(textToSpeak);
+
+      const voices = window.speechSynthesis.getVoices();
+      const englishVoice = voices.find(v => v.lang.startsWith('en') && (v.name.includes('Google') || v.name.includes('Natural') || v.name.includes('Samantha') || v.name.includes('Daniel'))) || voices.find(v => v.lang.startsWith('en'));
+      if (englishVoice) {
+        utterance.voice = englishVoice;
+      }
+
+      utterance.rate = 0.92;
+      utterance.pitch = 1.0;
+
+      utterance.onstart = () => {
+        state.isSpeaking = true;
+        speakerDefaultIcon.classList.add('hidden');
+        waveBars.classList.remove('hidden');
+        waveBars.classList.add('flex');
+        speakBtnLabel.textContent = 'Speaking...';
+        speakBtn.classList.add('ring-4', 'ring-blue-400/40');
+      };
+
+      utterance.onend = utterance.onerror = () => {
+        state.isSpeaking = false;
+        speakerDefaultIcon.classList.remove('hidden');
+        waveBars.classList.add('hidden');
+        waveBars.classList.remove('flex');
+        speakBtnLabel.textContent = 'Read Aloud (English)';
+        speakBtn.classList.remove('ring-4', 'ring-blue-400/40');
+      };
+
+      window.speechSynthesis.speak(utterance);
+    }
+
+    if ('speechSynthesis' in window) {
+      window.speechSynthesis.onvoiceschanged = () => {
+        // Voices preloaded
+      };
+    }
+
+    // Start App
+    window.addEventListener('DOMContentLoaded', init);
+  </script>
+</body>
+</html>
