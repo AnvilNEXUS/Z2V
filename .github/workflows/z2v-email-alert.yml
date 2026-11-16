@@ -1,0 +1,71 @@
+name: Z2V Commit Alerts
+
+on:
+  push:
+    paths:
+      - '**/Z2V-*.html'
+
+jobs:
+  detect-files:
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.set-matrix.outputs.matrix }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # Required to accurately detect all changed files in the push
+
+      - name: Get changed Z2V html files
+        id: changed-files
+        uses: tj-actions/changed-files@v44
+        with:
+          files: '**/Z2V-*.html'
+          json: true
+
+      - name: Set matrix
+        id: set-matrix
+        run: echo "matrix=${{ steps.changed-files.outputs.all_changed_files }}" >> $GITHUB_OUTPUT
+
+  send-emails:
+    needs: detect-files
+    runs-on: ubuntu-latest
+    # Only run if the matrix actually found files
+    if: ${{ needs.detect-files.outputs.matrix != '[]' && needs.detect-files.outputs.matrix != '' }}
+    strategy:
+      matrix:
+        file: ${{ fromJSON(needs.detect-files.outputs.matrix) }}
+    steps:
+      - name: Prepare Email Payload
+        id: prep
+        run: |
+          file="${{ matrix.file }}"
+          filename=$(basename "$file")
+          name_no_ext="${filename%.*}"
+          
+          # Force lowercase for the owner to match GitHub Pages standards
+          repo_owner=$(echo ${{ github.repository_owner }} | tr '[:upper:]' '[:lower:]')
+          repo_name=${{ github.event.repository.name }}
+          
+          # Construct the live GitHub Pages URL (preserves sub-folder paths if applicable)
+          gh_pages_url="https://${repo_owner}.github.io/${repo_name}/${file}"
+          
+          echo "subject=NEW ACTIVITY : $name_no_ext" >> $GITHUB_OUTPUT
+          echo "gh_pages_url=$gh_pages_url" >> $GITHUB_OUTPUT
+
+      - name: Send Email Alert
+        uses: dawidd6/action-send-mail@v3
+        with:
+          # You will need to use your actual SMTP server settings here
+          server_address: smtp.gmail.com
+          server_port: 465
+          username: ${{ secrets.SMTP_USERNAME }}
+          password: ${{ secrets.SMTP_PASSWORD }}
+          subject: ${{ steps.prep.outputs.subject }}
+          to: robert@anvilnexus.com
+          from: Z2V System Alert
+          html_body: |
+            <br><br><br><br>
+            <h2 style="text-align: center;">
+              <a href="${{ steps.prep.outputs.gh_pages_url }}">${{ steps.prep.outputs.subject }}</a>
+            </h2>
