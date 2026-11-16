@@ -1,0 +1,1880 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Family Feud • Vietnam A1-A2 EFL Classroom Game Board</title>
+
+  <!-- Tailwind CSS for responsive layout & utility classes -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Google Fonts: Be Vietnam Pro (crisp Vietnamese diacritics & bold UI) + Chakra Petch (digital scoreboard) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:ital,wght@0,500;0,600;0,700;0,800;0,900;1,700&family=Chakra+Petch:wght@700&display=swap" rel="stylesheet" />
+
+  <style>
+    /* ==========================================================================
+       CUSTOM TV GAME SHOW STYLING & 3D ANIMATIONS
+       ========================================================================== */
+    :root {
+      --navy-deep: #040b24;
+      --royal-dark: #0a194e;
+      --royal-mid: #13318c;
+      --royal-bright: #1e4ed8;
+      --gold-light: #fef08a;
+      --gold-mid: #f59e0b;
+      --gold-dark: #b45309;
+      --gold-shadow: #78350f;
+    }
+
+    * {
+      box-sizing: border-box;
+      user-select: none;
+    }
+
+    input, textarea, select {
+      user-select: text;
+    }
+
+    body {
+      font-family: 'Be Vietnam Pro', sans-serif;
+      background-color: var(--navy-deep);
+      background-image:
+        radial-gradient(circle at 20% 0%, rgba(59, 130, 246, 0.28) 0%, transparent 45%),
+        radial-gradient(circle at 80% 0%, rgba(245, 158, 11, 0.22) 0%, transparent 45%),
+        radial-gradient(circle at 50% 50%, #0d236b 0%, #050d2b 75%, #020617 100%);
+      color: #ffffff;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* Subtle studio stage light dots overlay */
+    .studio-bg-dots {
+      background-image: radial-gradient(rgba(255, 255, 255, 0.06) 1px, transparent 1px);
+      background-size: 24px 24px;
+    }
+
+    /* Digital LED Score Typography */
+    .font-digital {
+      font-family: 'Chakra Petch', sans-serif;
+      font-variant-numeric: tabular-nums;
+    }
+
+    /* Metallic Gold Beveled Frame */
+    .gold-frame {
+      background: linear-gradient(145deg, #fde047 0%, #f59e0b 35%, #b45309 70%, #f59e0b 100%);
+      padding: 4px;
+      box-shadow:
+        0 10px 30px rgba(0, 0, 0, 0.65),
+        0 0 25px rgba(245, 158, 11, 0.3),
+        inset 0 1px 2px rgba(255, 255, 255, 0.7);
+    }
+
+    .gold-frame-thin {
+      background: linear-gradient(135deg, #fef08a 0%, #f59e0b 50%, #b45309 100%);
+      padding: 2px;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+    }
+
+    /* Game Show Logo Title Glow */
+    .show-logo-badge {
+      background: linear-gradient(180deg, #1e3a8a 0%, #0f172a 100%);
+      border: 3px solid #f59e0b;
+      box-shadow:
+        0 0 20px rgba(245, 158, 11, 0.45),
+        inset 0 0 12px rgba(59, 130, 246, 0.6);
+    }
+
+    .show-logo-text {
+      background: linear-gradient(180deg, #ffffff 0%, #fef08a 45%, #f59e0b 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.8));
+    }
+
+    /* Team Scoreboard Card */
+    .team-panel {
+      background: linear-gradient(180deg, #0f256e 0%, #07123b 100%);
+      border: 2px solid rgba(245, 158, 11, 0.65);
+      box-shadow:
+        0 8px 20px rgba(0, 0, 0, 0.5),
+        inset 0 1px 0 rgba(255, 255, 255, 0.15);
+    }
+
+    .score-well {
+      background: radial-gradient(circle at center, #030712 0%, #091336 100%);
+      border: 2px solid #d97706;
+      box-shadow:
+        inset 0 4px 12px rgba(0, 0, 0, 0.9),
+        0 0 12px rgba(245, 158, 11, 0.25);
+    }
+
+    /* Center Round Pot Display */
+    .round-pot-well {
+      background: radial-gradient(ellipse at center, #172554 0%, #030712 100%);
+      border: 3px solid #fbbf24;
+      box-shadow:
+        0 0 25px rgba(251, 191, 36, 0.4),
+        inset 0 4px 14px rgba(0, 0, 0, 0.9);
+    }
+
+    /* 3D Survey Tile Flip Container */
+    .tile-perspective {
+      perspective: 1200px;
+      height: 84px;
+    }
+
+    @media (min-width: 1024px) {
+      .tile-perspective {
+        height: 92px;
+      }
+    }
+
+    .tile-inner {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      transition: transform 0.6s cubic-bezier(0.34, 1.45, 0.64, 1);
+      transform-style: preserve-3d;
+      cursor: pointer;
+    }
+
+    .tile-inner.is-flipped {
+      transform: rotateX(180deg);
+    }
+
+    .tile-face {
+      position: absolute;
+      inset: 0;
+      backface-visibility: hidden;
+      -webkit-backface-visibility: hidden;
+      border-radius: 0.75rem;
+      overflow: hidden;
+    }
+
+    /* Unrevealed Tile Front (Royal Blue Metallic Panel + Gold Oval Rank) */
+    .tile-front {
+      background:
+        repeating-linear-gradient(
+          0deg,
+          rgba(255, 255, 255, 0.03) 0px,
+          rgba(255, 255, 255, 0.03) 2px,
+          transparent 2px,
+          transparent 6px
+        ),
+        linear-gradient(180deg, #1d4ed8 0%, #1e3a8a 50%, #172554 100%);
+      border: 3px solid #f59e0b;
+      box-shadow:
+        inset 0 2px 6px rgba(147, 197, 253, 0.45),
+        inset 0 -4px 8px rgba(0, 0, 0, 0.6),
+        0 4px 10px rgba(0, 0, 0, 0.45);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: filter 0.2s ease, transform 0.15s ease;
+    }
+
+    .tile-inner:hover .tile-front {
+      filter: brightness(1.12);
+      border-color: #fef08a;
+    }
+
+    /* Gold Oval Rank Badge */
+    .rank-oval {
+      width: 84px;
+      height: 54px;
+      border-radius: 9999px;
+      background: linear-gradient(180deg, #fef08a 0%, #f59e0b 55%, #b45309 100%);
+      border: 3px solid #ffffff;
+      box-shadow:
+        0 4px 12px rgba(0, 0, 0, 0.6),
+        inset 0 2px 4px rgba(255, 255, 255, 0.8);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #091336;
+      font-weight: 900;
+      font-size: 1.85rem;
+      text-shadow: 0 1px 0 rgba(255, 255, 255, 0.7);
+    }
+
+    /* Revealed Tile Back (High-Contrast Answer + Gold Points Box) */
+    .tile-back {
+      transform: rotateX(180deg);
+      background: linear-gradient(180deg, #2563eb 0%, #1e40af 55%, #172554 100%);
+      border: 3px solid #fde047;
+      box-shadow:
+        inset 0 2px 8px rgba(255, 255, 255, 0.35),
+        0 0 18px rgba(250, 204, 21, 0.35);
+      display: flex;
+      align-items: stretch;
+      justify-content: space-between;
+    }
+
+    .tile-points-box {
+      background: linear-gradient(180deg, #fef08a 0%, #f59e0b 50%, #d97706 100%);
+      border-left: 3px solid #ffffff;
+      color: #060d26;
+      min-width: 84px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: inset 0 2px 4px rgba(255, 255, 255, 0.7);
+    }
+
+    @media (min-width: 1024px) {
+      .tile-points-box {
+        min-width: 96px;
+      }
+    }
+
+    /* Inactive Empty Slot (for Custom Questions with fewer than 5 answers) */
+    .tile-empty {
+      background: linear-gradient(180deg, #0b1742 0%, #060d26 100%);
+      border: 2px solid rgba(245, 158, 11, 0.25);
+      border-radius: 0.75rem;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* Giant Strike Overlay Animation */
+    @keyframes strikePop {
+      0% {
+        opacity: 0;
+        transform: scale(0.35);
+      }
+      18% {
+        opacity: 1;
+        transform: scale(1.08);
+      }
+      28% {
+        transform: scale(0.97);
+      }
+      36% {
+        transform: scale(1);
+      }
+      80% {
+        opacity: 1;
+        transform: scale(1);
+      }
+      100% {
+        opacity: 0;
+        transform: scale(1.12);
+      }
+    }
+
+    .animate-strike-overlay {
+      animation: strikePop 1.5s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+    }
+
+    .giant-x-card {
+      background: radial-gradient(circle at center, #7f1d1d 0%, #2a0404 100%);
+      border: 8px solid #ef4444;
+      box-shadow:
+        0 0 60px rgba(239, 68, 68, 0.9),
+        inset 0 0 30px rgba(239, 68, 68, 0.7);
+    }
+
+    /* Score Pulse Animation when Points Awarded */
+    @keyframes scoreFlash {
+      0% { transform: scale(1); filter: brightness(1); }
+      40% { transform: scale(1.12); filter: brightness(1.4); }
+      100% { transform: scale(1); filter: brightness(1); }
+    }
+
+    .animate-score-flash {
+      animation: scoreFlash 0.65s ease-out;
+    }
+
+    /* Glossy Game-Show Buttons */
+    .btn-gold {
+      background: linear-gradient(180deg, #fde047 0%, #f59e0b 55%, #d97706 100%);
+      color: #091336;
+      border: 2px solid #fef9c3;
+      box-shadow: 0 4px 12px rgba(245, 158, 11, 0.35);
+      transition: all 0.15s ease;
+    }
+    .btn-gold:hover:not(:disabled) {
+      filter: brightness(1.08);
+      transform: translateY(-1px);
+    }
+    .btn-gold:active:not(:disabled) {
+      transform: translateY(1px);
+    }
+
+    .btn-royal {
+      background: linear-gradient(180deg, #2563eb 0%, #1d4ed8 55%, #1e3a8a 100%);
+      color: #ffffff;
+      border: 2px solid #60a5fa;
+      box-shadow: 0 4px 12px rgba(30, 58, 138, 0.45);
+      transition: all 0.15s ease;
+    }
+    .btn-royal:hover:not(:disabled) {
+      filter: brightness(1.12);
+      transform: translateY(-1px);
+    }
+    .btn-royal:active:not(:disabled) {
+      transform: translateY(1px);
+    }
+
+    .btn-danger {
+      background: linear-gradient(180deg, #ef4444 0%, #dc2626 55%, #991b1b 100%);
+      color: #ffffff;
+      border: 2px solid #fca5a5;
+      box-shadow: 0 4px 14px rgba(220, 38, 38, 0.45);
+      transition: all 0.15s ease;
+    }
+    .btn-danger:hover:not(:disabled) {
+      filter: brightness(1.1);
+      transform: translateY(-1px);
+    }
+    .btn-danger:active:not(:disabled) {
+      transform: translateY(1px);
+    }
+  </style>
+</head>
+<body class="studio-bg-dots flex flex-col justify-between p-2 sm:p-4 lg:p-5">
+
+  <!-- ========================================================================
+       GIANT ANIMATED STRIKE OVERLAY (1.5s TV Buzzer Visual)
+       ======================================================================== -->
+  <div id="strikeOverlay" class="fixed inset-0 z-50 pointer-events-none hidden items-center justify-center bg-black/55 backdrop-blur-[2px]">
+    <div id="strikeOverlayContent" class="flex items-center justify-center gap-4 sm:gap-8 px-4">
+      <!-- Giant X boxes injected dynamically -->
+    </div>
+  </div>
+
+  <!-- ========================================================================
+       MAIN CONTAINER
+       ======================================================================== -->
+  <div class="max-w-7xl w-full mx-auto flex flex-col gap-3 lg:gap-4">
+
+    <!-- 1. TOP HEADER BAR -->
+    <header class="flex flex-wrap items-center justify-between gap-2 bg-slate-950/70 border border-amber-500/40 rounded-2xl px-4 py-2.5 shadow-lg backdrop-blur-sm">
+      <!-- Show Brand Logo -->
+      <div class="flex items-center gap-3">
+        <div class="show-logo-badge rounded-full px-4 py-1 flex items-center gap-2">
+          <span class="text-amber-300 text-lg">★</span>
+          <h1 class="show-logo-text font-black tracking-wider text-lg sm:text-xl lg:text-2xl uppercase">
+            Family Feud
+          </h1>
+          <span class="text-amber-300 text-lg">★</span>
+        </div>
+        <span class="hidden md:inline-block text-xs sm:text-sm font-bold uppercase tracking-widest text-amber-300/90 bg-blue-950/90 border border-blue-400/30 px-3 py-1 rounded-full">
+          Vietnam EFL • A1–A2 Edition
+        </span>
+      </div>
+
+      <!-- Keyboard Shortcuts Pill & Header Action Buttons -->
+      <div class="flex items-center gap-2 sm:gap-3">
+        <div class="hidden xl:flex items-center gap-2 text-xs font-semibold text-blue-200 bg-blue-950/80 border border-blue-500/30 px-3 py-1.5 rounded-xl">
+          <span class="text-amber-300 font-bold">KEYS:</span>
+          <span><kbd class="px-1.5 py-0.5 bg-slate-800 border border-slate-600 rounded text-amber-200">1–5</kbd> Flip</span>
+          <span>•</span>
+          <span><kbd class="px-1.5 py-0.5 bg-slate-800 border border-slate-600 rounded text-red-300">X</kbd> Strike</span>
+          <span>•</span>
+          <span><kbd class="px-1.5 py-0.5 bg-slate-800 border border-slate-600 rounded text-blue-200">C</kbd> Clear</span>
+        </div>
+
+        <!-- Mute / Unmute Audio Toggle -->
+        <button id="muteToggleBtn" type="button"
+          class="flex items-center gap-2 px-3.5 py-2 rounded-xl font-bold text-xs sm:text-sm bg-blue-950 hover:bg-blue-900 text-amber-200 border border-amber-400/50 transition cursor-pointer"
+          title="Toggle Sound Effects">
+          <span id="muteIcon" class="text-base">🔊</span>
+          <span id="muteLabel">Sound ON</span>
+        </button>
+
+        <!-- + Custom Question Modal Trigger -->
+        <button id="openCustomModalBtn" type="button"
+          class="btn-gold flex items-center gap-1.5 px-3.5 py-2 rounded-xl font-extrabold text-xs sm:text-sm cursor-pointer">
+          <span class="text-base leading-none">+</span>
+          <span>Custom Question</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- 2. SCOREBOARD & CENTER ROUND POT BAR -->
+    <section aria-label="Scoreboard and Round Pot" class="grid grid-cols-1 md:grid-cols-12 gap-3 items-stretch">
+
+      <!-- TEAM 1 PANEL -->
+      <div class="md:col-span-4 team-panel rounded-2xl p-3 sm:p-4 flex flex-col justify-between">
+        <div class="flex items-center justify-between gap-2 mb-2">
+          <div class="flex-1 min-w-0">
+            <!-- Clickable Inline Editable Team 1 Name -->
+            <div id="team1NameWrapper" class="group flex items-center gap-1.5 cursor-pointer" title="Click to edit Team 1 name">
+              <h2 id="team1NameDisplay" class="text-lg sm:text-xl lg:text-2xl font-black text-amber-300 uppercase tracking-wide truncate group-hover:text-white transition">
+                Team A
+              </h2>
+              <svg class="w-4 h-4 text-amber-400/70 group-hover:text-amber-300 shrink-0" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+              </svg>
+            </div>
+            <input id="team1NameInput" type="text" maxlength="22" value="Team A"
+              class="hidden w-full bg-slate-900 text-amber-200 font-black text-lg sm:text-xl uppercase px-2.5 py-1 rounded-lg border-2 border-amber-400 focus:outline-none" />
+          </div>
+
+          <!-- Manual +5 / -5 EFL Half-Point Adjustment -->
+          <div class="flex items-center gap-1 shrink-0">
+            <button type="button" onclick="adjustTeamScore(1, -5)"
+              class="px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-red-900/80 text-red-200 border border-slate-600 font-bold text-xs sm:text-sm transition cursor-pointer"
+              title="Subtract 5 points">
+              -5
+            </button>
+            <button type="button" onclick="adjustTeamScore(1, 5)"
+              class="px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-emerald-800/80 text-emerald-200 border border-slate-600 font-bold text-xs sm:text-sm transition cursor-pointer"
+              title="Add 5 points (EFL bonus/half-points)">
+              +5
+            </button>
+          </div>
+        </div>
+
+        <!-- Digital Score Display -->
+        <div id="team1ScoreBox" class="score-well rounded-xl py-2 px-4 flex items-center justify-center">
+          <span id="team1Score" class="font-digital text-4xl sm:text-5xl lg:text-6xl font-bold text-white tracking-wider drop-shadow-[0_0_10px_rgba(255,255,255,0.4)]">
+            0
+          </span>
+        </div>
+      </div>
+
+      <!-- CENTER ROUND POT & AWARD CONTROLS -->
+      <div class="md:col-span-4 gold-frame rounded-2xl">
+        <div class="bg-gradient-to-b from-blue-950 via-slate-950 to-blue-950 rounded-[13px] h-full p-3 flex flex-col items-center justify-between gap-2">
+          <div class="text-center w-full">
+            <div class="text-[11px] sm:text-xs font-extrabold uppercase tracking-[0.2em] text-amber-300 mb-1">
+              Round Pot
+            </div>
+            <div class="round-pot-well rounded-xl py-1.5 px-6 inline-flex items-center justify-center min-w-[140px]">
+              <span id="roundPotDisplay" class="font-digital text-4xl sm:text-5xl font-bold text-amber-300 drop-shadow-[0_0_14px_rgba(251,191,36,0.75)]">
+                0
+              </span>
+            </div>
+          </div>
+
+          <!-- Award Pot Buttons -->
+          <div class="grid grid-cols-2 gap-2 w-full">
+            <button id="awardTeam1Btn" type="button" onclick="awardPotToTeam(1)"
+              class="btn-gold rounded-xl py-2 px-2.5 font-extrabold text-xs sm:text-sm leading-tight text-center truncate cursor-pointer"
+              title="Award Round Pot to Team 1">
+              ← Award to Team A
+            </button>
+            <button id="awardTeam2Btn" type="button" onclick="awardPotToTeam(2)"
+              class="btn-gold rounded-xl py-2 px-2.5 font-extrabold text-xs sm:text-sm leading-tight text-center truncate cursor-pointer"
+              title="Award Round Pot to Team 2">
+              Award to Team B →
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- TEAM 2 PANEL -->
+      <div class="md:col-span-4 team-panel rounded-2xl p-3 sm:p-4 flex flex-col justify-between">
+        <div class="flex items-center justify-between gap-2 mb-2">
+          <div class="flex-1 min-w-0">
+            <!-- Clickable Inline Editable Team 2 Name -->
+            <div id="team2NameWrapper" class="group flex items-center gap-1.5 cursor-pointer" title="Click to edit Team 2 name">
+              <h2 id="team2NameDisplay" class="text-lg sm:text-xl lg:text-2xl font-black text-amber-300 uppercase tracking-wide truncate group-hover:text-white transition">
+                Team B
+              </h2>
+              <svg class="w-4 h-4 text-amber-400/70 group-hover:text-amber-300 shrink-0" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+              </svg>
+            </div>
+            <input id="team2NameInput" type="text" maxlength="22" value="Team B"
+              class="hidden w-full bg-slate-900 text-amber-200 font-black text-lg sm:text-xl uppercase px-2.5 py-1 rounded-lg border-2 border-amber-400 focus:outline-none" />
+          </div>
+
+          <!-- Manual +5 / -5 EFL Half-Point Adjustment -->
+          <div class="flex items-center gap-1 shrink-0">
+            <button type="button" onclick="adjustTeamScore(2, -5)"
+              class="px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-red-900/80 text-red-200 border border-slate-600 font-bold text-xs sm:text-sm transition cursor-pointer"
+              title="Subtract 5 points">
+              -5
+            </button>
+            <button type="button" onclick="adjustTeamScore(2, 5)"
+              class="px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-emerald-800/80 text-emerald-200 border border-slate-600 font-bold text-xs sm:text-sm transition cursor-pointer"
+              title="Add 5 points (EFL bonus/half-points)">
+              +5
+            </button>
+          </div>
+        </div>
+
+        <!-- Digital Score Display -->
+        <div id="team2ScoreBox" class="score-well rounded-xl py-2 px-4 flex items-center justify-center">
+          <span id="team2Score" class="font-digital text-4xl sm:text-5xl lg:text-6xl font-bold text-white tracking-wider drop-shadow-[0_0_10px_rgba(255,255,255,0.4)]">
+            0
+          </span>
+        </div>
+      </div>
+    </section>
+
+    <!-- 3. QUESTION NAVIGATION & DISPLAY BANNER -->
+    <section aria-label="Question Control and Display" class="bg-blue-950/85 border-2 border-amber-500/50 rounded-2xl p-3 sm:p-4 shadow-xl flex flex-col gap-3">
+      <!-- Top Row: Prev / Dropdown / Next + Hide/Show & Board Controls -->
+      <div class="flex flex-wrap items-center justify-between gap-2">
+        <!-- Question Selector Group -->
+        <div class="flex items-center gap-2 flex-1 min-w-[260px]">
+          <button id="prevQuestionBtn" type="button"
+            class="btn-royal px-3.5 py-2 rounded-xl font-black text-base shrink-0 cursor-pointer"
+            title="Previous Question">
+            &lt;
+          </button>
+
+          <select id="questionSelect" aria-label="Select Survey Question"
+            class="w-full bg-slate-900 text-white font-bold text-xs sm:text-sm lg:text-base rounded-xl px-3 py-2.5 border-2 border-amber-400/70 focus:outline-none focus:border-amber-300 cursor-pointer truncate">
+            <!-- Populated dynamically with optgroups -->
+          </select>
+
+          <button id="nextQuestionBtn" type="button"
+            class="btn-royal px-3.5 py-2 rounded-xl font-black text-base shrink-0 cursor-pointer"
+            title="Next Question">
+            &gt;
+          </button>
+        </div>
+
+        <!-- Question Visibility & Round Board Actions -->
+        <div class="flex flex-wrap items-center gap-2">
+          <button id="toggleQuestionVisBtn" type="button"
+            class="px-3.5 py-2 rounded-xl font-bold text-xs sm:text-sm bg-slate-800 hover:bg-slate-700 text-amber-200 border border-amber-400/50 flex items-center gap-1.5 transition cursor-pointer">
+            <span id="eyeIcon">👁️</span>
+            <span id="toggleQuestionVisText">Hide Question</span>
+          </button>
+
+          <button id="revealAllBtn" type="button"
+            class="btn-royal px-3.5 py-2 rounded-xl font-extrabold text-xs sm:text-sm cursor-pointer">
+            Reveal All
+          </button>
+
+          <button id="resetRoundBtn" type="button"
+            class="px-3.5 py-2 rounded-xl font-extrabold text-xs sm:text-sm bg-slate-800 hover:bg-slate-700 text-white border border-slate-500 transition cursor-pointer">
+            Reset Round
+          </button>
+        </div>
+      </div>
+
+      <!-- Active Question Prompt Banner -->
+      <div class="bg-gradient-to-r from-slate-950 via-blue-950 to-slate-950 border-2 border-blue-400/40 rounded-xl px-4 py-3 sm:py-4 text-center relative overflow-hidden">
+        <div id="roundCategoryBadge" class="inline-block text-[11px] sm:text-xs font-extrabold uppercase tracking-widest text-amber-300 bg-amber-500/15 border border-amber-400/40 px-3 py-0.5 rounded-full mb-1.5">
+          Round 1: Daily Life &amp; Routines in Vietnam • Question 1 of 24
+        </div>
+
+        <h3 id="questionPromptText" class="text-xl sm:text-2xl lg:text-3xl font-black text-white tracking-tight leading-snug drop-shadow">
+          Name something you see on the street every morning in Vietnam.
+        </h3>
+
+        <div id="questionHiddenPlaceholder" class="hidden py-1">
+          <span class="inline-flex items-center gap-2 text-lg sm:text-xl font-extrabold uppercase tracking-wider text-amber-300/90">
+            <span>🎧</span>
+            <span>Question Hidden — Listen Carefully to Your Teacher!</span>
+          </span>
+        </div>
+      </div>
+    </section>
+
+    <!-- 4. THE INTERACTIVE SURVEY BOARD (TOP 5 ANSWERS IN 2-COLUMN GAME SHOW GRID) -->
+    <main aria-label="Survey Answer Board" class="gold-frame rounded-3xl">
+      <div class="bg-gradient-to-b from-[#07133b] via-[#050d2b] to-[#07133b] rounded-[20px] p-3 sm:p-5 lg:p-6 shadow-inner">
+        <!-- Two-Column Layout: Slots 1-3 on Left, Slots 4-5 + Studio Emblem on Right -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4 lg:gap-5">
+          <!-- Left Column: Rank 1, 2, 3 -->
+          <div id="boardLeftCol" class="flex flex-col gap-3 sm:gap-4"></div>
+
+          <!-- Right Column: Rank 4, 5, + Studio Emblem Slot -->
+          <div id="boardRightCol" class="flex flex-col gap-3 sm:gap-4"></div>
+        </div>
+      </div>
+    </main>
+
+    <!-- 5. STRIKES CONTROL BAR (RED X's) -->
+    <footer aria-label="Strikes Control System" class="bg-slate-950/85 border-2 border-red-500/40 rounded-2xl px-4 py-3 flex flex-wrap items-center justify-between gap-3 shadow-lg">
+      <!-- Add Strike Button -->
+      <button id="addStrikeBtn" type="button"
+        class="btn-danger px-5 py-2.5 rounded-xl font-black text-sm sm:text-base tracking-wide flex items-center gap-2 cursor-pointer">
+        <span class="text-lg">✖</span>
+        <span>ADD STRIKE (X)</span>
+      </button>
+
+      <!-- Visual 3-Strike Indicator Bar -->
+      <div class="flex items-center gap-3 sm:gap-4" aria-label="Current Strikes">
+        <span class="hidden sm:inline text-xs font-extrabold uppercase tracking-widest text-slate-400">
+          Strikes:
+        </span>
+        <div id="strikeIndicators" class="flex items-center gap-2.5">
+          <div data-strike-slot="1" class="w-11 h-11 sm:w-12 sm:h-12 rounded-xl border-2 border-slate-700 bg-slate-900/90 flex items-center justify-center font-black text-2xl sm:text-3xl text-slate-700 transition-all duration-200">
+            X
+          </div>
+          <div data-strike-slot="2" class="w-11 h-11 sm:w-12 sm:h-12 rounded-xl border-2 border-slate-700 bg-slate-900/90 flex items-center justify-center font-black text-2xl sm:text-3xl text-slate-700 transition-all duration-200">
+            X
+          </div>
+          <div data-strike-slot="3" class="w-11 h-11 sm:w-12 sm:h-12 rounded-xl border-2 border-slate-700 bg-slate-900/90 flex items-center justify-center font-black text-2xl sm:text-3xl text-slate-700 transition-all duration-200">
+            X
+          </div>
+        </div>
+      </div>
+
+      <!-- Clear Strikes Button -->
+      <button id="clearStrikesBtn" type="button"
+        class="px-4 py-2.5 rounded-xl font-bold text-xs sm:text-sm bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-600 transition cursor-pointer">
+        Clear Strikes (C)
+      </button>
+    </footer>
+  </div>
+
+  <!-- ========================================================================
+       CUSTOM QUESTION MODAL (Stored in localStorage)
+       ======================================================================== -->
+  <div id="customQuestionModal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/75 backdrop-blur-sm p-4 overflow-y-auto">
+    <div class="bg-slate-900 border-2 border-amber-400 rounded-2xl max-w-2xl w-full p-5 sm:p-6 shadow-2xl my-auto">
+      <div class="flex items-center justify-between border-b border-slate-700 pb-3 mb-4">
+        <div>
+          <h2 class="text-xl sm:text-2xl font-black text-amber-300">Add Custom Survey Question</h2>
+          <p class="text-xs sm:text-sm text-slate-300">Saved automatically in your browser for future lessons.</p>
+        </div>
+        <button id="closeCustomModalBtn" type="button"
+          class="w-9 h-9 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-lg flex items-center justify-center cursor-pointer">
+          ✕
+        </button>
+      </div>
+
+      <!-- Error / Status Message Box -->
+      <div id="customModalAlert" class="hidden mb-4 px-4 py-2.5 rounded-xl text-sm font-bold"></div>
+
+      <form id="customQuestionForm" class="flex flex-col gap-4">
+        <div>
+          <label for="customPromptInput" class="block text-xs font-extrabold uppercase tracking-wider text-amber-200 mb-1">
+            Survey Question Prompt *
+          </label>
+          <input id="customPromptInput" type="text" required
+            placeholder="e.g., Name something students eat during break time at school."
+            class="w-full bg-slate-950 text-white font-semibold rounded-xl px-3.5 py-2.5 border border-slate-600 focus:border-amber-400 focus:outline-none" />
+        </div>
+
+        <div>
+          <div class="flex items-center justify-between mb-1.5">
+            <span class="text-xs font-extrabold uppercase tracking-wider text-amber-200">
+              Top Survey Answers &amp; Points (Enter 1 to 5 answers)
+            </span>
+            <span id="customPointsSum" class="text-xs font-bold text-blue-300">Total: 0 pts</span>
+          </div>
+
+          <div class="flex flex-col gap-2" id="customAnswerInputsContainer">
+            <!-- 5 Answer/Point Input Rows -->
+            <div class="grid grid-cols-12 gap-2 items-center">
+              <span class="col-span-1 text-center font-black text-amber-300">1.</span>
+              <input type="text" data-ans-idx="0" placeholder="Answer #1 (e.g., Bánh tráng trộn)"
+                class="col-span-8 bg-slate-950 text-white text-sm font-semibold rounded-xl px-3 py-2 border border-slate-700 focus:border-amber-400 focus:outline-none" />
+              <input type="number" data-pts-idx="0" min="1" max="100" placeholder="Pts (40)"
+                class="col-span-3 bg-slate-950 text-amber-300 text-sm font-bold rounded-xl px-3 py-2 border border-slate-700 focus:border-amber-400 focus:outline-none text-center" />
+            </div>
+
+            <div class="grid grid-cols-12 gap-2 items-center">
+              <span class="col-span-1 text-center font-black text-amber-300">2.</span>
+              <input type="text" data-ans-idx="1" placeholder="Answer #2 (e.g., Snacks / Chips)"
+                class="col-span-8 bg-slate-950 text-white text-sm font-semibold rounded-xl px-3 py-2 border border-slate-700 focus:border-amber-400 focus:outline-none" />
+              <input type="number" data-pts-idx="1" min="1" max="100" placeholder="Pts (25)"
+                class="col-span-3 bg-slate-950 text-amber-300 text-sm font-bold rounded-xl px-3 py-2 border border-slate-700 focus:border-amber-400 focus:outline-none text-center" />
+            </div>
+
+            <div class="grid grid-cols-12 gap-2 items-center">
+              <span class="col-span-1 text-center font-black text-amber-300">3.</span>
+              <input type="text" data-ans-idx="2" placeholder="Answer #3 (e.g., Milk tea)"
+                class="col-span-8 bg-slate-950 text-white text-sm font-semibold rounded-xl px-3 py-2 border border-slate-700 focus:border-amber-400 focus:outline-none" />
+              <input type="number" data-pts-idx="2" min="1" max="100" placeholder="Pts (18)"
+                class="col-span-3 bg-slate-950 text-amber-300 text-sm font-bold rounded-xl px-3 py-2 border border-slate-700 focus:border-amber-400 focus:outline-none text-center" />
+            </div>
+
+            <div class="grid grid-cols-12 gap-2 items-center">
+              <span class="col-span-1 text-center font-black text-amber-300">4.</span>
+              <input type="text" data-ans-idx="3" placeholder="Answer #4 (optional)"
+                class="col-span-8 bg-slate-950 text-white text-sm font-semibold rounded-xl px-3 py-2 border border-slate-700 focus:border-amber-400 focus:outline-none" />
+              <input type="number" data-pts-idx="3" min="1" max="100" placeholder="Pts (10)"
+                class="col-span-3 bg-slate-950 text-amber-300 text-sm font-bold rounded-xl px-3 py-2 border border-slate-700 focus:border-amber-400 focus:outline-none text-center" />
+            </div>
+
+            <div class="grid grid-cols-12 gap-2 items-center">
+              <span class="col-span-1 text-center font-black text-amber-300">5.</span>
+              <input type="text" data-ans-idx="4" placeholder="Answer #5 (optional)"
+                class="col-span-8 bg-slate-950 text-white text-sm font-semibold rounded-xl px-3 py-2 border border-slate-700 focus:border-amber-400 focus:outline-none" />
+              <input type="number" data-pts-idx="4" min="1" max="100" placeholder="Pts (7)"
+                class="col-span-3 bg-slate-950 text-amber-300 text-sm font-bold rounded-xl px-3 py-2 border border-slate-700 focus:border-amber-400 focus:outline-none text-center" />
+            </div>
+          </div>
+        </div>
+
+        <div class="flex items-center justify-end gap-3 pt-2 border-t border-slate-800">
+          <button id="cancelCustomModalBtn" type="button"
+            class="px-4 py-2 rounded-xl font-bold text-sm bg-slate-800 hover:bg-slate-700 text-slate-300 cursor-pointer">
+            Cancel
+          </button>
+          <button type="submit"
+            class="btn-gold px-5 py-2 rounded-xl font-extrabold text-sm cursor-pointer">
+            Save &amp; Load Question
+          </button>
+        </div>
+      </form>
+
+      <!-- Existing Custom Questions List (if any saved) -->
+      <div id="savedCustomQuestionsSection" class="hidden mt-5 pt-4 border-t border-slate-700">
+        <h3 class="text-xs font-extrabold uppercase tracking-wider text-slate-400 mb-2">
+          Saved Custom Questions
+        </h3>
+        <div id="savedCustomQuestionsList" class="flex flex-col gap-1.5 max-h-36 overflow-y-auto pr-1"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================================================
+       APPLICATION LOGIC & WEB AUDIO SYNTHESIZER
+       ======================================================================== -->
+  <script>
+    // =========================================================================
+    // 1. PRE-LOADED DATASET: 24 QUESTIONS FOR A1-A2 EFL LEARNERS IN VIETNAM
+    // =========================================================================
+    const BUILTIN_QUESTIONS = [
+      // Round 1: Daily Life & Routines in Vietnam
+      {
+        id: 'q1',
+        round: 'Round 1: Daily Life & Routines in Vietnam',
+        question: 'Name something you see on the street every morning in Vietnam.',
+        answers: [
+          { text: 'Motorbike', points: 42 },
+          { text: 'Street food / Bánh mì cart', points: 23 },
+          { text: 'Coffee shop', points: 16 },
+          { text: 'School students', points: 11 },
+          { text: 'Trees / Parks', points: 8 }
+        ]
+      },
+      {
+        id: 'q2',
+        round: 'Round 1: Daily Life & Routines in Vietnam',
+        question: 'Name something you always put in your school bag or backpack.',
+        answers: [
+          { text: 'Notebook / Book', points: 35 },
+          { text: 'Pen / Pencil', points: 28 },
+          { text: 'Phone', points: 18 },
+          { text: 'Water bottle', points: 12 },
+          { text: 'Snacks / Money', points: 7 }
+        ]
+      },
+      {
+        id: 'q3',
+        round: 'Round 1: Daily Life & Routines in Vietnam',
+        question: 'Name something people do before going to sleep.',
+        answers: [
+          { text: 'Brush teeth', points: 38 },
+          { text: 'Check phone / Watch TikTok', points: 29 },
+          { text: 'Take a shower', points: 15 },
+          { text: 'Drink water / milk', points: 10 },
+          { text: 'Read a book', points: 8 }
+        ]
+      },
+      {
+        id: 'q4',
+        round: 'Round 1: Daily Life & Routines in Vietnam',
+        question: 'Name a chore students often do at home to help their parents.',
+        answers: [
+          { text: 'Wash the dishes', points: 34 },
+          { text: 'Sweep / Clean the floor', points: 28 },
+          { text: 'Cook rice / dinner', points: 17 },
+          { text: 'Do the laundry', points: 12 },
+          { text: 'Take out the trash', points: 9 }
+        ]
+      },
+      {
+        id: 'q5',
+        round: 'Round 1: Daily Life & Routines in Vietnam',
+        question: 'Name something you use when it rains heavily in Vietnam.',
+        answers: [
+          { text: 'Raincoat', points: 45 },
+          { text: 'Umbrella', points: 30 },
+          { text: 'Sandals / Boots', points: 12 },
+          { text: 'Plastic bag for phone', points: 8 },
+          { text: 'Grab / Taxi', points: 5 }
+        ]
+      },
+      {
+        id: 'q6',
+        round: 'Round 1: Daily Life & Routines in Vietnam',
+        question: 'Name something you can buy at a convenience store (like Circle K or WinMart+).',
+        answers: [
+          { text: 'Water / Soft drink', points: 36 },
+          { text: 'Instant noodles', points: 25 },
+          { text: 'Snacks / Chips', points: 19 },
+          { text: 'Ice cream / Bánh bao', points: 12 },
+          { text: 'Tissues / Phone card', points: 8 }
+        ]
+      },
+
+      // Round 2: Vietnamese Food & Drink
+      {
+        id: 'q7',
+        round: 'Round 2: Vietnamese Food & Drink',
+        question: 'Name a famous Vietnamese food that tourists love to eat.',
+        answers: [
+          { text: 'Phở', points: 44 },
+          { text: 'Bánh mì', points: 31 },
+          { text: 'Spring rolls / Gỏi cuốn', points: 12 },
+          { text: 'Bún chả', points: 8 },
+          { text: 'Broken rice / Cơm tấm', points: 5 }
+        ]
+      },
+      {
+        id: 'q8',
+        round: 'Round 2: Vietnamese Food & Drink',
+        question: 'Name a popular drink people order at a café in Vietnam.',
+        answers: [
+          { text: 'Iced milk coffee / Cà phê sữa đá', points: 41 },
+          { text: 'Milk tea / Trà sữa', points: 28 },
+          { text: 'Peach tea / Trà đào', points: 14 },
+          { text: 'Coconut water / Juice', points: 10 },
+          { text: 'Smoothie / Matcha', points: 7 }
+        ]
+      },
+      {
+        id: 'q9',
+        round: 'Round 2: Vietnamese Food & Drink',
+        question: 'Name a fruit you can easily buy at a Vietnamese market.',
+        answers: [
+          { text: 'Banana', points: 30 },
+          { text: 'Mango', points: 25 },
+          { text: 'Watermelon', points: 18 },
+          { text: 'Dragon fruit', points: 14 },
+          { text: 'Orange / Pomelo', points: 13 }
+        ]
+      },
+      {
+        id: 'q10',
+        round: 'Round 2: Vietnamese Food & Drink',
+        question: 'Name something people put in a bowl of Phở.',
+        answers: [
+          { text: 'Beef / Chicken', points: 38 },
+          { text: 'Noodles', points: 27 },
+          { text: 'Herbs / Green onions', points: 16 },
+          { text: 'Chili / Lime', points: 12 },
+          { text: 'Bean sprouts', points: 7 }
+        ]
+      },
+      {
+        id: 'q11',
+        round: 'Round 2: Vietnamese Food & Drink',
+        question: 'Name a food people often eat for breakfast in Vietnam.',
+        answers: [
+          { text: 'Bánh mì', points: 37 },
+          { text: 'Phở', points: 26 },
+          { text: 'Sticky rice / Xôi', points: 18 },
+          { text: 'Broken rice / Cơm tấm', points: 11 },
+          { text: 'Noodle soup / Hủ tiếu', points: 8 }
+        ]
+      },
+      {
+        id: 'q12',
+        round: 'Round 2: Vietnamese Food & Drink',
+        question: 'Name something sweet that kids and teenagers love to eat.',
+        answers: [
+          { text: 'Ice cream', points: 34 },
+          { text: 'Milk tea / Bubble tea', points: 26 },
+          { text: 'Chocolate / Candy', points: 20 },
+          { text: 'Cake / Cookies', points: 12 },
+          { text: 'Sweet soup / Chè', points: 8 }
+        ]
+      },
+
+      // Round 3: Holidays, Travel & Free Time
+      {
+        id: 'q13',
+        round: 'Round 3: Holidays, Travel & Free Time',
+        question: 'Name something families do to prepare for Tết (Lunar New Year).',
+        answers: [
+          { text: 'Clean the house', points: 39 },
+          { text: 'Buy new clothes', points: 24 },
+          { text: 'Buy flowers / Peach & Apricot blossoms', points: 18 },
+          { text: 'Make Bánh chưng / Bánh tét', points: 12 },
+          { text: 'Buy snacks / Candied fruit', points: 7 }
+        ]
+      },
+      {
+        id: 'q14',
+        round: 'Round 3: Holidays, Travel & Free Time',
+        question: 'Name something children receive during Tết.',
+        answers: [
+          { text: 'Lucky money / Lì xì', points: 55 },
+          { text: 'New clothes', points: 20 },
+          { text: 'Candy / Snacks', points: 13 },
+          { text: 'Toys', points: 7 },
+          { text: 'Good wishes', points: 5 }
+        ]
+      },
+      {
+        id: 'q15',
+        round: 'Round 3: Holidays, Travel & Free Time',
+        question: 'Name a popular city or beach for a family vacation in Vietnam.',
+        answers: [
+          { text: 'Đà Lạt', points: 33 },
+          { text: 'Nha Trang', points: 24 },
+          { text: 'Phú Quốc', points: 19 },
+          { text: 'Đà Nẵng / Hội An', points: 15 },
+          { text: 'Vũng Tàu', points: 9 }
+        ]
+      },
+      {
+        id: 'q16',
+        round: 'Round 3: Holidays, Travel & Free Time',
+        question: 'Name something you pack in your suitcase for a beach holiday.',
+        answers: [
+          { text: 'Swimsuit', points: 36 },
+          { text: 'Sunglasses / Sunscreen', points: 25 },
+          { text: 'T-shirts / Shorts', points: 19 },
+          { text: 'Sandals / Flip-flops', points: 12 },
+          { text: 'Phone charger / Camera', points: 8 }
+        ]
+      },
+      {
+        id: 'q17',
+        round: 'Round 3: Holidays, Travel & Free Time',
+        question: 'Name a sport or activity people do in the park in the late afternoon.',
+        answers: [
+          { text: 'Badminton', points: 38 },
+          { text: 'Football / Soccer', points: 27 },
+          { text: 'Jogging / Walking', points: 17 },
+          { text: 'Shuttlecock / Đá cầu', points: 11 },
+          { text: 'Aerobic dance', points: 7 }
+        ]
+      },
+      {
+        id: 'q18',
+        round: 'Round 3: Holidays, Travel & Free Time',
+        question: 'Name something teenagers do with their friends on the weekend.',
+        answers: [
+          { text: 'Go to a café / Drink milk tea', points: 35 },
+          { text: 'Go to the cinema', points: 24 },
+          { text: 'Play video games', points: 19 },
+          { text: 'Walk around the mall', points: 13 },
+          { text: 'Eat street food', points: 9 }
+        ]
+      },
+
+      // Round 4: School, Animals & Everyday English
+      {
+        id: 'q19',
+        round: 'Round 4: School, Animals & Everyday English',
+        question: 'Name a school subject students find difficult.',
+        answers: [
+          { text: 'Math', points: 40 },
+          { text: 'English', points: 25 },
+          { text: 'Physics', points: 15 },
+          { text: 'Chemistry', points: 12 },
+          { text: 'History', points: 8 }
+        ]
+      },
+      {
+        id: 'q20',
+        round: 'Round 4: School, Animals & Everyday English',
+        question: 'Name an animal you can see in the Vietnamese countryside.',
+        answers: [
+          { text: 'Water buffalo', points: 35 },
+          { text: 'Chicken / Duck', points: 27 },
+          { text: 'Dog', points: 18 },
+          { text: 'Cow', points: 12 },
+          { text: 'Pig', points: 8 }
+        ]
+      },
+      {
+        id: 'q21',
+        round: 'Round 4: School, Animals & Everyday English',
+        question: 'Name a job that requires wearing a uniform.',
+        answers: [
+          { text: 'Police officer', points: 34 },
+          { text: 'Doctor / Nurse', points: 28 },
+          { text: 'Student / Teacher', points: 18 },
+          { text: 'Delivery driver / Grab', points: 12 },
+          { text: 'Firefighter / Soldier', points: 8 }
+        ]
+      },
+      {
+        id: 'q22',
+        round: 'Round 4: School, Animals & Everyday English',
+        question: 'Name something you find in a living room.',
+        answers: [
+          { text: 'TV', points: 37 },
+          { text: 'Sofa / Couch', points: 29 },
+          { text: 'Fan / Air conditioner', points: 16 },
+          { text: 'Table', points: 11 },
+          { text: 'Family photos', points: 7 }
+        ]
+      },
+      {
+        id: 'q23',
+        round: 'Round 4: School, Animals & Everyday English',
+        question: 'Name a reason a student might be late for class.',
+        answers: [
+          { text: 'Traffic jam', points: 43 },
+          { text: 'Woke up late / Overslept', points: 30 },
+          { text: 'Heavy rain', points: 14 },
+          { text: 'Broken bike / Flat tire', points: 8 },
+          { text: 'Forgot something at home', points: 5 }
+        ]
+      },
+      {
+        id: 'q24',
+        round: 'Round 4: School, Animals & Everyday English',
+        question: 'Name an English word almost everyone in Vietnam knows.',
+        answers: [
+          { text: 'Hello / Hi', points: 36 },
+          { text: 'OK', points: 28 },
+          { text: 'Sorry', points: 16 },
+          { text: 'Thank you', points: 12 },
+          { text: 'Love / Happy', points: 8 }
+        ]
+      }
+    ];
+
+    const STORAGE_KEY = 'family_feud_vn_efl_custom_questions_v1';
+
+    // =========================================================================
+    // 2. WEB AUDIO API GAME SHOW SOUND EFFECTS ENGINE
+    // =========================================================================
+    class GameSoundEngine {
+      constructor() {
+        this.ctx = null;
+        this.muted = false;
+      }
+
+      // Lazy initialize / resume AudioContext on user gesture
+      ensureContext() {
+        if (this.muted) return null;
+        if (!this.ctx) {
+          const AudioCtx = window.AudioContext || window.webkitAudioContext;
+          if (AudioCtx) {
+            this.ctx = new AudioCtx();
+          }
+        }
+        if (this.ctx && this.ctx.state === 'suspended') {
+          this.ctx.resume().catch(() => {});
+        }
+        return this.ctx;
+      }
+
+      // Bright harmonic bell chime ("Ding!") when flipping a tile
+      playDing() {
+        const ctx = this.ensureContext();
+        if (!ctx) return;
+
+        const now = ctx.currentTime;
+        // Fundamental + bell overtones (B5 harmonic chime)
+        const baseFreq = 987.77; // B5
+        const partials = [
+          { ratio: 1, gain: 0.35, decay: 1.15 },
+          { ratio: 2, gain: 0.16, decay: 0.75 },
+          { ratio: 3, gain: 0.08, decay: 0.45 },
+          { ratio: 4.02, gain: 0.05, decay: 0.3 }
+        ];
+
+        partials.forEach((p) => {
+          const osc = ctx.createOscillator();
+          const gainNode = ctx.createGain();
+
+          osc.type = p.ratio === 1 ? 'triangle' : 'sine';
+          osc.frequency.setValueAtTime(baseFreq * p.ratio, now);
+
+          gainNode.gain.setValueAtTime(0.0001, now);
+          gainNode.gain.linearRampToValueAtTime(p.gain, now + 0.008);
+          gainNode.gain.exponentialRampToValueAtTime(0.0001, now + p.decay);
+
+          osc.connect(gainNode);
+          gainNode.connect(ctx.destination);
+
+          osc.start(now);
+          osc.stop(now + p.decay + 0.05);
+        });
+      }
+
+      // Classic low-frequency TV game show buzzer ("X" Strike)
+      playBuzzer() {
+        const ctx = this.ensureContext();
+        if (!ctx) return;
+
+        const now = ctx.currentTime;
+        const duration = 0.58;
+
+        const filter = ctx.createBiquadFilter();
+        filter.type = 'lowpass';
+        filter.frequency.setValueAtTime(480, now);
+
+        const masterGain = ctx.createGain();
+        masterGain.gain.setValueAtTime(0.0001, now);
+        masterGain.gain.linearRampToValueAtTime(0.32, now + 0.02);
+        masterGain.gain.setValueAtTime(0.3, now + duration - 0.08);
+        masterGain.gain.exponentialRampToValueAtTime(0.0001, now + duration);
+
+        filter.connect(masterGain);
+        masterGain.connect(ctx.destination);
+
+        // Two slightly detuned low sawtooth oscillators create the classic harsh buzzer growl
+        [88, 93].forEach((freq) => {
+          const osc = ctx.createOscillator();
+          osc.type = 'sawtooth';
+          osc.frequency.setValueAtTime(freq, now);
+          osc.frequency.linearRampToValueAtTime(freq - 6, now + duration);
+          osc.connect(filter);
+          osc.start(now);
+          osc.stop(now + duration + 0.03);
+        });
+      }
+
+      // Upbeat ascending fanfare chime when awarding round points
+      playFanfare() {
+        const ctx = this.ensureContext();
+        if (!ctx) return;
+
+        const now = ctx.currentTime;
+        // C5 -> E5 -> G5 -> C6 bright brassy/chime arpeggio
+        const notes = [
+          { freq: 523.25, time: 0.0, dur: 0.25 },
+          { freq: 659.25, time: 0.11, dur: 0.25 },
+          { freq: 783.99, time: 0.22, dur: 0.28 },
+          { freq: 1046.50, time: 0.34, dur: 0.75 }
+        ];
+
+        notes.forEach((n) => {
+          const start = now + n.time;
+          const osc1 = ctx.createOscillator();
+          const osc2 = ctx.createOscillator();
+          const gain = ctx.createGain();
+
+          osc1.type = 'triangle';
+          osc1.frequency.setValueAtTime(n.freq, start);
+
+          osc2.type = 'sine';
+          osc2.frequency.setValueAtTime(n.freq * 2, start);
+
+          gain.gain.setValueAtTime(0.0001, start);
+          gain.gain.linearRampToValueAtTime(0.24, start + 0.015);
+          gain.gain.exponentialRampToValueAtTime(0.0001, start + n.dur);
+
+          osc1.connect(gain);
+          osc2.connect(gain);
+          gain.connect(ctx.destination);
+
+          osc1.start(start);
+          osc2.start(start);
+          osc1.stop(start + n.dur + 0.05);
+          osc2.stop(start + n.dur + 0.05);
+        });
+      }
+    }
+
+    const soundFX = new GameSoundEngine();
+
+    // =========================================================================
+    // 3. APPLICATION STATE
+    // =========================================================================
+    const state = {
+      customQuestions: [],
+      allQuestions: [],
+      currentQuestionIndex: 0,
+      revealed: [false, false, false, false, false],
+      roundPot: 0,
+      potAlreadyAwarded: false,
+      strikes: 0,
+      questionVisible: true,
+      team1: { name: 'Team A', score: 0 },
+      team2: { name: 'Team B', score: 0 },
+      strikeOverlayTimer: null
+    };
+
+    // =========================================================================
+    // 4. INITIALIZATION & STORAGE HELPERS
+    // =========================================================================
+    function loadCustomQuestionsFromStorage() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (raw) {
+          const parsed = JSON.parse(raw);
+          if (Array.isArray(parsed)) {
+            state.customQuestions = parsed;
+          }
+        }
+      } catch (err) {
+        console.warn('Could not load custom questions from localStorage:', err);
+        state.customQuestions = [];
+      }
+      rebuildQuestionList();
+    }
+
+    function saveCustomQuestionsToStorage() {
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(state.customQuestions));
+      } catch (err) {
+        console.warn('Could not save custom questions to localStorage:', err);
+      }
+    }
+
+    function rebuildQuestionList() {
+      state.allQuestions = [...BUILTIN_QUESTIONS, ...state.customQuestions];
+    }
+
+    // =========================================================================
+    // 5. DOM RENDERING FUNCTIONS
+    // =========================================================================
+    function populateQuestionDropdown() {
+      const select = document.getElementById('questionSelect');
+      select.innerHTML = '';
+
+      // Group questions by their 'round' property
+      const groups = new Map();
+      state.allQuestions.forEach((q, idx) => {
+        if (!groups.has(q.round)) {
+          groups.set(q.round, []);
+        }
+        groups.get(q.round).push({ ...q, globalIndex: idx });
+      });
+
+      groups.forEach((items, roundTitle) => {
+        const optgroup = document.createElement('optgroup');
+        optgroup.label = roundTitle;
+
+        items.forEach((item) => {
+          const option = document.createElement('option');
+          option.value = item.globalIndex;
+          option.textContent = `Q${item.globalIndex + 1}. ${item.question}`;
+          if (item.globalIndex === state.currentQuestionIndex) {
+            option.selected = true;
+          }
+          optgroup.appendChild(option);
+        });
+
+        select.appendChild(optgroup);
+      });
+    }
+
+    function renderQuestionBanner() {
+      const q = state.allQuestions[state.currentQuestionIndex];
+      const badgeEl = document.getElementById('roundCategoryBadge');
+      const promptEl = document.getElementById('questionPromptText');
+      const hiddenEl = document.getElementById('questionHiddenPlaceholder');
+      const visTextEl = document.getElementById('toggleQuestionVisText');
+      const eyeIconEl = document.getElementById('eyeIcon');
+
+      badgeEl.textContent = `${q.round} • Question ${state.currentQuestionIndex + 1} of ${state.allQuestions.length}`;
+      promptEl.textContent = q.question;
+
+      if (state.questionVisible) {
+        promptEl.classList.remove('hidden');
+        hiddenEl.classList.add('hidden');
+        visTextEl.textContent = 'Hide Question';
+        eyeIconEl.textContent = '👁️';
+      } else {
+        promptEl.classList.add('hidden');
+        hiddenEl.classList.remove('hidden');
+        visTextEl.textContent = 'Show Question';
+        eyeIconEl.textContent = '🙈';
+      }
+    }
+
+    function createTileElement(slotIndex, answerObj) {
+      const rank = slotIndex + 1;
+      const wrapper = document.createElement('div');
+      wrapper.className = 'tile-perspective';
+
+      if (!answerObj) {
+        // Inactive slot if a custom question has fewer than 5 answers
+        wrapper.innerHTML = `
+          <div class="tile-empty">
+            <span class="text-slate-700 font-black text-xl tracking-widest">—</span>
+          </div>
+        `;
+        return wrapper;
+      }
+
+      const isFlipped = state.revealed[slotIndex];
+      // Dynamic font sizing for longer Vietnamese/English phrases
+      const len = answerObj.text.length;
+      let textSizeClass = 'text-lg sm:text-xl lg:text-2xl';
+      if (len > 32) {
+        textSizeClass = 'text-sm sm:text-base lg:text-lg';
+      } else if (len > 22) {
+        textSizeClass = 'text-base sm:text-lg lg:text-xl';
+      }
+
+      const tileInner = document.createElement('div');
+      tileInner.className = `tile-inner ${isFlipped ? 'is-flipped' : ''}`;
+      tileInner.setAttribute('role', 'button');
+      tileInner.setAttribute('tabindex', '0');
+      tileInner.setAttribute('aria-label', isFlipped
+        ? `Answer ${rank}: ${answerObj.text}, ${answerObj.points} points`
+        : `Reveal Answer ${rank}`
+      );
+
+      tileInner.innerHTML = `
+        <!-- Front Face: Unrevealed Metallic Blue Panel + Gold Oval Rank -->
+        <div class="tile-face tile-front">
+          <div class="rank-oval font-digital">
+            ${rank}
+          </div>
+        </div>
+
+        <!-- Back Face: Revealed Answer + Gold Points Box -->
+        <div class="tile-face tile-back">
+          <div class="flex items-center gap-2.5 sm:gap-3 px-3 sm:px-4 py-2 flex-1 min-w-0">
+            <span class="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-amber-400/20 border border-amber-300/60 text-amber-200 font-digital font-bold text-xs sm:text-sm flex items-center justify-center shrink-0">
+              ${rank}
+            </span>
+            <span class="font-black uppercase text-white tracking-wide leading-tight ${textSizeClass} drop-shadow-[0_2px_2px_rgba(0,0,0,0.85)] break-words">
+              ${escapeHTML(answerObj.text)}
+            </span>
+          </div>
+          <div class="tile-points-box px-3 font-digital font-bold text-3xl sm:text-4xl">
+            ${answerObj.points}
+          </div>
+        </div>
+      `;
+
+      tileInner.addEventListener('click', () => toggleAnswerTile(slotIndex));
+      tileInner.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          toggleAnswerTile(slotIndex);
+        }
+      });
+
+      wrapper.appendChild(tileInner);
+      return wrapper;
+    }
+
+    function renderSurveyBoard() {
+      const q = state.allQuestions[state.currentQuestionIndex];
+      const leftCol = document.getElementById('boardLeftCol');
+      const rightCol = document.getElementById('boardRightCol');
+
+      leftCol.innerHTML = '';
+      rightCol.innerHTML = '';
+
+      // Left column: Slots 1, 2, 3 (indices 0, 1, 2)
+      [0, 1, 2].forEach((idx) => {
+        leftCol.appendChild(createTileElement(idx, q.answers[idx] || null));
+      });
+
+      // Right column: Slots 4, 5 (indices 3, 4)
+      [3, 4].forEach((idx) => {
+        rightCol.appendChild(createTileElement(idx, q.answers[idx] || null));
+      });
+
+      // Slot 6 position on bottom right: Decorative Studio Crest & EFL Prompt Tip
+      const studioSlot = document.createElement('div');
+      studioSlot.className = 'tile-perspective';
+      studioSlot.innerHTML = `
+        <div class="h-full rounded-xl bg-gradient-to-r from-blue-950/90 via-indigo-950/90 to-blue-950/90 border-2 border-amber-400/35 px-4 flex items-center justify-between gap-3 shadow-inner">
+          <div class="flex items-center gap-2.5">
+            <span class="text-2xl">🇻🇳</span>
+            <div>
+              <div class="text-xs sm:text-sm font-black uppercase tracking-wider text-amber-300">
+                Survey Says • Top 5
+              </div>
+              <div class="text-[11px] sm:text-xs font-semibold text-blue-200/80">
+                Click a tile or press <span class="text-amber-200 font-bold">1–5</span> to reveal
+              </div>
+            </div>
+          </div>
+          <div class="text-right hidden sm:block">
+            <span class="inline-block px-2.5 py-1 rounded-lg bg-amber-400/15 border border-amber-400/40 text-amber-200 font-digital text-xs font-bold">
+              100 PEOPLE SURVEYED
+            </span>
+          </div>
+        </div>
+      `;
+      rightCol.appendChild(studioSlot);
+    }
+
+    function renderScoreboardAndPot() {
+      document.getElementById('team1Score').textContent = state.team1.score;
+      document.getElementById('team2Score').textContent = state.team2.score;
+      document.getElementById('roundPotDisplay').textContent = state.roundPot;
+
+      document.getElementById('team1NameDisplay').textContent = state.team1.name;
+      document.getElementById('team2NameDisplay').textContent = state.team2.name;
+
+      document.getElementById('awardTeam1Btn').textContent = `← Award to ${state.team1.name}`;
+      document.getElementById('awardTeam2Btn').textContent = `Award to ${state.team2.name} →`;
+    }
+
+    function renderStrikeIndicators() {
+      const slots = document.querySelectorAll('#strikeIndicators [data-strike-slot]');
+      slots.forEach((slot) => {
+        const num = Number(slot.getAttribute('data-strike-slot'));
+        if (num <= state.strikes) {
+          slot.className = 'w-11 h-11 sm:w-12 sm:h-12 rounded-xl border-2 border-red-400 bg-red-600/30 shadow-[0_0_16px_rgba(239,68,68,0.65)] flex items-center justify-center font-black text-2xl sm:text-3xl text-red-400 transition-all duration-200 scale-105';
+        } else {
+          slot.className = 'w-11 h-11 sm:w-12 sm:h-12 rounded-xl border-2 border-slate-700 bg-slate-900/90 flex items-center justify-center font-black text-2xl sm:text-3xl text-slate-700 transition-all duration-200';
+        }
+      });
+    }
+
+    // =========================================================================
+    // 6. CORE GAMEPLAY INTERACTIONS
+    // =========================================================================
+    function toggleAnswerTile(slotIndex) {
+      const q = state.allQuestions[state.currentQuestionIndex];
+      const answer = q.answers[slotIndex];
+      if (!answer) return;
+
+      const wasRevealed = state.revealed[slotIndex];
+      state.revealed[slotIndex] = !wasRevealed;
+
+      if (!wasRevealed) {
+        // Flipping OPEN -> play Ding! and add points to pot (if pot not yet awarded)
+        soundFX.playDing();
+        if (!state.potAlreadyAwarded) {
+          state.roundPot += Number(answer.points) || 0;
+        }
+      } else {
+        // Flipping CLOSED (accidental click undo) -> deduct points from pot
+        if (!state.potAlreadyAwarded) {
+          state.roundPot = Math.max(0, state.roundPot - (Number(answer.points) || 0));
+        }
+      }
+
+      renderSurveyBoard();
+      renderScoreboardAndPot();
+    }
+
+    function revealAllAnswers() {
+      const q = state.allQuestions[state.currentQuestionIndex];
+      let newlyRevealedCount = 0;
+
+      q.answers.forEach((ans, idx) => {
+        if (ans && !state.revealed[idx]) {
+          state.revealed[idx] = true;
+          newlyRevealedCount++;
+          if (!state.potAlreadyAwarded) {
+            state.roundPot += Number(ans.points) || 0;
+          }
+        }
+      });
+
+      if (newlyRevealedCount > 0) {
+        soundFX.playDing();
+      }
+
+      renderSurveyBoard();
+      renderScoreboardAndPot();
+    }
+
+    function resetRound() {
+      state.revealed = [false, false, false, false, false];
+      state.roundPot = 0;
+      state.potAlreadyAwarded = false;
+      state.strikes = 0;
+
+      renderSurveyBoard();
+      renderScoreboardAndPot();
+      renderStrikeIndicators();
+    }
+
+    function selectQuestion(index) {
+      const total = state.allQuestions.length;
+      state.currentQuestionIndex = ((index % total) + total) % total;
+      state.revealed = [false, false, false, false, false];
+      state.roundPot = 0;
+      state.potAlreadyAwarded = false;
+      state.strikes = 0;
+
+      populateQuestionDropdown();
+      renderQuestionBanner();
+      renderSurveyBoard();
+      renderScoreboardAndPot();
+      renderStrikeIndicators();
+    }
+
+    function awardPotToTeam(teamNumber) {
+      if (state.roundPot <= 0) return;
+
+      soundFX.playFanfare();
+
+      if (teamNumber === 1) {
+        state.team1.score += state.roundPot;
+        pulseScoreBox('team1ScoreBox');
+      } else {
+        state.team2.score += state.roundPot;
+        pulseScoreBox('team2ScoreBox');
+      }
+
+      state.roundPot = 0;
+      state.potAlreadyAwarded = true;
+      renderScoreboardAndPot();
+    }
+
+    function adjustTeamScore(teamNumber, delta) {
+      if (teamNumber === 1) {
+        state.team1.score = Math.max(0, state.team1.score + delta);
+        pulseScoreBox('team1ScoreBox');
+      } else {
+        state.team2.score = Math.max(0, state.team2.score + delta);
+        pulseScoreBox('team2ScoreBox');
+      }
+      renderScoreboardAndPot();
+    }
+
+    function pulseScoreBox(elementId) {
+      const el = document.getElementById(elementId);
+      if (!el) return;
+      el.classList.remove('animate-score-flash');
+      void el.offsetWidth; // trigger reflow
+      el.classList.add('animate-score-flash');
+    }
+
+    // =========================================================================
+    // 7. STRIKES & GIANT X OVERLAY SYSTEM
+    // =========================================================================
+    function triggerStrike() {
+      // Increment strikes up to 3; if already 3, keep at 3 and flash triple-X buzzer (great for failed steals)
+      if (state.strikes < 3) {
+        state.strikes += 1;
+      }
+
+      soundFX.playBuzzer();
+      renderStrikeIndicators();
+      showGiantStrikeOverlay(state.strikes);
+    }
+
+    function clearStrikes() {
+      state.strikes = 0;
+      renderStrikeIndicators();
+    }
+
+    function showGiantStrikeOverlay(count) {
+      const overlay = document.getElementById('strikeOverlay');
+      const content = document.getElementById('strikeOverlayContent');
+
+      if (state.strikeOverlayTimer) {
+        clearTimeout(state.strikeOverlayTimer);
+      }
+
+      content.innerHTML = '';
+      for (let i = 0; i < count; i++) {
+        const box = document.createElement('div');
+        box.className = 'giant-x-card rounded-3xl w-28 h-32 sm:w-40 sm:h-48 lg:w-48 lg:h-56 flex items-center justify-center';
+        box.innerHTML = `
+          <span class="font-black text-7xl sm:text-8xl lg:text-9xl text-red-500 drop-shadow-[0_0_24px_rgba(239,68,68,1)] leading-none">
+            X
+          </span>
+        `;
+        content.appendChild(box);
+      }
+
+      overlay.classList.remove('hidden');
+      overlay.classList.add('flex');
+
+      // Re-trigger CSS animation cleanly
+      content.classList.remove('animate-strike-overlay');
+      void content.offsetWidth;
+      content.classList.add('animate-strike-overlay');
+
+      state.strikeOverlayTimer = setTimeout(() => {
+        overlay.classList.add('hidden');
+        overlay.classList.remove('flex');
+      }, 1500);
+    }
+
+    // =========================================================================
+    // 8. INLINE TEAM NAME EDITING
+    // =========================================================================
+    function setupInlineTeamEdit(teamNum) {
+      const wrapper = document.getElementById(`team${teamNum}NameWrapper`);
+      const display = document.getElementById(`team${teamNum}NameDisplay`);
+      const input = document.getElementById(`team${teamNum}NameInput`);
+      const defaultName = teamNum === 1 ? 'Team A' : 'Team B';
+
+      wrapper.addEventListener('click', () => {
+        wrapper.classList.add('hidden');
+        input.classList.remove('hidden');
+        input.value = state[`team${teamNum}`].name;
+        input.focus();
+        input.select();
+      });
+
+      const commitEdit = () => {
+        const trimmed = input.value.trim();
+        state[`team${teamNum}`].name = trimmed || defaultName;
+        input.classList.add('hidden');
+        wrapper.classList.remove('hidden');
+        renderScoreboardAndPot();
+      };
+
+      input.addEventListener('blur', commitEdit);
+      input.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          commitEdit();
+        } else if (e.key === 'Escape') {
+          input.value = state[`team${teamNum}`].name;
+          commitEdit();
+        }
+      });
+    }
+
+    // =========================================================================
+    // 9. CUSTOM QUESTION MODAL & LOCALSTORAGE MANAGEMENT
+    // =========================================================================
+    function openCustomModal() {
+      const modal = document.getElementById('customQuestionModal');
+      document.getElementById('customModalAlert').classList.add('hidden');
+      renderSavedCustomQuestionsList();
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+      document.getElementById('customPromptInput').focus();
+    }
+
+    function closeCustomModal() {
+      const modal = document.getElementById('customQuestionModal');
+      modal.classList.add('hidden');
+      modal.classList.remove('flex');
+    }
+
+    function showCustomModalMessage(msg, isError = true) {
+      const alertBox = document.getElementById('customModalAlert');
+      alertBox.textContent = msg;
+      alertBox.className = isError
+        ? 'mb-4 px-4 py-2.5 rounded-xl text-sm font-bold bg-red-950/90 border border-red-400 text-red-200'
+        : 'mb-4 px-4 py-2.5 rounded-xl text-sm font-bold bg-emerald-950/90 border border-emerald-400 text-emerald-200';
+      alertBox.classList.remove('hidden');
+    }
+
+    function updateCustomPointsTotalPreview() {
+      const ptsInputs = document.querySelectorAll('#customAnswerInputsContainer [data-pts-idx]');
+      let sum = 0;
+      ptsInputs.forEach((inp) => {
+        const val = parseInt(inp.value, 10);
+        if (!isNaN(val) && val > 0) sum += val;
+      });
+      document.getElementById('customPointsSum').textContent = `Total: ${sum} pts`;
+    }
+
+    function handleCustomQuestionSubmit(e) {
+      e.preventDefault();
+      const promptInput = document.getElementById('customPromptInput');
+      const promptText = promptInput.value.trim();
+
+      if (!promptText) {
+        showCustomModalMessage('Please enter a survey question prompt.');
+        return;
+      }
+
+      const answers = [];
+      for (let i = 0; i < 5; i++) {
+        const ansEl = document.querySelector(`[data-ans-idx="${i}"]`);
+        const ptsEl = document.querySelector(`[data-pts-idx="${i}"]`);
+        const ansText = ansEl.value.trim();
+        const ptsVal = parseInt(ptsEl.value, 10);
+
+        if (ansText) {
+          if (isNaN(ptsVal) || ptsVal <= 0) {
+            showCustomModalMessage(`Please enter a valid positive point value for Answer #${i + 1}.`);
+            return;
+          }
+          answers.push({ text: ansText, points: ptsVal });
+        }
+      }
+
+      if (answers.length === 0) {
+        showCustomModalMessage('Please enter at least 1 answer with points.');
+        return;
+      }
+
+      // Sort answers descending by points for authentic survey ranking
+      answers.sort((a, b) => b.points - a.points);
+
+      const newQuestion = {
+        id: 'custom_' + Date.now(),
+        round: 'Custom Questions (Teacher Added)',
+        question: promptText,
+        answers
+      };
+
+      state.customQuestions.push(newQuestion);
+      saveCustomQuestionsToStorage();
+      rebuildQuestionList();
+
+      // Clear form inputs
+      promptInput.value = '';
+      for (let i = 0; i < 5; i++) {
+        document.querySelector(`[data-ans-idx="${i}"]`).value = '';
+        document.querySelector(`[data-pts-idx="${i}"]`).value = '';
+      }
+      updateCustomPointsTotalPreview();
+
+      // Switch immediately to the newly created question
+      const newIndex = state.allQuestions.length - 1;
+      closeCustomModal();
+      selectQuestion(newIndex);
+    }
+
+    function renderSavedCustomQuestionsList() {
+      const section = document.getElementById('savedCustomQuestionsSection');
+      const list = document.getElementById('savedCustomQuestionsList');
+
+      if (state.customQuestions.length === 0) {
+        section.classList.add('hidden');
+        return;
+      }
+
+      section.classList.remove('hidden');
+      list.innerHTML = '';
+
+      state.customQuestions.forEach((cq, customIdx) => {
+        const globalIdx = BUILTIN_QUESTIONS.length + customIdx;
+        const row = document.createElement('div');
+        row.className = 'flex items-center justify-between gap-2 bg-slate-950/90 border border-slate-700 rounded-xl px-3 py-2 text-xs sm:text-sm';
+
+        row.innerHTML = `
+          <button type="button" class="text-left font-bold text-blue-200 hover:text-amber-300 truncate flex-1 cursor-pointer">
+            Q${globalIdx + 1}. ${escapeHTML(cq.question)}
+          </button>
+          <button type="button" class="px-2 py-1 rounded-lg bg-red-950 hover:bg-red-800 text-red-200 font-bold text-xs shrink-0 cursor-pointer" title="Delete custom question">
+            Delete
+          </button>
+        `;
+
+        const buttons = row.querySelectorAll('button');
+        // Load question on click
+        buttons[0].addEventListener('click', () => {
+          closeCustomModal();
+          selectQuestion(globalIdx);
+        });
+        // Delete custom question on click
+        buttons[1].addEventListener('click', () => {
+          state.customQuestions.splice(customIdx, 1);
+          saveCustomQuestionsToStorage();
+          rebuildQuestionList();
+          if (state.currentQuestionIndex >= state.allQuestions.length) {
+            state.currentQuestionIndex = Math.max(0, state.allQuestions.length - 1);
+          }
+          populateQuestionDropdown();
+          renderQuestionBanner();
+          renderSurveyBoard();
+          renderSavedCustomQuestionsList();
+        });
+
+        list.appendChild(row);
+      });
+    }
+
+    // Simple HTML escaping helper for safe text rendering
+    function escapeHTML(str) {
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+    }
+
+    // =========================================================================
+    // 10. EVENT LISTENERS & KEYBOARD SHORTCUTS
+    // =========================================================================
+    function initEventListeners() {
+      // Mute / Unmute Audio Toggle
+      document.getElementById('muteToggleBtn').addEventListener('click', () => {
+        soundFX.muted = !soundFX.muted;
+        const icon = document.getElementById('muteIcon');
+        const label = document.getElementById('muteLabel');
+        if (soundFX.muted) {
+          icon.textContent = '🔇';
+          label.textContent = 'Muted';
+        } else {
+          icon.textContent = '🔊';
+          label.textContent = 'Sound ON';
+          soundFX.playDing();
+        }
+      });
+
+      // Question Navigation Controls
+      document.getElementById('prevQuestionBtn').addEventListener('click', () => {
+        selectQuestion(state.currentQuestionIndex - 1);
+      });
+
+      document.getElementById('nextQuestionBtn').addEventListener('click', () => {
+        selectQuestion(state.currentQuestionIndex + 1);
+      });
+
+      document.getElementById('questionSelect').addEventListener('change', (e) => {
+        selectQuestion(Number(e.target.value));
+      });
+
+      // Hide / Show Question Toggle
+      document.getElementById('toggleQuestionVisBtn').addEventListener('click', () => {
+        state.questionVisible = !state.questionVisible;
+        renderQuestionBanner();
+      });
+
+      // Board Controls: Reveal All & Reset Round
+      document.getElementById('revealAllBtn').addEventListener('click', revealAllAnswers);
+      document.getElementById('resetRoundBtn').addEventListener('click', resetRound);
+
+      // Strikes Controls
+      document.getElementById('addStrikeBtn').addEventListener('click', triggerStrike);
+      document.getElementById('clearStrikesBtn').addEventListener('click', clearStrikes);
+
+      // Inline Team Name Editing
+      setupInlineTeamEdit(1);
+      setupInlineTeamEdit(2);
+
+      // Custom Question Modal Controls
+      document.getElementById('openCustomModalBtn').addEventListener('click', openCustomModal);
+      document.getElementById('closeCustomModalBtn').addEventListener('click', closeCustomModal);
+      document.getElementById('cancelCustomModalBtn').addEventListener('click', closeCustomModal);
+      document.getElementById('customQuestionForm').addEventListener('submit', handleCustomQuestionSubmit);
+
+      document.getElementById('customQuestionModal').addEventListener('click', (e) => {
+        if (e.target.id === 'customQuestionModal') {
+          closeCustomModal();
+        }
+      });
+
+      document.querySelectorAll('#customAnswerInputsContainer [data-pts-idx]').forEach((inp) => {
+        inp.addEventListener('input', updateCustomPointsTotalPreview);
+      });
+
+      // Global Keyboard Shortcuts (Disabled while typing in inputs or when modal is open)
+      document.addEventListener('keydown', (e) => {
+        const activeTag = document.activeElement ? document.activeElement.tagName : '';
+        const isTyping = ['INPUT', 'TEXTAREA', 'SELECT'].includes(activeTag) ||
+                         (document.activeElement && document.activeElement.isContentEditable);
+        const modalOpen = !document.getElementById('customQuestionModal').classList.contains('hidden');
+
+        if (modalOpen) {
+          if (e.key === 'Escape') closeCustomModal();
+          return;
+        }
+
+        if (isTyping) return;
+
+        if (['1', '2', '3', '4', '5'].includes(e.key)) {
+          e.preventDefault();
+          toggleAnswerTile(Number(e.key) - 1);
+        } else if (e.key === 'x' || e.key === 'X') {
+          e.preventDefault();
+          triggerStrike();
+        } else if (e.key === 'c' || e.key === 'C') {
+          e.preventDefault();
+          clearStrikes();
+        }
+      });
+    }
+
+    // =========================================================================
+    // 11. BOOTSTRAP APPLICATION ON WINDOW LOAD
+    // =========================================================================
+    window.addEventListener('DOMContentLoaded', () => {
+      loadCustomQuestionsFromStorage();
+      populateQuestionDropdown();
+      renderQuestionBanner();
+      renderSurveyBoard();
+      renderScoreboardAndPot();
+      renderStrikeIndicators();
+      initEventListeners();
+    });
+  </script>
+</body>
+</html>
