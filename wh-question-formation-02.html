@@ -1,0 +1,1024 @@
+<!DOCTYPE html>
+<html lang="en" class="antialiased">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>A2 EFL Wh-Question Slides (24 Sentences)</title>
+  <!-- Load Google Font: Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <!-- Load Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    // Configure Tailwind class-based dark mode and Inter font family
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'system-ui', '-apple-system', 'sans-serif'],
+          },
+        },
+      },
+    };
+  </script>
+  <style>
+    /* Base font and smooth tap interaction */
+    body {
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    /* Smooth fade-in animation when a card's question & answer are revealed */
+    @keyframes revealFadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(3px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .animate-reveal {
+      animation: revealFadeIn 220ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+  </style>
+</head>
+<body class="bg-[#FAF9F6] text-[#18181B] dark:bg-[#0E1015] dark:text-[#F4F4F6] transition-colors duration-300 selection:bg-blue-500/20">
+
+  <!-- Thin Top Viewport Progress Bar -->
+  <div class="fixed top-0 left-0 right-0 h-[3px] bg-black/[0.05] dark:bg-white/[0.06] z-50 pointer-events-none">
+    <div id="progressBar" class="h-full bg-zinc-900 dark:bg-zinc-100 transition-all duration-300 ease-out" style="width: 4.1667%;"></div>
+  </div>
+
+  <!-- Full-Viewport Distraction-Free Slide Container -->
+  <div id="appViewport" class="min-h-[100dvh] flex flex-col justify-between px-4 sm:px-8 lg:px-10 py-4 sm:py-5 max-w-7xl mx-auto">
+
+    <!-- Minimalist Top Bar -->
+    <header class="flex flex-wrap items-center justify-between gap-2.5 sm:gap-3 shrink-0 pt-1">
+      <!-- Category Badge & Page Counter -->
+      <div class="flex items-center gap-2.5 sm:gap-3 min-w-0">
+        <span id="categoryBadge" class="inline-flex items-center px-3 py-1 rounded-full text-xs sm:text-[13px] font-medium tracking-wide bg-white dark:bg-[#161922] text-zinc-600 dark:text-zinc-300 border border-[#E4E4E7] dark:border-[#262A36] transition-colors duration-300 truncate">
+          Travel &amp; Transport
+        </span>
+        <span id="pageCounter" class="text-xs sm:text-sm font-medium tabular-nums text-zinc-500 dark:text-zinc-400 shrink-0">
+          1 / 24
+        </span>
+      </div>
+
+      <!-- Right Action Controls: Reveal Questions, Reveal All & Light/Dark Toggle -->
+      <div class="flex items-center gap-2 shrink-0">
+        <!-- Classroom Global Toggle: Reveal Questions / Hide Questions -->
+        <button
+          id="toggleQuestionsBtn"
+          type="button"
+          aria-pressed="false"
+          title="Reveal or hide all questions on this slide (Shortcut: Q)"
+          class="inline-flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-3 py-2 rounded-xl text-xs sm:text-sm font-medium bg-white dark:bg-[#161922] text-zinc-700 dark:text-zinc-200 border border-[#E4E4E7] dark:border-[#262A36] hover:bg-zinc-50 dark:hover:bg-[#1E222E] active:scale-[0.98] transition-all duration-200 cursor-pointer whitespace-nowrap"
+        >
+          <!-- Eye Open Icon (shown when questions are concealed) -->
+          <svg id="qEyeOpenIcon" class="w-4 h-4 text-zinc-500 dark:text-zinc-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" />
+            <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+          </svg>
+          <!-- Eye Closed Icon (shown when all questions are revealed) -->
+          <svg id="qEyeClosedIcon" class="w-4 h-4 text-zinc-500 dark:text-zinc-400 hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M3.98 8.223A10.477 10.477 0 001.934 12C3.226 16.338 7.244 19.5 12 19.5c.993 0 1.953-.138 2.863-.395M6.228 6.228A10.45 10.45 0 0112 4.5c4.756 0 8.773 3.162 10.065 7.498a10.523 10.523 0 01-4.293 5.774M6.228 6.228L3 3m3.228 3.228l3.65 3.65m7.894 7.894L21 21m-3.228-3.228l-3.65-3.65m0 0a3 3 0 10-4.243-4.243m4.242 4.242L9.88 9.88" />
+          </svg>
+          <span id="toggleQuestionsLabel">Reveal Questions</span>
+        </button>
+
+        <!-- Classroom Global Toggle: Reveal All / Hide All -->
+        <button
+          id="toggleAllBtn"
+          type="button"
+          aria-pressed="false"
+          title="Reveal or hide all questions and answers on this slide"
+          class="inline-flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-3 py-2 rounded-xl text-xs sm:text-sm font-medium bg-white dark:bg-[#161922] text-zinc-700 dark:text-zinc-200 border border-[#E4E4E7] dark:border-[#262A36] hover:bg-zinc-50 dark:hover:bg-[#1E222E] active:scale-[0.98] transition-all duration-200 cursor-pointer whitespace-nowrap"
+        >
+          <!-- Eye Open Icon (shown when cards are concealed, prompting "Reveal All") -->
+          <svg id="eyeOpenIcon" class="w-4 h-4 text-zinc-500 dark:text-zinc-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" />
+            <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+          </svg>
+          <!-- Eye Closed Icon (shown when all cards are revealed, prompting "Hide All") -->
+          <svg id="eyeClosedIcon" class="w-4 h-4 text-zinc-500 dark:text-zinc-400 hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M3.98 8.223A10.477 10.477 0 001.934 12C3.226 16.338 7.244 19.5 12 19.5c.993 0 1.953-.138 2.863-.395M6.228 6.228A10.45 10.45 0 0112 4.5c4.756 0 8.773 3.162 10.065 7.498a10.523 10.523 0 01-4.293 5.774M6.228 6.228L3 3m3.228 3.228l3.65 3.65m7.894 7.894L21 21m-3.228-3.228l-3.65-3.65m0 0a3 3 0 10-4.243-4.243m4.242 4.242L9.88 9.88" />
+          </svg>
+          <span id="toggleAllLabel">Reveal All</span>
+        </button>
+
+        <!-- Light / Dark Mode Toggle Button -->
+        <button
+          id="themeToggleBtn"
+          type="button"
+          aria-label="Toggle light or dark mode"
+          title="Switch light / dark theme"
+          class="inline-flex items-center justify-center w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-white dark:bg-[#161922] text-zinc-700 dark:text-zinc-200 border border-[#E4E4E7] dark:border-[#262A36] hover:bg-zinc-50 dark:hover:bg-[#1E222E] active:scale-[0.98] transition-all duration-200 cursor-pointer"
+        >
+          <!-- Sun Icon (shown in dark mode to switch to light) -->
+          <svg id="sunIcon" class="w-4 h-4 hidden text-amber-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 3v2.25m6.364.386l-1.591 1.591M21 12h-2.25m-.386 6.364l-1.591-1.591M12 18.75V21m-4.773-4.227l-1.591 1.591M5.25 12H3m4.227-4.773L5.636 5.636M15.75 12a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0z" />
+          </svg>
+          <!-- Moon Icon (shown in light mode to switch to dark) -->
+          <svg id="moonIcon" class="w-4 h-4 text-zinc-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M21.752 15.002A9.718 9.718 0 0118 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 003 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 009.002-5.998z" />
+          </svg>
+        </button>
+      </div>
+    </header>
+
+    <!-- Main Centered Slide Stage -->
+    <main id="slideStage" class="flex-1 flex flex-col justify-center py-4 sm:py-6 my-auto transition-all duration-300 ease-out">
+      <!-- Display Sentence Header -->
+      <section class="w-full mx-auto text-center mb-5 sm:mb-7 px-1">
+        <h1 id="sentenceText" class="text-2xl sm:text-3xl lg:text-[34px] font-bold tracking-tight leading-snug text-[#18181B] dark:text-[#F4F4F6] transition-colors duration-300">
+          My father flew to Hanoi by plane last week for a business trip.
+        </h1>
+      </section>
+
+      <!-- 2-Column x 3-Row Grid of 6 Wh-Word Modules (Each with separate Question & Answer cards) -->
+      <section id="whGrid" aria-label="Wh-questions and answers" class="grid grid-cols-1 lg:grid-cols-2 gap-4 w-full mx-auto">
+        <!-- Cards dynamically populated via JavaScript -->
+      </section>
+    </main>
+
+    <!-- Clean Bottom Navigation -->
+    <footer class="flex items-center justify-between gap-4 shrink-0 pb-1 pt-2">
+      <button
+        id="prevBtn"
+        type="button"
+        class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium bg-white dark:bg-[#161922] text-zinc-700 dark:text-zinc-200 border border-[#E4E4E7] dark:border-[#262A36] hover:bg-zinc-50 dark:hover:bg-[#1E222E] disabled:opacity-35 disabled:pointer-events-none active:scale-[0.98] transition-all duration-200 cursor-pointer"
+      >
+        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
+        </svg>
+        <span>Previous</span>
+      </button>
+
+      <button
+        id="nextBtn"
+        type="button"
+        class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium bg-white dark:bg-[#161922] text-zinc-700 dark:text-zinc-200 border border-[#E4E4E7] dark:border-[#262A36] hover:bg-zinc-50 dark:hover:bg-[#1E222E] disabled:opacity-35 disabled:pointer-events-none active:scale-[0.98] transition-all duration-200 cursor-pointer"
+      >
+        <span>Next</span>
+        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
+        </svg>
+      </button>
+    </footer>
+
+  </div>
+
+  <script>
+    /**
+     * Complete 24-Page Dataset for A2 EFL Wh-Question Practice
+     * Each entry contains category, full sentence, and 6 Wh-question/answer pairs.
+     */
+    const SLIDES = [
+      {
+        category: "Travel & Transport",
+        sentence: "My father flew to Hanoi by plane last week for a business trip.",
+        items: [
+          { wh: "WHO", question: "Who flew to Hanoi?", answer: "My father." },
+          { wh: "WHAT", question: "What did he do?", answer: "He flew to Hanoi." },
+          { wh: "WHERE", question: "Where did he fly?", answer: "To Hanoi." },
+          { wh: "WHEN", question: "When did he fly to Hanoi?", answer: "Last week." },
+          { wh: "WHY", question: "Why did he fly to Hanoi?", answer: "For a business trip." },
+          { wh: "HOW", question: "How did he fly to Hanoi?", answer: "By plane." }
+        ]
+      },
+      {
+        category: "Travel & Transport",
+        sentence: "Sarah traveled to Da Nang by train yesterday morning to visit her grandparents.",
+        items: [
+          { wh: "WHO", question: "Who traveled to Da Nang?", answer: "Sarah." },
+          { wh: "WHAT", question: "What did she do?", answer: "She traveled to Da Nang." },
+          { wh: "WHERE", question: "Where did she travel?", answer: "To Da Nang." },
+          { wh: "WHEN", question: "When did she travel to Da Nang?", answer: "Yesterday morning." },
+          { wh: "WHY", question: "Why did she travel to Da Nang?", answer: "To visit her grandparents." },
+          { wh: "HOW", question: "How did she travel to Da Nang?", answer: "By train." }
+        ]
+      },
+      {
+        category: "Travel & Transport",
+        sentence: "Our class went to the history museum by school bus on Friday to learn about ancient kings.",
+        items: [
+          { wh: "WHO", question: "Who went to the history museum?", answer: "Our class." },
+          { wh: "WHAT", question: "What did the class do?", answer: "They went to the history museum." },
+          { wh: "WHERE", question: "Where did they go?", answer: "To the history museum." },
+          { wh: "WHEN", question: "When did they go to the history museum?", answer: "On Friday." },
+          { wh: "WHY", question: "Why did they go to the history museum?", answer: "To learn about ancient kings." },
+          { wh: "HOW", question: "How did they go to the history museum?", answer: "By school bus." }
+        ]
+      },
+      {
+        category: "Travel & Transport",
+        sentence: "Tom rode his bicycle to the beach at 6:00 AM to watch the sunrise.",
+        items: [
+          { wh: "WHO", question: "Who rode his bicycle to the beach?", answer: "Tom." },
+          { wh: "WHAT", question: "What did he ride?", answer: "His bicycle." },
+          { wh: "WHERE", question: "Where did he ride his bicycle?", answer: "To the beach." },
+          { wh: "WHEN", question: "When did he ride to the beach?", answer: "At 6:00 AM." },
+          { wh: "WHY", question: "Why did he go to the beach?", answer: "To watch the sunrise." },
+          { wh: "HOW", question: "How did he go to the beach?", answer: "By bicycle (he rode his bicycle)." }
+        ]
+      },
+      {
+        category: "Travel & Transport",
+        sentence: "My aunt drove to the airport in her new car last night to pick up my cousin.",
+        items: [
+          { wh: "WHO", question: "Who drove to the airport?", answer: "My aunt." },
+          { wh: "WHAT", question: "What did she do?", answer: "She drove to the airport." },
+          { wh: "WHERE", question: "Where did she drive?", answer: "To the airport." },
+          { wh: "WHEN", question: "When did she drive to the airport?", answer: "Last night." },
+          { wh: "WHY", question: "Why did she drive to the airport?", answer: "To pick up my cousin." },
+          { wh: "HOW", question: "How did she go to the airport?", answer: "In her new car." }
+        ]
+      },
+      {
+        category: "Travel & Transport",
+        sentence: "The tourists walked to the old temple on foot this morning to take photos.",
+        items: [
+          { wh: "WHO", question: "Who walked to the old temple?", answer: "The tourists." },
+          { wh: "WHAT", question: "What did they do?", answer: "They walked to the old temple." },
+          { wh: "WHERE", question: "Where did they walk?", answer: "To the old temple." },
+          { wh: "WHEN", question: "When did they walk to the old temple?", answer: "This morning." },
+          { wh: "WHY", question: "Why did they walk to the old temple?", answer: "To take photos." },
+          { wh: "HOW", question: "How did they go to the old temple?", answer: "On foot." }
+        ]
+      },
+      {
+        category: "Shopping & Food",
+        sentence: "My mother bought fresh vegetables at the local market with cash this morning to make soup.",
+        items: [
+          { wh: "WHO", question: "Who bought fresh vegetables?", answer: "My mother." },
+          { wh: "WHAT", question: "What did she buy?", answer: "Fresh vegetables." },
+          { wh: "WHERE", question: "Where did she buy fresh vegetables?", answer: "At the local market." },
+          { wh: "WHEN", question: "When did she buy them?", answer: "This morning." },
+          { wh: "WHY", question: "Why did she buy fresh vegetables?", answer: "To make soup." },
+          { wh: "HOW", question: "How did she pay for them?", answer: "With cash." }
+        ]
+      },
+      {
+        category: "Shopping & Food",
+        sentence: "David ordered a large pizza from the Italian restaurant on his phone at 8:00 PM because he was hungry.",
+        items: [
+          { wh: "WHO", question: "Who ordered a large pizza?", answer: "David." },
+          { wh: "WHAT", question: "What did he order?", answer: "A large pizza." },
+          { wh: "WHERE", question: "Where did he order it from?", answer: "From the Italian restaurant." },
+          { wh: "WHEN", question: "When did he order it?", answer: "At 8:00 PM." },
+          { wh: "WHY", question: "Why did he order a pizza?", answer: "Because he was hungry." },
+          { wh: "HOW", question: "How did he order it?", answer: "On his phone." }
+        ]
+      },
+      {
+        category: "Shopping & Food",
+        sentence: "Lisa baked a chocolate cake in the kitchen yesterday using a simple recipe for her brother's birthday.",
+        items: [
+          { wh: "WHO", question: "Who baked a chocolate cake?", answer: "Lisa." },
+          { wh: "WHAT", question: "What did she bake?", answer: "A chocolate cake." },
+          { wh: "WHERE", question: "Where did she bake it?", answer: "In the kitchen." },
+          { wh: "WHEN", question: "When did she bake it?", answer: "Yesterday." },
+          { wh: "WHY", question: "Why did she bake a cake?", answer: "For her brother's birthday." },
+          { wh: "HOW", question: "How did she bake it?", answer: "Using a simple recipe." }
+        ]
+      },
+      {
+        category: "Shopping & Food",
+        sentence: "My brother bought a blue jacket at the shopping mall with his credit card on Saturday for his winter holiday.",
+        items: [
+          { wh: "WHO", question: "Who bought a blue jacket?", answer: "My brother." },
+          { wh: "WHAT", question: "What did he buy?", answer: "A blue jacket." },
+          { wh: "WHERE", question: "Where did he buy it?", answer: "At the shopping mall." },
+          { wh: "WHEN", question: "When did he buy it?", answer: "On Saturday." },
+          { wh: "WHY", question: "Why did he buy a blue jacket?", answer: "For his winter holiday." },
+          { wh: "HOW", question: "How did he pay for it?", answer: "With his credit card." }
+        ]
+      },
+      {
+        category: "Shopping & Food",
+        sentence: "Emma drank hot tea slowly in the living room before bed because she had a sore throat.",
+        items: [
+          { wh: "WHO", question: "Who drank hot tea?", answer: "Emma." },
+          { wh: "WHAT", question: "What did she drink?", answer: "Hot tea." },
+          { wh: "WHERE", question: "Where did she drink it?", answer: "In the living room." },
+          { wh: "WHEN", question: "When did she drink it?", answer: "Before bed." },
+          { wh: "WHY", question: "Why did she drink hot tea?", answer: "Because she had a sore throat." },
+          { wh: "HOW", question: "How did she drink it?", answer: "Slowly." }
+        ]
+      },
+      {
+        category: "Shopping & Food",
+        sentence: "The chef cooked noodles in the restaurant kitchen very quickly at lunchtime for the hungry guests.",
+        items: [
+          { wh: "WHO", question: "Who cooked noodles?", answer: "The chef." },
+          { wh: "WHAT", question: "What did the chef cook?", answer: "Noodles." },
+          { wh: "WHERE", question: "Where did the chef cook them?", answer: "In the restaurant kitchen." },
+          { wh: "WHEN", question: "When did the chef cook them?", answer: "At lunchtime." },
+          { wh: "WHY", question: "Why did the chef cook noodles?", answer: "For the hungry guests." },
+          { wh: "HOW", question: "How did the chef cook them?", answer: "Very quickly." }
+        ]
+      },
+      {
+        category: "School & Work",
+        sentence: "Maria studied English vocabulary in the library quietly last night to prepare for her exam.",
+        items: [
+          { wh: "WHO", question: "Who studied English vocabulary?", answer: "Maria." },
+          { wh: "WHAT", question: "What did she study?", answer: "English vocabulary." },
+          { wh: "WHERE", question: "Where did she study?", answer: "In the library." },
+          { wh: "WHEN", question: "When did she study?", answer: "Last night." },
+          { wh: "WHY", question: "Why did she study?", answer: "To prepare for her exam." },
+          { wh: "HOW", question: "How did she study?", answer: "Quietly." }
+        ]
+      },
+      {
+        category: "School & Work",
+        sentence: "The students wrote a short story in their notebooks with blue pens during class to practice past tense verbs.",
+        items: [
+          { wh: "WHO", question: "Who wrote a short story?", answer: "The students." },
+          { wh: "WHAT", question: "What did they write?", answer: "A short story." },
+          { wh: "WHERE", question: "Where did they write it?", answer: "In their notebooks." },
+          { wh: "WHEN", question: "When did they write it?", answer: "During class." },
+          { wh: "WHY", question: "Why did they write a short story?", answer: "To practice past tense verbs." },
+          { wh: "HOW", question: "How did they write it?", answer: "With blue pens." }
+        ]
+      },
+      {
+        category: "School & Work",
+        sentence: "Mr. Lee sent an important email from his office on his laptop at 9:00 AM to cancel the meeting.",
+        items: [
+          { wh: "WHO", question: "Who sent an important email?", answer: "Mr. Lee." },
+          { wh: "WHAT", question: "What did he send?", answer: "An important email." },
+          { wh: "WHERE", question: "Where did he send it from?", answer: "From his office." },
+          { wh: "WHEN", question: "When did he send it?", answer: "At 9:00 AM." },
+          { wh: "WHY", question: "Why did he send the email?", answer: "To cancel the meeting." },
+          { wh: "HOW", question: "How did he send it?", answer: "On his laptop." }
+        ]
+      },
+      {
+        category: "School & Work",
+        sentence: "Anna practiced the piano in her bedroom carefully every evening to win the school competition.",
+        items: [
+          { wh: "WHO", question: "Who practiced the piano?", answer: "Anna." },
+          { wh: "WHAT", question: "What did she practice?", answer: "The piano." },
+          { wh: "WHERE", question: "Where did she practice?", answer: "In her bedroom." },
+          { wh: "WHEN", question: "When did she practice?", answer: "Every evening." },
+          { wh: "WHY", question: "Why did she practice the piano?", answer: "To win the school competition." },
+          { wh: "HOW", question: "How did she practice?", answer: "Carefully." }
+        ]
+      },
+      {
+        category: "School & Work",
+        sentence: "Ben fixed his broken chair in the garage with a hammer on Sunday afternoon so he could use it again.",
+        items: [
+          { wh: "WHO", question: "Who fixed his broken chair?", answer: "Ben." },
+          { wh: "WHAT", question: "What did he fix?", answer: "His broken chair." },
+          { wh: "WHERE", question: "Where did he fix it?", answer: "In the garage." },
+          { wh: "WHEN", question: "When did he fix it?", answer: "On Sunday afternoon." },
+          { wh: "WHY", question: "Why did he fix it?", answer: "So he could use it again." },
+          { wh: "HOW", question: "How did he fix it?", answer: "With a hammer." }
+        ]
+      },
+      {
+        category: "School & Work",
+        sentence: "The teacher explained the new grammar rules in the classroom clearly this morning to help the new students.",
+        items: [
+          { wh: "WHO", question: "Who explained the new grammar rules?", answer: "The teacher." },
+          { wh: "WHAT", question: "What did the teacher explain?", answer: "The new grammar rules." },
+          { wh: "WHERE", question: "Where did the teacher explain them?", answer: "In the classroom." },
+          { wh: "WHEN", question: "When did the teacher explain them?", answer: "This morning." },
+          { wh: "WHY", question: "Why did the teacher explain them?", answer: "To help the new students." },
+          { wh: "HOW", question: "How did the teacher explain them?", answer: "Clearly." }
+        ]
+      },
+      {
+        category: "Free Time & Daily Life",
+        sentence: "Jake ran around the park very fast on Sunday morning to train for the race.",
+        items: [
+          { wh: "WHO", question: "Who ran around the park?", answer: "Jake." },
+          { wh: "WHAT", question: "What did he do?", answer: "He ran around the park." },
+          { wh: "WHERE", question: "Where did he run?", answer: "Around the park." },
+          { wh: "WHEN", question: "When did he run?", answer: "On Sunday morning." },
+          { wh: "WHY", question: "Why did he run?", answer: "To train for the race." },
+          { wh: "HOW", question: "How did he run?", answer: "Very fast." }
+        ]
+      },
+      {
+        category: "Free Time & Daily Life",
+        sentence: "My sister watched a funny movie on the sofa on her tablet last night to relax after work.",
+        items: [
+          { wh: "WHO", question: "Who watched a funny movie?", answer: "My sister." },
+          { wh: "WHAT", question: "What did she watch?", answer: "A funny movie." },
+          { wh: "WHERE", question: "Where did she watch it?", answer: "On the sofa." },
+          { wh: "WHEN", question: "When did she watch it?", answer: "Last night." },
+          { wh: "WHY", question: "Why did she watch a funny movie?", answer: "To relax after work." },
+          { wh: "HOW", question: "How did she watch it?", answer: "On her tablet." }
+        ]
+      },
+      {
+        category: "Free Time & Daily Life",
+        sentence: "Grandpa planted red flowers in the garden by hand two days ago to make the yard look nice.",
+        items: [
+          { wh: "WHO", question: "Who planted red flowers?", answer: "Grandpa." },
+          { wh: "WHAT", question: "What did he plant?", answer: "Red flowers." },
+          { wh: "WHERE", question: "Where did he plant them?", answer: "In the garden." },
+          { wh: "WHEN", question: "When did he plant them?", answer: "Two days ago." },
+          { wh: "WHY", question: "Why did he plant red flowers?", answer: "To make the yard look nice." },
+          { wh: "HOW", question: "How did he plant them?", answer: "By hand." }
+        ]
+      },
+      {
+        category: "Free Time & Daily Life",
+        sentence: "The children painted colorful pictures at the art club with thick brushes yesterday to decorate the wall.",
+        items: [
+          { wh: "WHO", question: "Who painted colorful pictures?", answer: "The children." },
+          { wh: "WHAT", question: "What did they paint?", answer: "Colorful pictures." },
+          { wh: "WHERE", question: "Where did they paint them?", answer: "At the art club." },
+          { wh: "WHEN", question: "When did they paint them?", answer: "Yesterday." },
+          { wh: "WHY", question: "Why did they paint colorful pictures?", answer: "To decorate the wall." },
+          { wh: "HOW", question: "How did they paint them?", answer: "With thick brushes." }
+        ]
+      },
+      {
+        category: "Free Time & Daily Life",
+        sentence: "Kevin called his best friend from a cafe on his mobile phone after school to ask about the homework.",
+        items: [
+          { wh: "WHO", question: "Who called his best friend?", answer: "Kevin." },
+          { wh: "WHAT", question: "What did he do?", answer: "He called his best friend." },
+          { wh: "WHERE", question: "Where did he call from?", answer: "From a cafe." },
+          { wh: "WHEN", question: "When did he call?", answer: "After school." },
+          { wh: "WHY", question: "Why did he call his best friend?", answer: "To ask about the homework." },
+          { wh: "HOW", question: "How did he call?", answer: "On his mobile phone." }
+        ]
+      },
+      {
+        category: "Free Time & Daily Life",
+        sentence: "We cleaned the windows in the living room with soap and water on Saturday morning because our guests were arriving.",
+        items: [
+          { wh: "WHO", question: "Who cleaned the windows?", answer: "We did." },
+          { wh: "WHAT", question: "What did you clean?", answer: "The windows." },
+          { wh: "WHERE", question: "Where did you clean the windows?", answer: "In the living room." },
+          { wh: "WHEN", question: "When did you clean them?", answer: "On Saturday morning." },
+          { wh: "WHY", question: "Why did you clean the windows?", answer: "Because our guests were arriving." },
+          { wh: "HOW", question: "How did you clean them?", answer: "With soap and water." }
+        ]
+      }
+    ];
+
+    // Color-coded pill styling for each Wh-word across Light and Dark modes
+    const WH_BADGE_STYLES = {
+      WHO:   "bg-blue-50 text-blue-700 border-blue-200/80 dark:bg-blue-500/15 dark:text-blue-300 dark:border-blue-500/25",
+      WHAT:  "bg-emerald-50 text-emerald-700 border-emerald-200/80 dark:bg-emerald-500/15 dark:text-emerald-300 dark:border-emerald-500/25",
+      WHERE: "bg-amber-50 text-amber-700 border-amber-200/80 dark:bg-amber-500/15 dark:text-amber-300 dark:border-amber-500/25",
+      WHEN:  "bg-violet-50 text-violet-700 border-violet-200/80 dark:bg-violet-500/15 dark:text-violet-300 dark:border-violet-500/25",
+      WHY:   "bg-rose-50 text-rose-700 border-rose-200/80 dark:bg-rose-500/15 dark:text-rose-300 dark:border-rose-500/25",
+      HOW:   "bg-cyan-50 text-cyan-700 border-cyan-200/80 dark:bg-cyan-500/15 dark:text-cyan-300 dark:border-cyan-500/25"
+    };
+
+    // Subtle accent tint styling for revealed Answer cards to distinguish them from Question cards
+    const WH_ANSWER_CARD_STYLES = {
+      WHO:   "bg-blue-50/75 border-blue-200/90 dark:bg-blue-500/[0.11] dark:border-blue-500/30",
+      WHAT:  "bg-emerald-50/75 border-emerald-200/90 dark:bg-emerald-500/[0.11] dark:border-emerald-500/30",
+      WHERE: "bg-amber-50/75 border-amber-200/90 dark:bg-amber-500/[0.11] dark:border-amber-500/30",
+      WHEN:  "bg-violet-50/75 border-violet-200/90 dark:bg-violet-500/[0.11] dark:border-violet-500/30",
+      WHY:   "bg-rose-50/75 border-rose-200/90 dark:bg-rose-500/[0.11] dark:border-rose-500/30",
+      HOW:   "bg-cyan-50/75 border-cyan-200/90 dark:bg-cyan-500/[0.11] dark:border-cyan-500/30"
+    };
+
+    // Application State
+    // Questions and Answers start concealed independently by default on every slide
+    let currentIndex = 0;
+    let revealedQuestions = new Set();
+    let revealedAnswers = new Set();
+    let isTransitioning = false;
+
+    // Safe localStorage helpers (handles sandboxed iframe environments gracefully)
+    function getStoredTheme() {
+      try {
+        return localStorage.getItem("a2_wh_theme");
+      } catch (e) {
+        return null;
+      }
+    }
+
+    function setStoredTheme(theme) {
+      try {
+        localStorage.setItem("a2_wh_theme", theme);
+      } catch (e) {
+        // Ignore storage restrictions
+      }
+    }
+
+    // Apply Light or Dark theme
+    function applyTheme(isDark) {
+      const root = document.documentElement;
+      const sunIcon = document.getElementById("sunIcon");
+      const moonIcon = document.getElementById("moonIcon");
+
+      if (isDark) {
+        root.classList.add("dark");
+        sunIcon.classList.remove("hidden");
+        moonIcon.classList.add("hidden");
+      } else {
+        root.classList.remove("dark");
+        sunIcon.classList.add("hidden");
+        moonIcon.classList.remove("hidden");
+      }
+    }
+
+    // Initialize theme on startup
+    function initTheme() {
+      const saved = getStoredTheme();
+      if (saved === "dark") {
+        applyTheme(true);
+      } else if (saved === "light") {
+        applyTheme(false);
+      } else {
+        const prefersDark = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches;
+        applyTheme(prefersDark);
+      }
+    }
+
+    // Synchronize the header "Reveal Questions" and "Reveal All" buttons with current reveal state
+    function updateHeaderToggleUI() {
+      const totalCards = SLIDES[currentIndex].items.length;
+
+      // Update "Reveal Questions" / "Hide Questions" button
+      const qBtn = document.getElementById("toggleQuestionsBtn");
+      const qEyeOpen = document.getElementById("qEyeOpenIcon");
+      const qEyeClosed = document.getElementById("qEyeClosedIcon");
+      const qLabel = document.getElementById("toggleQuestionsLabel");
+      const allQuestionsRevealed = revealedQuestions.size === totalCards;
+
+      qBtn.setAttribute("aria-pressed", String(allQuestionsRevealed));
+      if (allQuestionsRevealed) {
+        qEyeOpen.classList.add("hidden");
+        qEyeClosed.classList.remove("hidden");
+        qLabel.textContent = "Hide Questions";
+      } else {
+        qEyeOpen.classList.remove("hidden");
+        qEyeClosed.classList.add("hidden");
+        qLabel.textContent = "Reveal Questions";
+      }
+
+      // Update "Reveal All" / "Hide All" button
+      const allBtn = document.getElementById("toggleAllBtn");
+      const eyeOpen = document.getElementById("eyeOpenIcon");
+      const eyeClosed = document.getElementById("eyeClosedIcon");
+      const label = document.getElementById("toggleAllLabel");
+      const everythingRevealed = allQuestionsRevealed && revealedAnswers.size === totalCards;
+
+      allBtn.setAttribute("aria-pressed", String(everythingRevealed));
+      if (everythingRevealed) {
+        eyeOpen.classList.add("hidden");
+        eyeClosed.classList.remove("hidden");
+        label.textContent = "Hide All";
+      } else {
+        eyeOpen.classList.remove("hidden");
+        eyeClosed.classList.add("hidden");
+        label.textContent = "Reveal All";
+      }
+    }
+
+    // Toggle an individual Question card
+    function toggleQuestionAtIndex(idx) {
+      const wasConcealed = !revealedQuestions.has(idx);
+      if (wasConcealed) {
+        revealedQuestions.add(idx);
+      } else {
+        revealedQuestions.delete(idx);
+      }
+      renderCards(wasConcealed ? { type: "question", idx } : null);
+      updateHeaderToggleUI();
+    }
+
+    // Toggle an individual Answer card
+    function toggleAnswerAtIndex(idx) {
+      const wasConcealed = !revealedAnswers.has(idx);
+      if (wasConcealed) {
+        revealedAnswers.add(idx);
+      } else {
+        revealedAnswers.delete(idx);
+      }
+      renderCards(wasConcealed ? { type: "answer", idx } : null);
+      updateHeaderToggleUI();
+    }
+
+    // Toggle both Question and Answer cards for a specific Wh-word badge
+    function togglePairAtIndex(idx) {
+      const bothRevealed = revealedQuestions.has(idx) && revealedAnswers.has(idx);
+      if (bothRevealed) {
+        revealedQuestions.delete(idx);
+        revealedAnswers.delete(idx);
+        renderCards(null);
+      } else {
+        revealedQuestions.add(idx);
+        revealedAnswers.add(idx);
+        renderCards({ type: "both", idx });
+      }
+      updateHeaderToggleUI();
+    }
+
+    // Toggle all 6 Question cards independently of Answer cards
+    function toggleAllQuestions() {
+      const totalCards = SLIDES[currentIndex].items.length;
+      if (revealedQuestions.size === totalCards) {
+        revealedQuestions.clear();
+      } else {
+        for (let i = 0; i < totalCards; i++) {
+          revealedQuestions.add(i);
+        }
+      }
+      renderCards(null);
+      updateHeaderToggleUI();
+    }
+
+    // Toggle all 6 Answer cards independently of Question cards
+    function toggleAllAnswers() {
+      const totalCards = SLIDES[currentIndex].items.length;
+      if (revealedAnswers.size === totalCards) {
+        revealedAnswers.clear();
+      } else {
+        for (let i = 0; i < totalCards; i++) {
+          revealedAnswers.add(i);
+        }
+      }
+      renderCards(null);
+      updateHeaderToggleUI();
+    }
+
+    // Helper: create crisp inline eye SVG icon for concealed reveal prompts
+    function createEyePromptIcon() {
+      const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+      svg.setAttribute("viewBox", "0 0 24 24");
+      svg.setAttribute("fill", "none");
+      svg.setAttribute("stroke", "currentColor");
+      svg.setAttribute("stroke-width", "2");
+      svg.setAttribute("aria-hidden", "true");
+      svg.classList.add(
+        "w-4",
+        "h-4",
+        "sm:w-[18px]",
+        "sm:h-[18px]",
+        "shrink-0",
+        "text-zinc-400",
+        "dark:text-zinc-500",
+        "group-hover:text-zinc-700",
+        "dark:group-hover:text-zinc-200",
+        "transition-colors"
+      );
+      svg.innerHTML = `
+        <path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" />
+        <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+      `;
+      return svg;
+    }
+
+    // Render the 6 Wh-word modules, each containing two separate interactive cards (Question & Answer)
+    function renderCards(justRevealed = null) {
+      const slide = SLIDES[currentIndex];
+      const grid = document.getElementById("whGrid");
+      grid.innerHTML = "";
+
+      slide.items.forEach((item, idx) => {
+        const isQRevealed = revealedQuestions.has(idx);
+        const isARevealed = revealedAnswers.has(idx);
+        const badgeStyle = WH_BADGE_STYLES[item.wh] || "";
+        const answerAccentStyle = WH_ANSWER_CARD_STYLES[item.wh] || "";
+
+        // Outer Wh-Word Module Container
+        const moduleEl = document.createElement("div");
+        moduleEl.className = [
+          "rounded-2xl p-3.5 sm:p-4",
+          "bg-white/75 dark:bg-[#141720]/90",
+          "border border-[#E4E4E7] dark:border-[#242836]",
+          "shadow-[0_1px_3px_rgba(0,0,0,0.03)] dark:shadow-none",
+          "flex flex-col gap-2.5 transition-colors duration-200"
+        ].join(" ");
+
+        // Top Header Row: Interactive Wh-word badge (toggles both cards) + status hint
+        const headerRow = document.createElement("div");
+        headerRow.className = "flex items-center justify-between gap-2";
+
+        const badgeBtn = document.createElement("button");
+        badgeBtn.type = "button";
+        badgeBtn.className = `inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs sm:text-[13px] font-bold tracking-wider border ${badgeStyle} cursor-pointer active:scale-[0.97] transition-all duration-150 focus:outline-none focus-visible:ring-2 focus-visible:ring-zinc-400`;
+        badgeBtn.title = `Click to toggle both ${item.wh} question and answer`;
+        badgeBtn.setAttribute("aria-label", `Toggle both ${item.wh} question and answer`);
+        badgeBtn.textContent = item.wh;
+        badgeBtn.addEventListener("click", () => togglePairAtIndex(idx));
+
+        const statusHint = document.createElement("span");
+        statusHint.className = "text-[11px] sm:text-xs font-medium text-zinc-400 dark:text-zinc-500 select-none";
+        if (isQRevealed && isARevealed) {
+          statusHint.textContent = "Question & Answer revealed";
+        } else if (isQRevealed || isARevealed) {
+          statusHint.textContent = "1 of 2 revealed";
+        } else {
+          statusHint.textContent = "Compose Q & A";
+        }
+
+        headerRow.appendChild(badgeBtn);
+        headerRow.appendChild(statusHint);
+        moduleEl.appendChild(headerRow);
+
+        // Two Distinct Side-by-Side Interactive Cards Container
+        const pairGrid = document.createElement("div");
+        pairGrid.className = "grid grid-cols-1 sm:grid-cols-2 gap-2.5";
+
+        // --- CARD 1: QUESTION CARD ---
+        const qCard = document.createElement("button");
+        qCard.type = "button";
+        qCard.setAttribute("aria-expanded", String(isQRevealed));
+        qCard.setAttribute(
+          "aria-label",
+          isQRevealed
+            ? `${item.wh} Question: ${item.question}. Click to conceal.`
+            : `${item.wh} Question concealed. Click to reveal question.`
+        );
+        qCard.className = [
+          "group rounded-xl p-3.5 sm:p-4 min-h-[90px] sm:min-h-[98px] text-left",
+          "flex flex-col justify-between gap-2",
+          isQRevealed
+            ? "bg-white dark:bg-[#1B202C] border border-zinc-300 dark:border-zinc-600 shadow-xs"
+            : "bg-[#FAF9F6] dark:bg-[#181C27] border border-dashed border-zinc-300 dark:border-zinc-700 hover:border-zinc-400 dark:hover:border-zinc-500 hover:bg-zinc-100/70 dark:hover:bg-[#1E2331]",
+          "active:scale-[0.99] transition-all duration-200 cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-zinc-400 dark:focus-visible:ring-zinc-500"
+        ].join(" ");
+        qCard.addEventListener("click", () => toggleQuestionAtIndex(idx));
+
+        const qTop = document.createElement("div");
+        qTop.className = "flex items-center justify-between gap-2 w-full";
+
+        const qTag = document.createElement("span");
+        qTag.className = "inline-flex items-center gap-1 text-[10px] sm:text-[11px] font-bold tracking-widest uppercase text-zinc-400 dark:text-zinc-500";
+        qTag.textContent = "QUESTION";
+        qTop.appendChild(qTag);
+
+        if (isQRevealed) {
+          const hideCue = document.createElement("span");
+          hideCue.className = "text-[11px] font-medium text-zinc-400 dark:text-zinc-500 opacity-0 group-hover:opacity-100 group-focus-visible:opacity-100 transition-opacity";
+          hideCue.textContent = "Hide";
+          qTop.appendChild(hideCue);
+        }
+
+        qCard.appendChild(qTop);
+
+        if (!isQRevealed) {
+          const qPrompt = document.createElement("div");
+          qPrompt.className = "flex items-center gap-2 text-sm sm:text-base lg:text-[17px] font-semibold text-zinc-600 dark:text-zinc-300 group-hover:text-zinc-900 dark:group-hover:text-white transition-colors";
+          qPrompt.appendChild(createEyePromptIcon());
+          const qPromptText = document.createElement("span");
+          qPromptText.textContent = "Reveal Question";
+          qPrompt.appendChild(qPromptText);
+          qCard.appendChild(qPrompt);
+        } else {
+          const shouldAnimateQ =
+            justRevealed &&
+            justRevealed.idx === idx &&
+            (justRevealed.type === "question" || justRevealed.type === "both");
+          const qText = document.createElement("p");
+          qText.className = `text-base sm:text-lg lg:text-[20px] font-semibold leading-snug text-[#18181B] dark:text-[#F4F4F6] ${shouldAnimateQ ? "animate-reveal" : ""}`;
+          qText.textContent = item.question;
+          qCard.appendChild(qText);
+        }
+
+        // --- CARD 2: ANSWER CARD ---
+        const aCard = document.createElement("button");
+        aCard.type = "button";
+        aCard.setAttribute("aria-expanded", String(isARevealed));
+        aCard.setAttribute(
+          "aria-label",
+          isARevealed
+            ? `${item.wh} Answer: ${item.answer}. Click to conceal.`
+            : `${item.wh} Answer concealed. Click to reveal answer.`
+        );
+        aCard.className = [
+          "group rounded-xl p-3.5 sm:p-4 min-h-[90px] sm:min-h-[98px] text-left",
+          "flex flex-col justify-between gap-2",
+          isARevealed
+            ? `${answerAccentStyle} border shadow-xs`
+            : "bg-[#FAF9F6] dark:bg-[#181C27] border border-dashed border-zinc-300 dark:border-zinc-700 hover:border-zinc-400 dark:hover:border-zinc-500 hover:bg-zinc-100/70 dark:hover:bg-[#1E2331]",
+          "active:scale-[0.99] transition-all duration-200 cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-zinc-400 dark:focus-visible:ring-zinc-500"
+        ].join(" ");
+        aCard.addEventListener("click", () => toggleAnswerAtIndex(idx));
+
+        const aTop = document.createElement("div");
+        aTop.className = "flex items-center justify-between gap-2 w-full";
+
+        const aTag = document.createElement("span");
+        aTag.className = "inline-flex items-center gap-1 text-[10px] sm:text-[11px] font-bold tracking-widest uppercase text-zinc-400 dark:text-zinc-500";
+        aTag.textContent = "ANSWER";
+        aTop.appendChild(aTag);
+
+        if (isARevealed) {
+          const hideCue = document.createElement("span");
+          hideCue.className = "text-[11px] font-medium text-zinc-400 dark:text-zinc-500 opacity-0 group-hover:opacity-100 group-focus-visible:opacity-100 transition-opacity";
+          hideCue.textContent = "Hide";
+          aTop.appendChild(hideCue);
+        }
+
+        aCard.appendChild(aTop);
+
+        if (!isARevealed) {
+          const aPrompt = document.createElement("div");
+          aPrompt.className = "flex items-center gap-2 text-sm sm:text-base lg:text-[17px] font-semibold text-zinc-600 dark:text-zinc-300 group-hover:text-zinc-900 dark:group-hover:text-white transition-colors";
+          aPrompt.appendChild(createEyePromptIcon());
+          const aPromptText = document.createElement("span");
+          aPromptText.textContent = "Reveal Answer";
+          aPrompt.appendChild(aPromptText);
+          aCard.appendChild(aPrompt);
+        } else {
+          const shouldAnimateA =
+            justRevealed &&
+            justRevealed.idx === idx &&
+            (justRevealed.type === "answer" || justRevealed.type === "both");
+          const aText = document.createElement("p");
+          aText.className = `text-base sm:text-lg lg:text-[20px] font-bold leading-snug text-[#18181B] dark:text-[#F4F4F6] ${shouldAnimateA ? "animate-reveal" : ""}`;
+          aText.textContent = item.answer;
+          aCard.appendChild(aText);
+        }
+
+        pairGrid.appendChild(qCard);
+        pairGrid.appendChild(aCard);
+        moduleEl.appendChild(pairGrid);
+        grid.appendChild(moduleEl);
+      });
+    }
+
+    // Render current slide metadata, sentence, progress, and navigation states
+    function renderSlide(direction = 0) {
+      const slide = SLIDES[currentIndex];
+      const total = SLIDES.length;
+      const stage = document.getElementById("slideStage");
+
+      const updateContent = () => {
+        document.getElementById("categoryBadge").textContent = slide.category;
+        document.getElementById("pageCounter").textContent = `${currentIndex + 1} / ${total}`;
+        document.getElementById("sentenceText").textContent = slide.sentence;
+
+        // Update thin top progress bar
+        const pct = ((currentIndex + 1) / total) * 100;
+        document.getElementById("progressBar").style.width = `${pct}%`;
+
+        // Update Prev / Next buttons
+        document.getElementById("prevBtn").disabled = currentIndex === 0;
+        document.getElementById("nextBtn").disabled = currentIndex === total - 1;
+
+        renderCards(null);
+        updateHeaderToggleUI();
+      };
+
+      // Subtle fade/slide transition when navigating between slides
+      if (direction !== 0 && !isTransitioning) {
+        isTransitioning = true;
+        const offsetOut = direction > 0 ? "-10px" : "10px";
+        const offsetIn = direction > 0 ? "10px" : "-10px";
+
+        stage.style.opacity = "0";
+        stage.style.transform = `translateX(${offsetOut})`;
+
+        setTimeout(() => {
+          updateContent();
+          stage.style.transition = "none";
+          stage.style.transform = `translateX(${offsetIn})`;
+
+          // Force reflow
+          void stage.offsetWidth;
+
+          stage.style.transition = "opacity 220ms ease-out, transform 220ms ease-out";
+          stage.style.opacity = "1";
+          stage.style.transform = "translateX(0)";
+
+          setTimeout(() => {
+            isTransitioning = false;
+          }, 220);
+        }, 140);
+      } else {
+        updateContent();
+      }
+    }
+
+    // Navigation handlers (reset all Question and Answer cards to concealed on slide change)
+    function goToPrev() {
+      if (currentIndex > 0) {
+        currentIndex -= 1;
+        revealedQuestions.clear();
+        revealedAnswers.clear();
+        renderSlide(-1);
+      }
+    }
+
+    function goToNext() {
+      if (currentIndex < SLIDES.length - 1) {
+        currentIndex += 1;
+        revealedQuestions.clear();
+        revealedAnswers.clear();
+        renderSlide(1);
+      }
+    }
+
+    // Bind UI Event Listeners
+    document.getElementById("prevBtn").addEventListener("click", goToPrev);
+    document.getElementById("nextBtn").addEventListener("click", goToNext);
+
+    // Header "Reveal Questions" / "Hide Questions" button
+    document.getElementById("toggleQuestionsBtn").addEventListener("click", toggleAllQuestions);
+
+    // Header "Reveal All" / "Hide All" button
+    document.getElementById("toggleAllBtn").addEventListener("click", () => {
+      const totalCards = SLIDES[currentIndex].items.length;
+      const everythingRevealed =
+        revealedQuestions.size === totalCards && revealedAnswers.size === totalCards;
+
+      if (everythingRevealed) {
+        revealedQuestions.clear();
+        revealedAnswers.clear();
+      } else {
+        for (let i = 0; i < totalCards; i++) {
+          revealedQuestions.add(i);
+          revealedAnswers.add(i);
+        }
+      }
+      renderCards(null);
+      updateHeaderToggleUI();
+    });
+
+    // Theme toggle button
+    document.getElementById("themeToggleBtn").addEventListener("click", () => {
+      const isCurrentlyDark = document.documentElement.classList.contains("dark");
+      const nextIsDark = !isCurrentlyDark;
+      applyTheme(nextIsDark);
+      setStoredTheme(nextIsDark ? "dark" : "light");
+    });
+
+    // Keyboard Navigation: ArrowLeft, ArrowRight, Space, Q (Questions), A (Answers), and 1-6 (Pairs)
+    document.addEventListener("keydown", (e) => {
+      const activeTag = document.activeElement ? document.activeElement.tagName : "";
+      const isInteractiveFocused = activeTag === "BUTTON" || document.activeElement?.getAttribute("role") === "button";
+      const hasModifier = e.ctrlKey || e.metaKey || e.altKey;
+
+      if (e.key === "ArrowLeft") {
+        e.preventDefault();
+        goToPrev();
+      } else if (e.key === "ArrowRight") {
+        e.preventDefault();
+        goToNext();
+      } else if (e.key === " " && !isInteractiveFocused) {
+        e.preventDefault();
+        if (e.shiftKey) {
+          goToPrev();
+        } else {
+          goToNext();
+        }
+      } else if (!hasModifier && (e.key === "q" || e.key === "Q")) {
+        e.preventDefault();
+        toggleAllQuestions();
+      } else if (!hasModifier && (e.key === "a" || e.key === "A")) {
+        e.preventDefault();
+        toggleAllAnswers();
+      } else if (!hasModifier && e.key >= "1" && e.key <= "6") {
+        const cardIdx = parseInt(e.key, 10) - 1;
+        if (cardIdx < SLIDES[currentIndex].items.length) {
+          e.preventDefault();
+          togglePairAtIndex(cardIdx);
+        }
+      }
+    });
+
+    // Touch Swipe Support for Mobile & Tablet
+    let touchStartX = 0;
+    let touchStartY = 0;
+
+    document.addEventListener("touchstart", (e) => {
+      if (e.touches.length === 1) {
+        touchStartX = e.touches[0].clientX;
+        touchStartY = e.touches[0].clientY;
+      }
+    }, { passive: true });
+
+    document.addEventListener("touchend", (e) => {
+      if (e.changedTouches.length === 1) {
+        const deltaX = e.changedTouches[0].clientX - touchStartX;
+        const deltaY = e.changedTouches[0].clientY - touchStartY;
+
+        // Trigger slide change only on clear horizontal swipes
+        if (Math.abs(deltaX) > 50 && Math.abs(deltaX) > Math.abs(deltaY) * 1.4) {
+          if (deltaX < 0) {
+            goToNext();
+          } else {
+            goToPrev();
+          }
+        }
+      }
+    }, { passive: true });
+
+    // Bootstrap App
+    initTheme();
+    renderSlide(0);
+  </script>
+</body>
+</html>
