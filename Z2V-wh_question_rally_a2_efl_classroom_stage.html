@@ -1,0 +1,1454 @@
+<!DOCTYPE html>
+<html lang="en" class="antialiased dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Wh-Question Rally — A2 EFL Classroom Stage</title>
+
+  <!-- Google Fonts: Plus Jakarta Sans & Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap" rel="stylesheet">
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+            display: ['Plus Jakarta Sans', 'sans-serif'],
+          },
+          colors: {
+            brand: {
+              50: '#eef2ff',
+              100: '#e0e7ff',
+              500: '#6366f1',
+              600: '#4f46e5',
+              700: '#4338ca',
+            }
+          },
+          animation: {
+            'pop-in': 'popIn 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards',
+            'pulse-subtle': 'pulseSubtle 2s infinite',
+          },
+          keyframes: {
+            popIn: {
+              '0%': { opacity: '0', transform: 'scale(0.96) translateY(6px)' },
+              '100%': { opacity: '1', transform: 'scale(1) translateY(0)' },
+            },
+            pulseSubtle: {
+              '0%, 100%': { opacity: '1' },
+              '50%': { opacity: '0.7' },
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    /* Custom Scrollbars */
+    ::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+    }
+    ::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: rgba(156, 163, 175, 0.4);
+      border-radius: 9999px;
+    }
+    .dark ::-webkit-scrollbar-thumb {
+      background: rgba(75, 85, 99, 0.5);
+    }
+
+    /* Blur & Memory Mask Effect */
+    .memory-blurred {
+      filter: blur(8px);
+      user-select: none;
+      transition: filter 0.3s ease;
+    }
+
+    /* Print Rules for Witness Cut-Out Slips */
+    @media print {
+      body * {
+        visibility: hidden !important;
+      }
+      #print-area, #print-area * {
+        visibility: visible !important;
+      }
+      #print-area {
+        position: absolute !important;
+        left: 0 !important;
+        top: 0 !important;
+        width: 100% !important;
+        padding: 0 !important;
+        margin: 0 !important;
+        background: #ffffff !important;
+        color: #000000 !important;
+      }
+      .no-print {
+        display: none !important;
+      }
+    }
+  </style>
+</head>
+<body class="bg-slate-100 dark:bg-slate-950 text-slate-900 dark:text-slate-100 min-h-screen flex flex-col font-sans transition-colors duration-200">
+
+  <!-- APP CONTAINER -->
+  <div id="app" class="flex-1 flex flex-col max-w-[1440px] w-full mx-auto px-3 sm:px-6 py-3 sm:py-4 gap-3 sm:gap-4">
+
+    <!-- 1. TOP HEADER & BAR -->
+    <header class="flex flex-wrap items-center justify-between gap-3 bg-white dark:bg-slate-900 p-3 sm:p-4 rounded-2xl shadow-sm border border-slate-200/80 dark:border-slate-800 transition-colors">
+      <!-- Title & Branding -->
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-indigo-600 to-purple-600 flex items-center justify-center text-white shadow-md shadow-indigo-500/20 font-display font-bold text-xl">
+          Wh
+        </div>
+        <div>
+          <h1 class="font-display font-extrabold text-lg sm:text-xl tracking-tight leading-tight text-slate-900 dark:text-white">
+            Wh-Question Rally
+          </h1>
+          <p class="text-xs text-slate-500 dark:text-slate-400 font-medium hidden sm:block">
+            A2 EFL Classroom Interactive Stage
+          </p>
+        </div>
+      </div>
+
+      <!-- Mode Switcher (Segmented Control) -->
+      <div class="flex items-center p-1 bg-slate-100 dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700/60 font-medium text-xs sm:text-sm">
+        <button id="mode-spotlight" onclick="setMode('spotlight')" class="px-3 py-1.5 rounded-lg transition-all flex items-center gap-1.5">
+          <span>🎯</span> Spotlight
+        </button>
+        <button id="mode-board" onclick="setMode('board')" class="px-3 py-1.5 rounded-lg transition-all flex items-center gap-1.5">
+          <span>🧩</span> 6-Tile Board
+        </button>
+        <button id="mode-detective" onclick="setMode('detective')" class="px-3 py-1.5 rounded-lg transition-all flex items-center gap-1.5">
+          <span>🕵️</span> Detective Mode
+        </button>
+      </div>
+
+      <!-- Quick Tools & Theme Toggle -->
+      <div class="flex items-center gap-2">
+        <button onclick="openModal('slidePicker')" class="px-3 py-1.5 text-xs sm:text-sm font-semibold rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700 transition flex items-center gap-1.5">
+          <span>📂</span> Slide <span id="slide-num-pill" class="bg-indigo-600 text-white px-2 py-0.5 rounded-md text-xs">1/24</span>
+        </button>
+        <button onclick="openModal('spinner')" class="p-2 rounded-xl bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20 hover:bg-amber-500/20 transition" title="Random Wh-Spinner">
+          🎲
+        </button>
+        <button id="blur-btn" onclick="toggleMemoryBlur()" class="p-2 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700 hover:bg-slate-200 dark:hover:bg-slate-700 transition" title="Toggle Memory Blur Mask">
+          👁️
+        </button>
+        <button onclick="toggleDarkMode()" class="p-2 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700 hover:bg-slate-200 dark:hover:bg-slate-700 transition" title="Toggle Light/Dark Theme">
+          <span id="theme-icon">🌙</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- 2. SCOREBOARD & CATEGORY HEADER -->
+    <div class="grid grid-cols-1 md:grid-cols-12 gap-3 items-center">
+      <!-- Sentence Category Badge & Quick Navigation -->
+      <div class="md:col-span-5 flex items-center justify-between bg-white dark:bg-slate-900 px-4 py-2.5 rounded-xl border border-slate-200/80 dark:border-slate-800 shadow-sm">
+        <div class="flex items-center gap-2 overflow-hidden">
+          <span id="cat-badge" class="px-2.5 py-1 text-xs font-bold rounded-lg uppercase tracking-wider bg-indigo-50 dark:bg-indigo-950/80 text-indigo-600 dark:text-indigo-400 border border-indigo-200 dark:border-indigo-800/50 shrink-0">
+            Category
+          </span>
+          <span id="cat-name" class="text-xs sm:text-sm font-semibold truncate text-slate-600 dark:text-slate-300">
+            Travel & Transport
+          </span>
+        </div>
+        <div class="flex items-center gap-1 shrink-0">
+          <button onclick="prevSlide()" class="p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-300 transition" title="Previous Slide (←)">
+            ◀
+          </button>
+          <button onclick="nextSlide()" class="p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-300 transition" title="Next Slide (→)">
+            ▶
+          </button>
+        </div>
+      </div>
+
+      <!-- 2-Team Scoreboard -->
+      <div class="md:col-span-7 flex items-center justify-between gap-3 bg-white dark:bg-slate-900 px-4 py-2 rounded-xl border border-slate-200/80 dark:border-slate-800 shadow-sm">
+        <!-- Team A -->
+        <div class="flex items-center gap-2">
+          <span class="w-3 h-3 rounded-full bg-blue-500 inline-block"></span>
+          <span class="text-xs font-bold text-slate-600 dark:text-slate-400 uppercase">Team A</span>
+          <span id="score-a" class="font-display font-extrabold text-lg sm:text-xl text-blue-600 dark:text-blue-400 min-w-[24px] text-center">0</span>
+          <div class="flex items-center gap-1">
+            <button onclick="updateScore('a', 1)" class="w-6 h-6 rounded bg-slate-100 dark:bg-slate-800 hover:bg-blue-100 dark:hover:bg-blue-900/40 text-xs font-bold transition flex items-center justify-center">+1</button>
+            <button onclick="updateScore('a', 5)" class="w-6 h-6 rounded bg-slate-100 dark:bg-slate-800 hover:bg-blue-100 dark:hover:bg-blue-900/40 text-xs font-bold transition flex items-center justify-center">+5</button>
+            <button onclick="updateScore('a', -1)" class="w-6 h-6 rounded bg-slate-100 dark:bg-slate-800 hover:bg-rose-100 dark:hover:bg-rose-900/40 text-xs font-bold transition flex items-center justify-center">-1</button>
+          </div>
+        </div>
+
+        <button onclick="resetScores()" class="text-[10px] font-semibold text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 uppercase tracking-wider px-2 py-1 rounded hover:bg-slate-100 dark:hover:bg-slate-800 transition">
+          Reset Scores
+        </button>
+
+        <!-- Team B -->
+        <div class="flex items-center gap-2">
+          <div class="flex items-center gap-1">
+            <button onclick="updateScore('b', -1)" class="w-6 h-6 rounded bg-slate-100 dark:bg-slate-800 hover:bg-rose-100 dark:hover:bg-rose-900/40 text-xs font-bold transition flex items-center justify-center">-1</button>
+            <button onclick="updateScore('b', 5)" class="w-6 h-6 rounded bg-slate-100 dark:bg-slate-800 hover:bg-purple-100 dark:hover:bg-purple-900/40 text-xs font-bold transition flex items-center justify-center">+5</button>
+            <button onclick="updateScore('b', 1)" class="w-6 h-6 rounded bg-slate-100 dark:bg-slate-800 hover:bg-purple-100 dark:hover:bg-purple-900/40 text-xs font-bold transition flex items-center justify-center">+1</button>
+          </div>
+          <span id="score-b" class="font-display font-extrabold text-lg sm:text-xl text-purple-600 dark:text-purple-400 min-w-[24px] text-center">0</span>
+          <span class="text-xs font-bold text-slate-600 dark:text-slate-400 uppercase">Team B</span>
+          <span class="w-3 h-3 rounded-full bg-purple-500 inline-block"></span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 3. MAIN DISPLAY STAGE (DEPENDS ON MODE) -->
+
+    <!-- BANNER: VISIBLE SENTENCE (FOR SPOTLIGHT & BOARD MODES) -->
+    <div id="sentence-banner" class="bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 border border-indigo-500/30 text-white rounded-2xl p-4 sm:p-5 shadow-lg relative overflow-hidden transition-all">
+      <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+        <div class="space-y-1">
+          <div class="text-[11px] font-bold tracking-widest uppercase text-indigo-300/80 flex items-center gap-2">
+            <span>Target Context Sentence</span>
+            <span class="text-xs px-2 py-0.5 rounded-full bg-indigo-500/20 text-indigo-300 font-normal">Past Simple</span>
+          </div>
+          <p id="target-sentence-text" class="font-display font-bold text-lg sm:text-2xl leading-snug tracking-tight text-white">
+            Loading sentence...
+          </p>
+        </div>
+        <button onclick="toggleTargetSentence()" class="px-3 py-1.5 text-xs font-semibold rounded-lg bg-indigo-500/20 hover:bg-indigo-500/30 border border-indigo-400/30 text-indigo-200 transition shrink-0">
+          <span id="target-sentence-toggle-label">Hide Sentence</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- BANNER: DETECTIVE MYSTERY BANNER (DETECTIVE MODE ONLY) -->
+    <div id="detective-banner" class="hidden bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 border border-amber-500/30 text-white rounded-2xl p-4 sm:p-5 shadow-xl relative overflow-hidden transition-all">
+      <div class="flex flex-col gap-3">
+        <!-- Top Row: Case Metadata & Full Reveal Toggle -->
+        <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-700/60 pb-3">
+          <div class="flex items-center gap-2">
+            <span class="px-2.5 py-1 rounded-md bg-amber-500/20 text-amber-300 font-display font-bold text-xs uppercase tracking-wider border border-amber-500/30">
+              🕵️ Mystery Case #<span id="det-case-num">1</span>
+            </span>
+            <span id="det-cat-pill" class="px-2.5 py-1 rounded-md bg-slate-800 text-slate-300 font-semibold text-xs border border-slate-700">
+              Category
+            </span>
+            <span class="px-2 py-1 rounded-md bg-slate-800/80 text-emerald-400 font-medium text-xs border border-emerald-500/20">
+              🕒 Past Tense — Ask with "did"
+            </span>
+          </div>
+          <button id="det-reveal-btn" onclick="toggleDetectiveFullSentence()" class="px-3.5 py-1.5 text-xs font-bold rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 shadow-md transition flex items-center gap-1.5">
+            <span>🔍</span> <span id="det-reveal-btn-label">Reveal Full Sentence</span>
+          </button>
+        </div>
+
+        <!-- Full Target Sentence Display (Revealed on command) -->
+        <div id="det-revealed-sentence-box" class="hidden p-3 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-200 text-base sm:text-xl font-display font-bold animate-pop-in">
+          <span class="text-xs uppercase font-sans text-amber-400 block mb-0.5">Verified Full Sentence:</span>
+          <span id="det-full-sentence-text">Target sentence...</span>
+        </div>
+
+        <!-- Live Evidence Strip (6 Clues Collected Counter + Color Chips) -->
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pt-1">
+          <div class="flex items-center gap-2">
+            <span class="text-xs font-bold uppercase tracking-wider text-slate-400">Evidence Collected:</span>
+            <span id="det-evidence-count" class="px-2 py-0.5 rounded bg-amber-500 text-slate-950 font-bold text-xs">0 / 6 Clues</span>
+          </div>
+          <div id="det-evidence-strip" class="grid grid-cols-6 gap-1.5 flex-1 max-w-xl">
+            <!-- 6 slots filled dynamically via JS -->
+          </div>
+        </div>
+      </div>
+    </div>
+
+
+    <!-- MODE 1: SPOTLIGHT STAGE -->
+    <div id="stage-spotlight" class="flex-1 flex flex-col gap-4">
+      <div class="flex-1 min-h-[300px] sm:min-h-[340px] bg-white dark:bg-slate-900 rounded-2xl p-6 sm:p-8 border border-slate-200/80 dark:border-slate-800 shadow-sm flex flex-col justify-center items-center text-center relative overflow-hidden transition-all">
+        <!-- Active WH Header Badge -->
+        <div id="spotlight-wh-badge" class="px-4 py-1.5 rounded-full font-display font-extrabold text-sm sm:text-base tracking-wider uppercase shadow-sm mb-6 transition-all">
+          WHO
+        </div>
+
+        <!-- Cards Stack -->
+        <div class="w-full max-w-3xl space-y-4">
+          <!-- Question Card -->
+          <div id="spotlight-q-card" onclick="toggleSpotlightCard('q')" class="cursor-pointer p-5 sm:p-7 rounded-2xl bg-slate-50 dark:bg-slate-800/80 border-2 border-slate-200 dark:border-slate-700/80 hover:border-indigo-500/50 dark:hover:border-indigo-500/50 transition-all text-left group relative">
+            <div class="flex items-center justify-between text-xs font-bold uppercase tracking-wider text-slate-400 mb-2">
+              <span>Target Wh-Question</span>
+              <span id="spotlight-q-hint" class="text-indigo-600 dark:text-indigo-400 group-hover:underline">Click to Reveal 👁️</span>
+            </div>
+            <div id="spotlight-q-text" class="font-display font-bold text-xl sm:text-3xl text-slate-800 dark:text-slate-100">
+              ???
+            </div>
+          </div>
+
+          <!-- Response Card -->
+          <div id="spotlight-a-card" onclick="toggleSpotlightCard('a')" class="cursor-pointer p-5 sm:p-7 rounded-2xl bg-slate-50 dark:bg-slate-800/80 border-2 border-slate-200 dark:border-slate-700/80 hover:border-emerald-500/50 dark:hover:border-emerald-500/50 transition-all text-left group relative">
+            <div class="flex items-center justify-between text-xs font-bold uppercase tracking-wider text-slate-400 mb-2">
+              <span>Expected A2 Response</span>
+              <span id="spotlight-a-hint" class="text-emerald-600 dark:text-emerald-400 group-hover:underline">Click to Reveal 👁️</span>
+            </div>
+            <div id="spotlight-a-text" class="font-display font-bold text-xl sm:text-3xl text-slate-800 dark:text-slate-100">
+              ???
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+
+    <!-- MODE 2: 6-TILE BOARD STAGE -->
+    <div id="stage-board" class="hidden flex-1 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
+      <!-- 6 Tile Cards generated by JS -->
+    </div>
+
+
+    <!-- MODE 3: DETECTIVE / 6-WITNESS INQUIRY STAGE -->
+    <div id="stage-detective" class="hidden flex-1 flex flex-col gap-3 sm:gap-4">
+      <!-- Controls & Guidance Bar -->
+      <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2.5 bg-white dark:bg-slate-900 p-3 sm:px-4 rounded-xl border border-slate-200/80 dark:border-slate-800 shadow-sm">
+        <div id="det-guidance-badge" class="px-3 py-1.5 rounded-lg bg-indigo-50 dark:bg-indigo-950/80 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800/60 font-semibold text-xs sm:text-sm flex items-center gap-2">
+          <span>🔍 Step 1: Unlock WHO & WHAT first to discover the subject and action</span>
+        </div>
+        <div class="flex items-center gap-2 self-end sm:self-auto shrink-0">
+          <button onclick="openModal('witnessSlips')" class="px-3 py-1.5 text-xs font-bold rounded-lg bg-amber-500/10 hover:bg-amber-500/20 text-amber-700 dark:text-amber-300 border border-amber-500/30 transition flex items-center gap-1.5">
+            <span>🪪</span> Witness Slips
+          </button>
+          <button onclick="toggleAllDetectiveHints()" id="det-all-hints-btn" class="px-3 py-1.5 text-xs font-semibold rounded-lg bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 transition">
+            Show Question Hints
+          </button>
+          <button onclick="resetDetectiveCase()" class="px-3 py-1.5 text-xs font-semibold rounded-lg bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 transition">
+            Reset Case
+          </button>
+        </div>
+      </div>
+
+      <!-- 6-Witness Interactive Grid -->
+      <div id="det-witness-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 flex-1">
+        <!-- 6 Witness Cards rendered by JS -->
+      </div>
+    </div>
+
+
+    <!-- 4. WH-DOCK (NAVIGATION & SELECTOR FOR SPOTLIGHT & BOARD MODES) -->
+    <nav id="wh-dock" class="bg-white dark:bg-slate-900 p-2 sm:p-2.5 rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-sm transition-all">
+      <div class="grid grid-cols-6 gap-1.5 sm:gap-2">
+        <button onclick="selectWh('WHO')" id="dock-WHO" class="dock-btn py-2.5 sm:py-3 rounded-xl font-display font-extrabold text-xs sm:text-base tracking-wider uppercase transition-all border flex flex-col items-center justify-center">
+          <span>WHO</span>
+        </button>
+        <button onclick="selectWh('WHAT')" id="dock-WHAT" class="dock-btn py-2.5 sm:py-3 rounded-xl font-display font-extrabold text-xs sm:text-base tracking-wider uppercase transition-all border flex flex-col items-center justify-center">
+          <span>WHAT</span>
+        </button>
+        <button onclick="selectWh('WHERE')" id="dock-WHERE" class="dock-btn py-2.5 sm:py-3 rounded-xl font-display font-extrabold text-xs sm:text-base tracking-wider uppercase transition-all border flex flex-col items-center justify-center">
+          <span>WHERE</span>
+        </button>
+        <button onclick="selectWh('WHEN')" id="dock-WHEN" class="dock-btn py-2.5 sm:py-3 rounded-xl font-display font-extrabold text-xs sm:text-base tracking-wider uppercase transition-all border flex flex-col items-center justify-center">
+          <span>WHEN</span>
+        </button>
+        <button onclick="selectWh('WHY')" id="dock-WHY" class="dock-btn py-2.5 sm:py-3 rounded-xl font-display font-extrabold text-xs sm:text-base tracking-wider uppercase transition-all border flex flex-col items-center justify-center">
+          <span>WHY</span>
+        </button>
+        <button onclick="selectWh('HOW')" id="dock-HOW" class="dock-btn py-2.5 sm:py-3 rounded-xl font-display font-extrabold text-xs sm:text-base tracking-wider uppercase transition-all border flex flex-col items-center justify-center">
+          <span>HOW</span>
+        </button>
+      </div>
+    </nav>
+  </div>
+
+
+  <!-- MODALS -->
+
+  <!-- MODAL 1: SLIDE PICKER (1-24) -->
+  <div id="modal-slidePicker" class="fixed inset-0 z-50 bg-slate-950/70 backdrop-blur-sm hidden flex items-center justify-center p-4">
+    <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl max-w-3xl w-full p-6 shadow-2xl flex flex-col max-h-[85vh] animate-pop-in">
+      <div class="flex items-center justify-between pb-4 border-b border-slate-200 dark:border-slate-800">
+        <div>
+          <h2 class="font-display font-bold text-xl text-slate-900 dark:text-white">Slide Selector (24 Sentences)</h2>
+          <p class="text-xs text-slate-500 dark:text-slate-400">Choose a sentence slide to load into the active stage</p>
+        </div>
+        <button onclick="closeModal('slidePicker')" class="p-2 rounded-xl text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 font-bold text-lg">✕</button>
+      </div>
+      <div id="slide-picker-grid" class="flex-1 overflow-y-auto py-4 grid grid-cols-1 sm:grid-cols-2 gap-3 pr-1">
+        <!-- Rendered by JS -->
+      </div>
+    </div>
+  </div>
+
+
+  <!-- MODAL 2: RANDOM WH-SPINNER -->
+  <div id="modal-spinner" class="fixed inset-0 z-50 bg-slate-950/70 backdrop-blur-sm hidden flex items-center justify-center p-4">
+    <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl max-w-md w-full p-6 shadow-2xl flex flex-col items-center text-center animate-pop-in">
+      <div class="flex items-center justify-between w-full pb-3">
+        <h2 class="font-display font-bold text-lg text-slate-900 dark:text-white">Random Wh-Question Wheel</h2>
+        <button onclick="closeModal('spinner')" class="p-1.5 rounded-xl text-slate-400 hover:text-slate-600 dark:hover:text-slate-200">✕</button>
+      </div>
+      <div class="my-6 relative flex items-center justify-center">
+        <div id="spinner-display" class="w-40 h-40 rounded-full border-8 border-indigo-500/20 bg-gradient-to-tr from-indigo-600 to-purple-600 flex items-center justify-center text-white font-display font-extrabold text-3xl shadow-xl transition-transform duration-700">
+          ?
+        </div>
+      </div>
+      <p id="spinner-subtext" class="text-sm font-semibold text-slate-600 dark:text-slate-300 mb-6 min-h-[40px]">
+        Press Spin to pick a random Wh-question to ask your class!
+      </p>
+      <button onclick="spinWhWheel()" class="w-full py-3 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-display font-bold text-base shadow-lg shadow-indigo-600/30 transition">
+        🎲 Spin Wheel!
+      </button>
+    </div>
+  </div>
+
+
+  <!-- MODAL 3: WITNESS SLIPS MODAL (PASS-THE-SCREEN PEEK & PRINT CUT-OUTS) -->
+  <div id="modal-witnessSlips" class="fixed inset-0 z-50 bg-slate-950/70 backdrop-blur-sm hidden flex items-center justify-center p-4">
+    <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl max-w-4xl w-full p-6 shadow-2xl flex flex-col max-h-[90vh] animate-pop-in">
+      <div class="flex items-center justify-between pb-4 border-b border-slate-200 dark:border-slate-800">
+        <div>
+          <h2 class="font-display font-bold text-xl text-slate-900 dark:text-white flex items-center gap-2">
+            <span>🪪 Witness Clue Slips</span>
+            <span class="text-xs px-2.5 py-0.5 rounded-full bg-amber-500/20 text-amber-600 dark:text-amber-400 font-semibold">Case #<span id="slips-case-num">1</span></span>
+          </h2>
+          <p class="text-xs text-slate-500 dark:text-slate-400">Share secret clues with 6 witness students without spoiling the full sentence!</p>
+        </div>
+        <button onclick="closeModal('witnessSlips')" class="p-2 rounded-xl text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 font-bold text-lg">✕</button>
+      </div>
+
+      <!-- Tabs Header -->
+      <div class="flex border-b border-slate-200 dark:border-slate-800 my-4 text-sm font-bold">
+        <button id="tab-btn-peek" onclick="setSlipsTab('peek')" class="px-4 py-2 border-b-2 border-indigo-600 text-indigo-600 dark:text-indigo-400">
+          📱 Pass-the-Screen Peek
+        </button>
+        <button id="tab-btn-print" onclick="setSlipsTab('print')" class="px-4 py-2 border-b-2 border-transparent text-slate-500 hover:text-slate-700 dark:hover:text-slate-300">
+          🖨️ Print Cut-Out Slips
+        </button>
+      </div>
+
+      <!-- Tab 1: Pass-the-Screen Secret Peek Grid -->
+      <div id="tab-content-peek" class="flex-1 overflow-y-auto space-y-4 pr-1">
+        <p class="text-xs text-slate-500 dark:text-slate-400">
+          Tap a witness button below for that student to peek at their secret clue on screen.
+        </p>
+        <div id="peek-witness-grid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
+          <!-- 6 Peek Buttons rendered by JS -->
+        </div>
+      </div>
+
+      <!-- Tab 2: Print 6 Cut-Out Slips Preview & Action -->
+      <div id="tab-content-print" class="hidden flex-1 overflow-y-auto flex flex-col gap-4 pr-1">
+        <div class="flex items-center justify-between">
+          <p class="text-xs text-slate-500 dark:text-slate-400">
+            Prints 6 dashed cut-out cards on a single page for physical classroom distribution.
+          </p>
+          <button onclick="triggerPrintSlips()" class="px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs shadow-md transition flex items-center gap-1.5">
+            <span>🖨️</span> Print Cut-Out Slips Now
+          </button>
+        </div>
+
+        <div id="print-slips-preview" class="p-4 bg-slate-100 dark:bg-slate-950 rounded-2xl border border-slate-200 dark:border-slate-800">
+          <!-- Rendered Grid for Preview -->
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- MODAL 4: INDIVIDUAL SECRET CLUE PEEK CARD (FULLSCREEN OVERLAY) -->
+  <div id="modal-secretPeek" class="fixed inset-0 z-50 bg-slate-950/90 backdrop-blur-md hidden flex items-center justify-center p-4">
+    <div class="bg-white dark:bg-slate-900 border-4 border-amber-500 rounded-3xl max-w-lg w-full p-6 sm:p-8 shadow-2xl flex flex-col items-center text-center animate-pop-in space-y-6">
+      <div class="space-y-1">
+        <span id="secret-witness-role" class="px-3 py-1 rounded-full font-display font-extrabold text-sm uppercase tracking-wider bg-amber-500 text-slate-950">
+          Witness 1 • WHO
+        </span>
+        <h3 class="text-xs uppercase font-bold text-slate-400 tracking-widest pt-2">Secret Witness Fragment</h3>
+      </div>
+
+      <div class="w-full p-6 rounded-2xl bg-slate-100 dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700">
+        <p id="secret-clue-text" class="font-display font-extrabold text-2xl sm:text-4xl text-slate-900 dark:text-white leading-tight">
+          "Clue Fragment"
+        </p>
+      </div>
+
+      <div class="p-3 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-700 dark:text-amber-300 text-xs font-semibold">
+        ⚠️ <strong>Classroom Rule:</strong> Keep this secret! Only speak your clue when the Detective asks your Wh-question!
+      </div>
+
+      <button onclick="closeModal('secretPeek')" class="w-full py-3.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white dark:bg-white dark:hover:bg-slate-100 dark:text-slate-950 font-display font-bold text-base shadow-xl transition">
+        🙈 Hide Secret Clue & Return
+      </button>
+    </div>
+  </div>
+
+
+  <!-- PRINTABLE HIDDEN AREA FOR PRINTING ONLY -->
+  <div id="print-area" class="hidden">
+    <div id="printable-slips-container" class="grid grid-cols-2 gap-4 p-6 bg-white text-black font-sans">
+      <!-- Generated via JS during print trigger -->
+    </div>
+  </div>
+
+
+  <!-- JAVASCRIPT LOGIC -->
+  <script>
+    /* ==========================================================================
+       1. DATASET: 24 SPREAD SENTENCES WITH SPOILER-FREE DETECTIVE CLUES
+       ========================================================================== */
+    const WH_KEYS = ['WHO', 'WHAT', 'WHERE', 'WHEN', 'WHY', 'HOW'];
+
+    const WH_THEMES = {
+      WHO: { bg: 'bg-blue-600', text: 'text-blue-600 dark:text-blue-400', border: 'border-blue-500', bgLight: 'bg-blue-50 dark:bg-blue-950/60', badgeBg: 'bg-blue-500/20 text-blue-700 dark:text-blue-300' },
+      WHAT: { bg: 'bg-emerald-600', text: 'text-emerald-600 dark:text-emerald-400', border: 'border-emerald-500', bgLight: 'bg-emerald-50 dark:bg-emerald-950/60', badgeBg: 'bg-emerald-500/20 text-emerald-700 dark:text-emerald-300' },
+      WHERE: { bg: 'bg-amber-600', text: 'text-amber-600 dark:text-amber-400', border: 'border-amber-500', bgLight: 'bg-amber-50 dark:bg-amber-950/60', badgeBg: 'bg-amber-500/20 text-amber-700 dark:text-amber-300' },
+      WHEN: { bg: 'bg-purple-600', text: 'text-purple-600 dark:text-purple-400', border: 'border-purple-500', bgLight: 'bg-purple-50 dark:bg-purple-950/60', badgeBg: 'bg-purple-500/20 text-purple-700 dark:text-purple-300' },
+      WHY: { bg: 'bg-rose-600', text: 'text-rose-600 dark:text-rose-400', border: 'border-rose-500', bgLight: 'bg-rose-50 dark:bg-rose-950/60', badgeBg: 'bg-rose-500/20 text-rose-700 dark:text-rose-300' },
+      HOW: { bg: 'bg-cyan-600', text: 'text-cyan-600 dark:text-cyan-400', border: 'border-cyan-500', bgLight: 'bg-cyan-50 dark:bg-cyan-950/60', badgeBg: 'bg-cyan-500/20 text-cyan-700 dark:text-cyan-300' },
+    };
+
+    const SENTENCES_DATA = [
+      // CATEGORY 1: Travel & Transport (1 - 6)
+      {
+        id: 1,
+        category: "Travel & Transport",
+        fullSentence: "My father went to Hanoi by plane last week for a business trip.",
+        items: {
+          WHO: { clue: "My father", detectivePrompt: "Who is this story about?", question: "Who went to Hanoi?", answer: "My father went to Hanoi." },
+          WHAT: { clue: "went somewhere", detectivePrompt: "What did he do?", question: "What did he do?", answer: "He went to Hanoi." },
+          WHERE: { clue: "to Hanoi", detectivePrompt: "Where did he go?", question: "Where did he go?", answer: "He went to Hanoi." },
+          WHEN: { clue: "last week", detectivePrompt: "When did he go?", question: "When did he go to Hanoi?", answer: "He went to Hanoi last week." },
+          WHY: { clue: "for a business trip", detectivePrompt: "Why did he go?", question: "Why did he go to Hanoi?", answer: "He went to Hanoi for a business trip." },
+          HOW: { clue: "by plane", detectivePrompt: "How did he go?", question: "How did he go to Hanoi?", answer: "He went to Hanoi by plane." }
+        }
+      },
+      {
+        id: 2,
+        category: "Travel & Transport",
+        fullSentence: "Sarah traveled to Da Nang by train yesterday morning to visit her grandparents.",
+        items: {
+          WHO: { clue: "Sarah", detectivePrompt: "Who is this story about?", question: "Who traveled to Da Nang?", answer: "Sarah traveled to Da Nang." },
+          WHAT: { clue: "traveled somewhere", detectivePrompt: "What did she do?", question: "What did she do?", answer: "She traveled to Da Nang." },
+          WHERE: { clue: "to Da Nang", detectivePrompt: "Where did she travel?", question: "Where did she travel?", answer: "She traveled to Da Nang." },
+          WHEN: { clue: "yesterday morning", detectivePrompt: "When did she travel?", question: "When did she travel to Da Nang?", answer: "She traveled to Da Nang yesterday morning." },
+          WHY: { clue: "to visit her grandparents", detectivePrompt: "Why did she travel?", question: "Why did she travel to Da Nang?", answer: "She traveled to Da Nang to visit her grandparents." },
+          HOW: { clue: "by train", detectivePrompt: "How did she travel?", question: "How did she travel to Da Nang?", answer: "She traveled to Da Nang by train." }
+        }
+      },
+      {
+        id: 3,
+        category: "Travel & Transport",
+        fullSentence: "Our class went to the history museum by school bus on Friday to learn about ancient kings.",
+        items: {
+          WHO: { clue: "Our class", detectivePrompt: "Who is this story about?", question: "Who went to the history museum?", answer: "Our class went to the history museum." },
+          WHAT: { clue: "went on a trip", detectivePrompt: "What did they do?", question: "What did they do?", answer: "They went on a trip to the history museum." },
+          WHERE: { clue: "to the history museum", detectivePrompt: "Where did they go?", question: "Where did they go?", answer: "They went to the history museum." },
+          WHEN: { clue: "on Friday", detectivePrompt: "When did they go?", question: "When did they go to the museum?", answer: "They went to the museum on Friday." },
+          WHY: { clue: "to learn about ancient kings", detectivePrompt: "Why did they go?", question: "Why did they go to the museum?", answer: "They went to the museum to learn about ancient kings." },
+          HOW: { clue: "by school bus", detectivePrompt: "How did they go?", question: "How did they go to the museum?", answer: "They went to the museum by school bus." }
+        }
+      },
+      {
+        id: 4,
+        category: "Travel & Transport",
+        fullSentence: "Tom rode his bicycle to the beach very fast at 6:00 AM to watch the sunrise.",
+        items: {
+          WHO: { clue: "Tom", detectivePrompt: "Who is this story about?", question: "Who rode his bicycle to the beach?", answer: "Tom rode his bicycle to the beach." },
+          WHAT: { clue: "rode his bicycle", detectivePrompt: "What did he do?", question: "What did he ride?", answer: "He rode his bicycle." },
+          WHERE: { clue: "to the beach", detectivePrompt: "Where did he ride his bicycle?", question: "Where did he ride his bicycle?", answer: "He rode his bicycle to the beach." },
+          WHEN: { clue: "at 6:00 AM", detectivePrompt: "When did he ride to the beach?", question: "When did he ride to the beach?", answer: "He rode to the beach at 6:00 AM." },
+          WHY: { clue: "to watch the sunrise", detectivePrompt: "Why did he go to the beach?", question: "Why did he go to the beach?", answer: "He went to the beach to watch the sunrise." },
+          HOW: { clue: "very fast", detectivePrompt: "How did he ride his bicycle?", question: "How did he ride his bicycle?", answer: "He rode his bicycle very fast." }
+        }
+      },
+      {
+        id: 5,
+        category: "Travel & Transport",
+        fullSentence: "My aunt drove to the airport in her new car last night to pick up my cousin.",
+        items: {
+          WHO: { clue: "My aunt", detectivePrompt: "Who is this story about?", question: "Who drove to the airport?", answer: "My aunt drove to the airport." },
+          WHAT: { clue: "drove somewhere", detectivePrompt: "What did she do?", question: "What did she do?", answer: "She drove to the airport." },
+          WHERE: { clue: "to the airport", detectivePrompt: "Where did she drive?", question: "Where did she drive?", answer: "She drove to the airport." },
+          WHEN: { clue: "last night", detectivePrompt: "When did she drive to the airport?", question: "When did she drive to the airport?", answer: "She drove to the airport last night." },
+          WHY: { clue: "to pick up my cousin", detectivePrompt: "Why did she drive to the airport?", question: "Why did she drive to the airport?", answer: "She drove to the airport to pick up my cousin." },
+          HOW: { clue: "in her new car", detectivePrompt: "How did she drive?", question: "How did she drive to the airport?", answer: "She drove to the airport in her new car." }
+        }
+      },
+      {
+        id: 6,
+        category: "Travel & Transport",
+        fullSentence: "The tourists walked to the old temple slowly this morning to take photos.",
+        items: {
+          WHO: { clue: "The tourists", detectivePrompt: "Who is this story about?", question: "Who walked to the old temple?", answer: "The tourists walked to the old temple." },
+          WHAT: { clue: "walked somewhere", detectivePrompt: "What did they do?", question: "What did they do?", answer: "They walked to the old temple." },
+          WHERE: { clue: "to the old temple", detectivePrompt: "Where did they walk?", question: "Where did they walk?", answer: "They walked to the old temple." },
+          WHEN: { clue: "this morning", detectivePrompt: "When did they walk to the old temple?", question: "When did they walk to the old temple?", answer: "They walked to the old temple this morning." },
+          WHY: { clue: "to take photos", detectivePrompt: "Why did they walk to the old temple?", question: "Why did they walk to the old temple?", answer: "They walked to the old temple to take photos." },
+          HOW: { clue: "slowly", detectivePrompt: "How did they walk?", question: "How did they walk to the old temple?", answer: "They walked to the old temple slowly." }
+        }
+      },
+
+      // CATEGORY 2: Shopping & Food (7 - 12)
+      {
+        id: 7,
+        category: "Shopping & Food",
+        fullSentence: "My mother bought fresh vegetables at the local market with cash this morning to make soup.",
+        items: {
+          WHO: { clue: "My mother", detectivePrompt: "Who is this story about?", question: "Who bought fresh vegetables?", answer: "My mother bought fresh vegetables." },
+          WHAT: { clue: "bought fresh vegetables", detectivePrompt: "What did she do?", question: "What did she buy?", answer: "She bought fresh vegetables." },
+          WHERE: { clue: "at the local market", detectivePrompt: "Where did she buy them?", question: "Where did she buy fresh vegetables?", answer: "She bought fresh vegetables at the local market." },
+          WHEN: { clue: "this morning", detectivePrompt: "When did she buy them?", question: "When did she buy fresh vegetables?", answer: "She bought fresh vegetables this morning." },
+          WHY: { clue: "to make soup", detectivePrompt: "Why did she buy them?", question: "Why did she buy fresh vegetables?", answer: "She bought fresh vegetables to make soup." },
+          HOW: { clue: "with cash", detectivePrompt: "How did she pay for them?", question: "How did she pay for them?", answer: "She bought them with cash." }
+        }
+      },
+      {
+        id: 8,
+        category: "Shopping & Food",
+        fullSentence: "David ordered a large pizza from the Italian restaurant on his phone at 8:00 PM because he was hungry.",
+        items: {
+          WHO: { clue: "David", detectivePrompt: "Who is this story about?", question: "Who ordered a large pizza?", answer: "David ordered a large pizza." },
+          WHAT: { clue: "ordered a large pizza", detectivePrompt: "What did he do?", question: "What did he order?", answer: "He ordered a large pizza." },
+          WHERE: { clue: "from the Italian restaurant", detectivePrompt: "Where did he order it from?", question: "Where did he order a pizza from?", answer: "He ordered a pizza from the Italian restaurant." },
+          WHEN: { clue: "at 8:00 PM", detectivePrompt: "When did he order it?", question: "When did he order the pizza?", answer: "He ordered the pizza at 8:00 PM." },
+          WHY: { clue: "because he was hungry", detectivePrompt: "Why did he order it?", question: "Why did he order a pizza?", answer: "He ordered a pizza because he was hungry." },
+          HOW: { clue: "on his phone", detectivePrompt: "How did he order it?", question: "How did he order the pizza?", answer: "He ordered the pizza on his phone." }
+        }
+      },
+      {
+        id: 9,
+        category: "Shopping & Food",
+        fullSentence: "Lisa baked a chocolate cake in the kitchen yesterday using a simple recipe for her brother's birthday.",
+        items: {
+          WHO: { clue: "Lisa", detectivePrompt: "Who is this story about?", question: "Who baked a chocolate cake?", answer: "Lisa baked a chocolate cake." },
+          WHAT: { clue: "baked a chocolate cake", detectivePrompt: "What did she do?", question: "What did she bake?", answer: "She baked a chocolate cake." },
+          WHERE: { clue: "in the kitchen", detectivePrompt: "Where did she bake it?", question: "Where did she bake the cake?", answer: "She baked the cake in the kitchen." },
+          WHEN: { clue: "yesterday", detectivePrompt: "When did she bake it?", question: "When did she bake the cake?", answer: "She baked the cake yesterday." },
+          WHY: { clue: "for her brother's birthday", detectivePrompt: "Why did she bake it?", question: "Why did she bake the cake?", answer: "She baked the cake for her brother's birthday." },
+          HOW: { clue: "using a simple recipe", detectivePrompt: "How did she bake it?", question: "How did she bake the cake?", answer: "She baked the cake using a simple recipe." }
+        }
+      },
+      {
+        id: 10,
+        category: "Shopping & Food",
+        fullSentence: "My brother bought a blue jacket at the shopping mall with his credit card on Saturday for his winter holiday.",
+        items: {
+          WHO: { clue: "My brother", detectivePrompt: "Who is this story about?", question: "Who bought a blue jacket?", answer: "My brother bought a blue jacket." },
+          WHAT: { clue: "bought a blue jacket", detectivePrompt: "What did he do?", question: "What did he buy?", answer: "He bought a blue jacket." },
+          WHERE: { clue: "at the shopping mall", detectivePrompt: "Where did he buy it?", question: "Where did he buy the jacket?", answer: "He bought the jacket at the shopping mall." },
+          WHEN: { clue: "on Saturday", detectivePrompt: "When did he buy it?", question: "When did he buy the jacket?", answer: "He bought the jacket on Saturday." },
+          WHY: { clue: "for his winter holiday", detectivePrompt: "Why did he buy it?", question: "Why did he buy the jacket?", answer: "He bought the jacket for his winter holiday." },
+          HOW: { clue: "with his credit card", detectivePrompt: "How did he pay for it?", question: "How did he pay for it?", answer: "He bought it with his credit card." }
+        }
+      },
+      {
+        id: 11,
+        category: "Shopping & Food",
+        fullSentence: "Emma drank hot tea slowly in the living room before bed because she had a sore throat.",
+        items: {
+          WHO: { clue: "Emma", detectivePrompt: "Who is this story about?", question: "Who drank hot tea?", answer: "Emma drank hot tea." },
+          WHAT: { clue: "drank hot tea", detectivePrompt: "What did she do?", question: "What did she drink?", answer: "She drank hot tea." },
+          WHERE: { clue: "in the living room", detectivePrompt: "Where did she drink it?", question: "Where did she drink hot tea?", answer: "She drank hot tea in the living room." },
+          WHEN: { clue: "before bed", detectivePrompt: "When did she drink it?", question: "When did she drink hot tea?", answer: "She drank hot tea before bed." },
+          WHY: { clue: "because she had a sore throat", detectivePrompt: "Why did she drink it?", question: "Why did she drink hot tea?", answer: "She drank hot tea because she had a sore throat." },
+          HOW: { clue: "slowly", detectivePrompt: "How did she drink it?", question: "How did she drink hot tea?", answer: "She drank hot tea slowly." }
+        }
+      },
+      {
+        id: 12,
+        category: "Shopping & Food",
+        fullSentence: "The chef cooked noodles in the restaurant kitchen very quickly at lunchtime for the hungry guests.",
+        items: {
+          WHO: { clue: "The chef", detectivePrompt: "Who is this story about?", question: "Who cooked noodles?", answer: "The chef cooked noodles." },
+          WHAT: { clue: "cooked noodles", detectivePrompt: "What did he do?", question: "What did the chef cook?", answer: "The chef cooked noodles." },
+          WHERE: { clue: "in the restaurant kitchen", detectivePrompt: "Where did he cook them?", question: "Where did he cook noodles?", answer: "He cooked noodles in the restaurant kitchen." },
+          WHEN: { clue: "at lunchtime", detectivePrompt: "When did he cook them?", question: "When did he cook noodles?", answer: "He cooked noodles at lunchtime." },
+          WHY: { clue: "for the hungry guests", detectivePrompt: "Why did he cook them?", question: "Why did he cook noodles?", answer: "He cooked noodles for the hungry guests." },
+          HOW: { clue: "very quickly", detectivePrompt: "How did he cook them?", question: "How did he cook noodles?", answer: "He cooked noodles very quickly." }
+        }
+      },
+
+      // CATEGORY 3: School & Work (13 - 18)
+      {
+        id: 13,
+        category: "School & Work",
+        fullSentence: "Maria studied English vocabulary in the library quietly last night to prepare for her exam.",
+        items: {
+          WHO: { clue: "Maria", detectivePrompt: "Who is this story about?", question: "Who studied English vocabulary?", answer: "Maria studied English vocabulary." },
+          WHAT: { clue: "studied English vocabulary", detectivePrompt: "What did she do?", question: "What did she study?", answer: "She studied English vocabulary." },
+          WHERE: { clue: "in the library", detectivePrompt: "Where did she study?", question: "Where did she study English?", answer: "She studied English in the library." },
+          WHEN: { clue: "last night", detectivePrompt: "When did she study?", question: "When did she study English?", answer: "She studied English last night." },
+          WHY: { clue: "to prepare for her exam", detectivePrompt: "Why did she study?", question: "Why did she study English?", answer: "She studied English to prepare for her exam." },
+          HOW: { clue: "quietly", detectivePrompt: "How did she study?", question: "How did she study English?", answer: "She studied English quietly." }
+        }
+      },
+      {
+        id: 14,
+        category: "School & Work",
+        fullSentence: "The students wrote a short story in their notebooks with blue pens during class to practice past tense verbs.",
+        items: {
+          WHO: { clue: "The students", detectivePrompt: "Who is this story about?", question: "Who wrote a short story?", answer: "The students wrote a short story." },
+          WHAT: { clue: "wrote a short story", detectivePrompt: "What did they do?", question: "What did they write?", answer: "They wrote a short story." },
+          WHERE: { clue: "in their notebooks", detectivePrompt: "Where did they write it?", question: "Where did they write the story?", answer: "They wrote the story in their notebooks." },
+          WHEN: { clue: "during class", detectivePrompt: "When did they write it?", question: "When did they write the story?", answer: "They wrote the story during class." },
+          WHY: { clue: "to practice past tense verbs", detectivePrompt: "Why did they write it?", question: "Why did they write the story?", answer: "They wrote the story to practice past tense verbs." },
+          HOW: { clue: "with blue pens", detectivePrompt: "How did they write it?", question: "How did they write the story?", answer: "They wrote the story with blue pens." }
+        }
+      },
+      {
+        id: 15,
+        category: "School & Work",
+        fullSentence: "Mr. Lee sent an important email from his office on his laptop at 9:00 AM to cancel the meeting.",
+        items: {
+          WHO: { clue: "Mr. Lee", detectivePrompt: "Who is this story about?", question: "Who sent an important email?", answer: "Mr. Lee sent an important email." },
+          WHAT: { clue: "sent an important email", detectivePrompt: "What did he do?", question: "What did he send?", answer: "He sent an important email." },
+          WHERE: { clue: "from his office", detectivePrompt: "Where did he send it from?", question: "Where did he send the email from?", answer: "He sent the email from his office." },
+          WHEN: { clue: "at 9:00 AM", detectivePrompt: "When did he send it?", question: "When did he send the email?", answer: "He sent the email at 9:00 AM." },
+          WHY: { clue: "to cancel the meeting", detectivePrompt: "Why did he send it?", question: "Why did he send the email?", answer: "He sent the email to cancel the meeting." },
+          HOW: { clue: "on his laptop", detectivePrompt: "How did he send it?", question: "How did he send the email?", answer: "He sent the email on his laptop." }
+        }
+      },
+      {
+        id: 16,
+        category: "School & Work",
+        fullSentence: "Anna practiced the piano in her bedroom carefully every evening to win the school competition.",
+        items: {
+          WHO: { clue: "Anna", detectivePrompt: "Who is this story about?", question: "Who practiced the piano?", answer: "Anna practiced the piano." },
+          WHAT: { clue: "practiced the piano", detectivePrompt: "What did she do?", question: "What did she practice?", answer: "She practiced the piano." },
+          WHERE: { clue: "in her bedroom", detectivePrompt: "Where did she practice?", question: "Where did she practice the piano?", answer: "She practiced the piano in her bedroom." },
+          WHEN: { clue: "every evening", detectivePrompt: "When did she practice?", question: "When did she practice the piano?", answer: "She practiced the piano every evening." },
+          WHY: { clue: "to win the school competition", detectivePrompt: "Why did she practice?", question: "Why did she practice the piano?", answer: "She practiced the piano to win the school competition." },
+          HOW: { clue: "carefully", detectivePrompt: "How did she practice?", question: "How did she practice the piano?", answer: "She practiced the piano carefully." }
+        }
+      },
+      {
+        id: 17,
+        category: "School & Work",
+        fullSentence: "Ben fixed his broken chair in the garage with a hammer on Sunday afternoon so he could use it again.",
+        items: {
+          WHO: { clue: "Ben", detectivePrompt: "Who is this story about?", question: "Who fixed his broken chair?", answer: "Ben fixed his broken chair." },
+          WHAT: { clue: "fixed his broken chair", detectivePrompt: "What did he do?", question: "What did he fix?", answer: "He fixed his broken chair." },
+          WHERE: { clue: "in the garage", detectivePrompt: "Where did he fix it?", question: "Where did he fix the chair?", answer: "He fixed the chair in the garage." },
+          WHEN: { clue: "on Sunday afternoon", detectivePrompt: "When did he fix it?", question: "When did he fix the chair?", answer: "He fixed the chair on Sunday afternoon." },
+          WHY: { clue: "so he could use it again", detectivePrompt: "Why did he fix it?", question: "Why did he fix the chair?", answer: "He fixed the chair so he could use it again." },
+          HOW: { clue: "with a hammer", detectivePrompt: "How did he fix it?", question: "How did he fix the chair?", answer: "He fixed the chair with a hammer." }
+        }
+      },
+      {
+        id: 18,
+        category: "School & Work",
+        fullSentence: "The teacher explained the new grammar rules in the classroom clearly this morning to help the new students.",
+        items: {
+          WHO: { clue: "The teacher", detectivePrompt: "Who is this story about?", question: "Who explained the new grammar rules?", answer: "The teacher explained the new grammar rules." },
+          WHAT: { clue: "explained the new grammar rules", detectivePrompt: "What did she do?", question: "What did she explain?", answer: "She explained the new grammar rules." },
+          WHERE: { clue: "in the classroom", detectivePrompt: "Where did she explain them?", question: "Where did she explain the rules?", answer: "She explained the rules in the classroom." },
+          WHEN: { clue: "this morning", detectivePrompt: "When did she explain them?", question: "When did she explain the rules?", answer: "She explained the rules this morning." },
+          WHY: { clue: "to help the new students", detectivePrompt: "Why did she explain them?", question: "Why did she explain the rules?", answer: "She explained the rules to help the new students." },
+          HOW: { clue: "clearly", detectivePrompt: "How did she explain them?", question: "How did she explain the rules?", answer: "She explained the rules clearly." }
+        }
+      },
+
+      // CATEGORY 4: Free Time & Daily Life (19 - 24)
+      {
+        id: 19,
+        category: "Free Time & Daily Life",
+        fullSentence: "Jake ran around the park very fast on Sunday morning to train for the race.",
+        items: {
+          WHO: { clue: "Jake", detectivePrompt: "Who is this story about?", question: "Who ran around the park?", answer: "Jake ran around the park." },
+          WHAT: { clue: "went running", detectivePrompt: "What did he do?", question: "What did he do?", answer: "He went running." },
+          WHERE: { clue: "around the park", detectivePrompt: "Where did he run?", question: "Where did he run?", answer: "He ran around the park." },
+          WHEN: { clue: "on Sunday morning", detectivePrompt: "When did he run?", question: "When did he run?", answer: "He ran on Sunday morning." },
+          WHY: { clue: "to train for the race", detectivePrompt: "Why did he run?", question: "Why did he run?", answer: "He ran to train for the race." },
+          HOW: { clue: "very fast", detectivePrompt: "How did he run?", question: "How did he run?", answer: "He ran very fast." }
+        }
+      },
+      {
+        id: 20,
+        category: "Free Time & Daily Life",
+        fullSentence: "My sister watched a funny movie on the sofa on her tablet last night to relax after work.",
+        items: {
+          WHO: { clue: "My sister", detectivePrompt: "Who is this story about?", question: "Who watched a funny movie?", answer: "My sister watched a funny movie." },
+          WHAT: { clue: "watched a funny movie", detectivePrompt: "What did she do?", question: "What did she watch?", answer: "She watched a funny movie." },
+          WHERE: { clue: "on the sofa", detectivePrompt: "Where did she watch it?", question: "Where did she watch the movie?", answer: "She watched the movie on the sofa." },
+          WHEN: { clue: "last night", detectivePrompt: "When did she watch it?", question: "When did she watch the movie?", answer: "She watched the movie last night." },
+          WHY: { clue: "to relax after work", detectivePrompt: "Why did she watch it?", question: "Why did she watch the movie?", answer: "She watched the movie to relax after work." },
+          HOW: { clue: "on her tablet", detectivePrompt: "How did she watch it?", question: "How did she watch the movie?", answer: "She watched the movie on her tablet." }
+        }
+      },
+      {
+        id: 21,
+        category: "Free Time & Daily Life",
+        fullSentence: "Grandpa planted red flowers in the garden by hand two days ago to make the yard look nice.",
+        items: {
+          WHO: { clue: "Grandpa", detectivePrompt: "Who is this story about?", question: "Who planted red flowers?", answer: "Grandpa planted red flowers." },
+          WHAT: { clue: "planted red flowers", detectivePrompt: "What did he do?", question: "What did he plant?", answer: "He planted red flowers." },
+          WHERE: { clue: "in the garden", detectivePrompt: "Where did he plant them?", question: "Where did he plant the flowers?", answer: "He planted the flowers in the garden." },
+          WHEN: { clue: "two days ago", detectivePrompt: "When did he plant them?", question: "When did he plant the flowers?", answer: "He planted the flowers two days ago." },
+          WHY: { clue: "to make the yard look nice", detectivePrompt: "Why did he plant them?", question: "Why did he plant the flowers?", answer: "He planted the flowers to make the yard look nice." },
+          HOW: { clue: "by hand", detectivePrompt: "How did he plant them?", question: "How did he plant the flowers?", answer: "He planted the flowers by hand." }
+        }
+      },
+      {
+        id: 22,
+        category: "Free Time & Daily Life",
+        fullSentence: "The children painted colorful pictures at the art club with thick brushes yesterday to decorate the wall.",
+        items: {
+          WHO: { clue: "The children", detectivePrompt: "Who is this story about?", question: "Who painted colorful pictures?", answer: "The children painted colorful pictures." },
+          WHAT: { clue: "painted colorful pictures", detectivePrompt: "What did they do?", question: "What did they paint?", answer: "They painted colorful pictures." },
+          WHERE: { clue: "at the art club", detectivePrompt: "Where did they paint them?", question: "Where did they paint pictures?", answer: "They painted pictures at the art club." },
+          WHEN: { clue: "yesterday", detectivePrompt: "When did they paint them?", question: "When did they paint pictures?", answer: "They painted pictures yesterday." },
+          WHY: { clue: "to decorate the wall", detectivePrompt: "Why did they paint them?", question: "Why did they paint pictures?", answer: "They painted pictures to decorate the wall." },
+          HOW: { clue: "with thick brushes", detectivePrompt: "How did they paint them?", question: "How did they paint pictures?", answer: "They painted pictures with thick brushes." }
+        }
+      },
+      {
+        id: 23,
+        category: "Free Time & Daily Life",
+        fullSentence: "Kevin called his best friend from a cafe on his mobile phone after school to ask about the homework.",
+        items: {
+          WHO: { clue: "Kevin", detectivePrompt: "Who is this story about?", question: "Who called his best friend?", answer: "Kevin called his best friend." },
+          WHAT: { clue: "called his best friend", detectivePrompt: "What did he do?", question: "Who did he call?", answer: "He called his best friend." },
+          WHERE: { clue: "from a cafe", detectivePrompt: "Where did he call from?", question: "Where did he call his friend from?", answer: "He called his friend from a cafe." },
+          WHEN: { clue: "after school", detectivePrompt: "When did he call?", question: "When did he call his friend?", answer: "He called his friend after school." },
+          WHY: { clue: "to ask about the homework", detectivePrompt: "Why did he call?", question: "Why did he call his friend?", answer: "He called his friend to ask about the homework." },
+          HOW: { clue: "on his mobile phone", detectivePrompt: "How did he call him?", question: "How did he call his friend?", answer: "He called his friend on his mobile phone." }
+        }
+      },
+      {
+        id: 24,
+        category: "Free Time & Daily Life",
+        fullSentence: "We cleaned the windows in the living room with soap and water on Saturday morning because our guests were arriving.",
+        items: {
+          WHO: { clue: "We", detectivePrompt: "Who is this story about?", question: "Who cleaned the windows?", answer: "We cleaned the windows." },
+          WHAT: { clue: "cleaned the windows", detectivePrompt: "What did you do?", question: "What did you clean?", answer: "We cleaned the windows." },
+          WHERE: { clue: "in the living room", detectivePrompt: "Where did you clean them?", question: "Where did you clean the windows?", answer: "We cleaned the windows in the living room." },
+          WHEN: { clue: "on Saturday morning", detectivePrompt: "When did you clean them?", question: "When did you clean the windows?", answer: "We cleaned the windows on Saturday morning." },
+          WHY: { clue: "because our guests were arriving", detectivePrompt: "Why did you clean them?", question: "Why did you clean the windows?", answer: "We cleaned the windows because our guests were arriving." },
+          HOW: { clue: "with soap and water", detectivePrompt: "How did you clean them?", question: "How did you clean the windows?", answer: "We cleaned the windows with soap and water." }
+        }
+      }
+    ];
+
+    /* ==========================================================================
+       2. APPLICATION STATE
+       ========================================================================== */
+    let state = {
+      currentSlide: 0,
+      mode: 'spotlight', // 'spotlight' | 'board' | 'detective'
+      selectedWh: 'WHO',
+      isDark: true,
+      targetSentenceVisible: true,
+      memoryBlur: false,
+      scores: { a: 0, b: 0 },
+      // Card reveal toggles
+      spotlight: { q: false, a: false },
+      board: {
+        WHO: { q: false, a: false },
+        WHAT: { q: false, a: false },
+        WHERE: { q: false, a: false },
+        WHEN: { q: false, a: false },
+        WHY: { q: false, a: false },
+        HOW: { q: false, a: false }
+      },
+      detective: {
+        revealed: { WHO: false, WHAT: false, WHERE: false, WHEN: false, WHY: false, HOW: false },
+        hints: { WHO: false, WHAT: false, WHERE: false, WHEN: false, WHY: false, HOW: false },
+        fullSentenceRevealed: false,
+        showAllHints: false
+      },
+      slipsTab: 'peek'
+    };
+
+    /* ==========================================================================
+       3. INITIALIZATION & CORE LIFECYCLE
+       ========================================================================== */
+    window.onload = function() {
+      renderSlide();
+      initSlidePickerGrid();
+      setupKeyboardShortcuts();
+    };
+
+    function setMode(newMode) {
+      state.mode = newMode;
+
+      // Update Top Nav Switcher Styling
+      ['spotlight', 'board', 'detective'].forEach(m => {
+        const btn = document.getElementById(`mode-${m}`);
+        if (m === newMode) {
+          btn.className = "px-3 py-1.5 rounded-lg font-bold transition-all shadow-sm bg-white dark:bg-slate-700 text-slate-900 dark:text-white border border-slate-200 dark:border-slate-600";
+        } else {
+          btn.className = "px-3 py-1.5 rounded-lg transition-all text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white";
+        }
+      });
+
+      // Show/Hide Stage Views & Banners
+      document.getElementById('stage-spotlight').classList.toggle('hidden', newMode !== 'spotlight');
+      document.getElementById('stage-board').classList.toggle('hidden', newMode !== 'board');
+      document.getElementById('stage-detective').classList.toggle('hidden', newMode !== 'detective');
+
+      document.getElementById('sentence-banner').classList.toggle('hidden', newMode === 'detective');
+      document.getElementById('detective-banner').classList.toggle('hidden', newMode !== 'detective');
+      document.getElementById('wh-dock').classList.toggle('hidden', newMode === 'detective');
+
+      renderSlide();
+    }
+
+    function renderSlide() {
+      const slide = SENTENCES_DATA[state.currentSlide];
+
+      // Update Header Pills & Sentence Text
+      document.getElementById('slide-num-pill').textContent = `${slide.id}/24`;
+      document.getElementById('cat-name').textContent = slide.category;
+      document.getElementById('target-sentence-text').textContent = slide.fullSentence;
+
+      // Render Stage by Mode
+      if (state.mode === 'spotlight') {
+        renderSpotlightStage();
+      } else if (state.mode === 'board') {
+        renderBoardStage();
+      } else if (state.mode === 'detective') {
+        renderDetectiveStage();
+      }
+
+      updateDockButtons();
+    }
+
+    /* ==========================================================================
+       4. MODE 1: SPOTLIGHT LOGIC
+       ========================================================================== */
+    function renderSpotlightStage() {
+      const slide = SENTENCES_DATA[state.currentSlide];
+      const wh = state.selectedWh;
+      const item = slide.items[wh];
+      const theme = WH_THEMES[wh];
+
+      // Update WH Badge
+      const badge = document.getElementById('spotlight-wh-badge');
+      badge.textContent = wh;
+      badge.className = `px-5 py-2 rounded-full font-display font-extrabold text-base tracking-wider uppercase shadow-md ${theme.bg} text-white mb-6 animate-pop-in`;
+
+      // Question Card State
+      const qText = document.getElementById('spotlight-q-text');
+      const qHint = document.getElementById('spotlight-q-hint');
+      if (state.spotlight.q) {
+        qText.textContent = item.question;
+        qText.className = "font-display font-bold text-xl sm:text-3xl text-slate-900 dark:text-white animate-pop-in";
+        qHint.textContent = "Hide 👁️";
+      } else {
+        qText.textContent = "???";
+        qText.className = "font-display font-bold text-xl sm:text-3xl text-slate-400 dark:text-slate-500 tracking-widest";
+        qHint.textContent = "Click to Reveal 👁️";
+      }
+
+      // Answer Card State
+      const aText = document.getElementById('spotlight-a-text');
+      const aHint = document.getElementById('spotlight-a-hint');
+      if (state.spotlight.a) {
+        aText.textContent = item.answer;
+        aText.className = "font-display font-bold text-xl sm:text-3xl text-emerald-600 dark:text-emerald-400 animate-pop-in";
+        aHint.textContent = "Hide 👁️";
+      } else {
+        aText.textContent = "???";
+        aText.className = "font-display font-bold text-xl sm:text-3xl text-slate-400 dark:text-slate-500 tracking-widest";
+        aHint.textContent = "Click to Reveal 👁️";
+      }
+    }
+
+    function toggleSpotlightCard(type) {
+      if (type === 'q') state.spotlight.q = !state.spotlight.q;
+      if (type === 'a') state.spotlight.a = !state.spotlight.a;
+      renderSpotlightStage();
+    }
+
+    function selectWh(wh) {
+      state.selectedWh = wh;
+      state.spotlight = { q: false, a: false };
+      renderSlide();
+    }
+
+    /* ==========================================================================
+       5. MODE 2: 6-TILE BOARD LOGIC
+       ========================================================================== */
+    function renderBoardStage() {
+      const container = document.getElementById('stage-board');
+      const slide = SENTENCES_DATA[state.currentSlide];
+
+      container.innerHTML = WH_KEYS.map(wh => {
+        const item = slide.items[wh];
+        const theme = WH_THEMES[wh];
+        const bState = state.board[wh];
+
+        return `
+          <div class="bg-white dark:bg-slate-900 rounded-2xl p-4 sm:p-5 border-2 ${theme.border} shadow-sm flex flex-col justify-between transition-all space-y-3">
+            <!-- Header -->
+            <div class="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-2">
+              <span class="px-3 py-1 rounded-lg font-display font-extrabold text-xs uppercase tracking-wider ${theme.bg} text-white">
+                ${wh}
+              </span>
+              <span class="text-[11px] font-semibold text-slate-400">Tile ${wh}</span>
+            </div>
+
+            <!-- Question Area -->
+            <div onclick="toggleBoardCard('${wh}', 'q')" class="cursor-pointer p-3 rounded-xl bg-slate-50 dark:bg-slate-800/60 hover:bg-slate-100 dark:hover:bg-slate-800 transition">
+              <div class="text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-1 flex justify-between">
+                <span>Question</span>
+                <span class="${theme.text}">${bState.q ? 'Hide' : 'Reveal 👁️'}</span>
+              </div>
+              <p class="font-display font-bold text-sm sm:text-base ${bState.q ? 'text-slate-900 dark:text-white' : 'text-slate-400 dark:text-slate-500 tracking-wider'}">
+                ${bState.q ? item.question : '???'}
+              </p>
+            </div>
+
+            <!-- Answer Area -->
+            <div onclick="toggleBoardCard('${wh}', 'a')" class="cursor-pointer p-3 rounded-xl bg-slate-50 dark:bg-slate-800/60 hover:bg-slate-100 dark:hover:bg-slate-800 transition">
+              <div class="text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-1 flex justify-between">
+                <span>Response</span>
+                <span class="text-emerald-600 dark:text-emerald-400">${bState.a ? 'Hide' : 'Reveal 👁️'}</span>
+              </div>
+              <p class="font-display font-bold text-sm sm:text-base ${bState.a ? 'text-emerald-600 dark:text-emerald-400' : 'text-slate-400 dark:text-slate-500 tracking-wider'}">
+                ${bState.a ? item.answer : '???'}
+              </p>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function toggleBoardCard(wh, type) {
+      state.board[wh][type] = !state.board[wh][type];
+      renderBoardStage();
+    }
+
+    /* ==========================================================================
+       6. MODE 3: DETECTIVE / 6-WITNESS LOGIC
+       ========================================================================== */
+    function renderDetectiveStage() {
+      const slide = SENTENCES_DATA[state.currentSlide];
+
+      // Update Mystery Header Banner
+      document.getElementById('det-case-num').textContent = slide.id;
+      document.getElementById('slips-case-num').textContent = slide.id;
+      document.getElementById('det-cat-pill').textContent = slide.category;
+      document.getElementById('det-full-sentence-text').textContent = slide.fullSentence;
+
+      // Full Sentence Reveal Box Visibility
+      const revBox = document.getElementById('det-revealed-sentence-box');
+      const revBtnLabel = document.getElementById('det-reveal-btn-label');
+      if (state.detective.fullSentenceRevealed) {
+        revBox.classList.remove('hidden');
+        revBtnLabel.textContent = "Hide Target Sentence";
+      } else {
+        revBox.classList.add('hidden');
+        revBtnLabel.textContent = "Reveal Full Sentence";
+      }
+
+      // Count collected clues
+      const revealedCount = WH_KEYS.filter(k => state.detective.revealed[k]).length;
+      document.getElementById('det-evidence-count').textContent = `${revealedCount} / 6 Clues`;
+
+      // Render Live Evidence Strip Chips
+      const stripContainer = document.getElementById('det-evidence-strip');
+      stripContainer.innerHTML = WH_KEYS.map(wh => {
+        const isRev = state.detective.revealed[wh];
+        const theme = WH_THEMES[wh];
+        return `
+          <div class="h-8 rounded-lg flex items-center justify-center font-display font-bold text-[10px] sm:text-xs transition-all border ${isRev ? `${theme.bg} text-white border-transparent shadow-sm` : 'bg-slate-800/50 text-slate-500 border-slate-700/60'}" title="${wh}: ${isRev ? slide.items[wh].clue : 'Hidden'}">
+            ${wh} ${isRev ? '✓' : ''}
+          </div>
+        `;
+      }).join('');
+
+      // Update Guidance Status Badge
+      const guidanceBadge = document.getElementById('det-guidance-badge');
+      const unlockedPrimary = state.detective.revealed['WHO'] && state.detective.revealed['WHAT'];
+
+      if (revealedCount === 6) {
+        guidanceBadge.className = "px-3 py-1.5 rounded-lg bg-emerald-50 dark:bg-emerald-950/80 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800/60 font-semibold text-xs sm:text-sm flex items-center gap-2 animate-pulse-subtle";
+        guidanceBadge.innerHTML = `<span>🎉 All 6 Clues Collected! Detective: Speak the full sentence, then click Reveal!</span>`;
+      } else if (unlockedPrimary) {
+        guidanceBadge.className = "px-3 py-1.5 rounded-lg bg-indigo-50 dark:bg-indigo-950/80 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800/60 font-semibold text-xs sm:text-sm flex items-center gap-2";
+        guidanceBadge.innerHTML = `<span>✅ Subject & Action Unlocked! Ask WHERE, WHEN, WHY, HOW in any order</span>`;
+      } else {
+        guidanceBadge.className = "px-3 py-1.5 rounded-lg bg-amber-50 dark:bg-amber-950/80 text-amber-700 dark:text-amber-300 border border-amber-200 dark:border-amber-800/60 font-semibold text-xs sm:text-sm flex items-center gap-2";
+        guidanceBadge.innerHTML = `<span>🔍 Step 1: Unlock WHO & WHAT first to discover the subject and action</span>`;
+      }
+
+      // Render 6-Witness Cards Grid
+      const grid = document.getElementById('det-witness-grid');
+      grid.innerHTML = WH_KEYS.map((wh, idx) => {
+        const item = slide.items[wh];
+        const theme = WH_THEMES[wh];
+        const isRevealed = state.detective.revealed[wh];
+        const isHintShown = state.detective.hints[wh] || state.detective.showAllHints;
+        const witnessNum = idx + 1;
+        const isPrimary = (wh === 'WHO' || wh === 'WHAT');
+
+        return `
+          <div class="bg-white dark:bg-slate-900 rounded-2xl p-4 sm:p-5 border-2 ${isRevealed ? theme.border : 'border-slate-200 dark:border-slate-800'} shadow-sm flex flex-col justify-between transition-all space-y-3 relative group">
+            
+            <!-- Witness Header -->
+            <div class="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-2.5">
+              <div class="flex items-center gap-2">
+                <span class="w-6 h-6 rounded-lg ${theme.bg} text-white font-display font-extrabold text-xs flex items-center justify-center">
+                  ${witnessNum}
+                </span>
+                <span class="font-display font-extrabold text-xs sm:text-sm tracking-wider uppercase text-slate-800 dark:text-slate-200">
+                  Witness ${witnessNum} • ${wh}
+                </span>
+              </div>
+              <div class="flex items-center gap-1.5">
+                ${isPrimary && !isRevealed ? '<span class="text-[10px] font-bold px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-600 dark:text-amber-400">UNLOCK FIRST</span>' : ''}
+                ${!isPrimary && !unlockedPrimary ? '<span class="text-[10px] font-medium px-1.5 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-slate-400">ANY ORDER</span>' : ''}
+                <button onclick="toggleDetectiveHint('${wh}')" class="px-2 py-1 rounded-md text-[11px] font-semibold bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 transition" title="Toggle Question Hint">
+                  ? Hint
+                </button>
+              </div>
+            </div>
+
+            <!-- Question Hint Scaffold (If toggled) -->
+            ${isHintShown ? `
+              <div class="p-2.5 rounded-xl bg-indigo-50/80 dark:bg-indigo-950/60 border border-indigo-200 dark:border-indigo-800/50 text-indigo-900 dark:text-indigo-200 text-xs font-semibold animate-pop-in">
+                <span class="text-[10px] uppercase font-bold text-indigo-500 block mb-0.5">Detective Question Hint:</span>
+                "${item.detectivePrompt}"
+              </div>
+            ` : ''}
+
+            <!-- Main Clue Box (Click to toggle witness clue) -->
+            <div onclick="toggleDetectiveClue('${wh}')" class="cursor-pointer p-4 rounded-xl ${isRevealed ? theme.bgLight : 'bg-slate-50 dark:bg-slate-800/60'} hover:opacity-90 transition flex flex-col justify-center min-h-[90px] text-center border ${isRevealed ? theme.border : 'border-dashed border-slate-300 dark:border-slate-700'}">
+              <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-1">
+                ${isRevealed ? `Witness Clue Fragment (${wh})` : `Click to Reveal Clue (${wh})`}
+              </span>
+              <p class="font-display font-extrabold text-base sm:text-xl leading-snug ${isRevealed ? 'text-slate-900 dark:text-white animate-pop-in' : 'text-slate-400 dark:text-slate-500'}">
+                ${isRevealed ? `"${item.clue}"` : '🔒 Secret Clue'}
+              </p>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function toggleDetectiveClue(wh) {
+      state.detective.revealed[wh] = !state.detective.revealed[wh];
+      renderDetectiveStage();
+    }
+
+    function toggleDetectiveHint(wh) {
+      state.detective.hints[wh] = !state.detective.hints[wh];
+      renderDetectiveStage();
+    }
+
+    function toggleAllDetectiveHints() {
+      state.detective.showAllHints = !state.detective.showAllHints;
+      document.getElementById('det-all-hints-btn').textContent = state.detective.showAllHints ? "Hide Question Hints" : "Show Question Hints";
+      renderDetectiveStage();
+    }
+
+    function toggleDetectiveFullSentence() {
+      state.detective.fullSentenceRevealed = !state.detective.fullSentenceRevealed;
+      renderDetectiveStage();
+    }
+
+    function resetDetectiveCase() {
+      state.detective.revealed = { WHO: false, WHAT: false, WHERE: false, WHEN: false, WHY: false, HOW: false };
+      state.detective.hints = { WHO: false, WHAT: false, WHERE: false, WHEN: false, WHY: false, HOW: false };
+      state.detective.fullSentenceRevealed = false;
+      renderDetectiveStage();
+    }
+
+    /* ==========================================================================
+       7. WITNESS SLIPS MODAL (PEEK & PRINT CUT-OUTS)
+       ========================================================================== */
+    function setSlipsTab(tab) {
+      state.slipsTab = tab;
+      const peekBtn = document.getElementById('tab-btn-peek');
+      const printBtn = document.getElementById('tab-btn-print');
+      const peekContent = document.getElementById('tab-content-peek');
+      const printContent = document.getElementById('tab-content-print');
+
+      if (tab === 'peek') {
+        peekBtn.className = "px-4 py-2 border-b-2 border-indigo-600 text-indigo-600 dark:text-indigo-400 font-bold";
+        printBtn.className = "px-4 py-2 border-b-2 border-transparent text-slate-500 hover:text-slate-700 dark:hover:text-slate-300 font-bold";
+        peekContent.classList.remove('hidden');
+        printContent.classList.add('hidden');
+      } else {
+        printBtn.className = "px-4 py-2 border-b-2 border-indigo-600 text-indigo-600 dark:text-indigo-400 font-bold";
+        peekBtn.className = "px-4 py-2 border-b-2 border-transparent text-slate-500 hover:text-slate-700 dark:hover:text-slate-300 font-bold";
+        printContent.classList.remove('hidden');
+        peekContent.classList.add('hidden');
+        renderPrintSlipsPreview();
+      }
+    }
+
+    function renderWitnessSlipsModal() {
+      const slide = SENTENCES_DATA[state.currentSlide];
+
+      // Render Tab 1: Peek Grid
+      const peekGrid = document.getElementById('peek-witness-grid');
+      peekGrid.innerHTML = WH_KEYS.map((wh, idx) => {
+        const theme = WH_THEMES[wh];
+        const witnessNum = idx + 1;
+        return `
+          <button onclick="openSecretPeekModal('${wh}')" class="p-4 rounded-2xl border-2 ${theme.border} bg-white dark:bg-slate-800 hover:shadow-md transition text-left flex flex-col justify-between space-y-3">
+            <div class="flex items-center justify-between">
+              <span class="w-7 h-7 rounded-xl ${theme.bg} text-white font-display font-bold text-xs flex items-center justify-center">
+                W${witnessNum}
+              </span>
+              <span class="text-xs font-extrabold uppercase ${theme.text}">${wh}</span>
+            </div>
+            <div>
+              <h4 class="font-display font-bold text-sm text-slate-900 dark:text-white">Witness ${witnessNum} Clue Slip</h4>
+              <p class="text-[11px] text-slate-500">Tap to inspect secret fragment 👁️</p>
+            </div>
+          </button>
+        `;
+      }).join('');
+    }
+
+    function openSecretPeekModal(wh) {
+      const slide = SENTENCES_DATA[state.currentSlide];
+      const item = slide.items[wh];
+      const idx = WH_KEYS.indexOf(wh) + 1;
+
+      document.getElementById('secret-witness-role').textContent = `Witness ${idx} • ${wh}`;
+      document.getElementById('secret-clue-text').textContent = `"${item.clue}"`;
+
+      openModal('secretPeek');
+    }
+
+    function renderPrintSlipsPreview() {
+      const slide = SENTENCES_DATA[state.currentSlide];
+      const preview = document.getElementById('print-slips-preview');
+
+      preview.innerHTML = `
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          ${WH_KEYS.map((wh, idx) => {
+            const item = slide.items[wh];
+            return `
+              <div class="p-3 border-2 border-dashed border-slate-400 dark:border-slate-700 rounded-xl bg-white dark:bg-slate-900 text-slate-900 dark:text-white space-y-1">
+                <div class="flex justify-between items-center text-[10px] font-bold text-slate-400 uppercase">
+                  <span>Case #${slide.id} • Witness ${idx + 1}</span>
+                  <span class="text-indigo-600 dark:text-indigo-400">${wh}</span>
+                </div>
+                <p class="font-display font-extrabold text-sm text-indigo-600 dark:text-indigo-400 leading-snug">
+                  "${item.clue}"
+                </p>
+                <div class="text-[9px] text-slate-400 italic">
+                  Rule: Only share YOUR clue fragment!
+                </div>
+              </div>
+            `;
+          }).join('')}
+        </div>
+      `;
+    }
+
+    function triggerPrintSlips() {
+      const slide = SENTENCES_DATA[state.currentSlide];
+      const printContainer = document.getElementById('printable-slips-container');
+
+      printContainer.innerHTML = WH_KEYS.map((wh, idx) => {
+        const item = slide.items[wh];
+        return `
+          <div style="border: 2px dashed #334155; border-radius: 12px; padding: 16px; page-break-inside: avoid; background: #ffffff;">
+            <div style="display: flex; justify-content: space-between; font-size: 11px; font-weight: bold; text-transform: uppercase; color: #64748b; margin-bottom: 8px;">
+              <span>Wh-Question Rally • Case #${slide.id}</span>
+              <span>Witness ${idx + 1} (${wh})</span>
+            </div>
+            <div style="font-size: 20px; font-weight: 800; color: #0f172a; margin-bottom: 12px; line-height: 1.3;">
+              "${item.clue}"
+            </div>
+            <div style="font-size: 10px; color: #475569; border-top: 1px solid #e2e8f0; padding-top: 6px;">
+              <strong>Classroom Rule:</strong> Keep secret until asked your Wh-question!
+            </div>
+          </div>
+        `;
+      }).join('');
+
+      window.print();
+    }
+
+    /* ==========================================================================
+       8. GENERAL NAVIGATION, MODALS & UTILITIES
+       ========================================================================== */
+    function prevSlide() {
+      state.currentSlide = (state.currentSlide - 1 + SENTENCES_DATA.length) % SENTENCES_DATA.length;
+      resetSlideStates();
+      renderSlide();
+    }
+
+    function nextSlide() {
+      state.currentSlide = (state.currentSlide + 1) % SENTENCES_DATA.length;
+      resetSlideStates();
+      renderSlide();
+    }
+
+    function resetSlideStates() {
+      state.spotlight = { q: false, a: false };
+      state.board = {
+        WHO: { q: false, a: false }, WHAT: { q: false, a: false }, WHERE: { q: false, a: false },
+        WHEN: { q: false, a: false }, WHY: { q: false, a: false }, HOW: { q: false, a: false }
+      };
+      state.detective = {
+        revealed: { WHO: false, WHAT: false, WHERE: false, WHEN: false, WHY: false, HOW: false },
+        hints: { WHO: false, WHAT: false, WHERE: false, WHEN: false, WHY: false, HOW: false },
+        fullSentenceRevealed: false,
+        showAllHints: false
+      };
+    }
+
+    function toggleTargetSentence() {
+      state.targetSentenceVisible = !state.targetSentenceVisible;
+      const text = document.getElementById('target-sentence-text');
+      const label = document.getElementById('target-sentence-toggle-label');
+
+      if (state.targetSentenceVisible) {
+        text.classList.remove('memory-blurred');
+        label.textContent = "Hide Sentence";
+      } else {
+        text.classList.add('memory-blurred');
+        label.textContent = "Show Sentence";
+      }
+    }
+
+    function toggleMemoryBlur() {
+      state.memoryBlur = !state.memoryBlur;
+      const text = document.getElementById('target-sentence-text');
+      const btn = document.getElementById('blur-btn');
+
+      if (state.memoryBlur) {
+        text.classList.add('memory-blurred');
+        btn.classList.add('bg-indigo-600', 'text-white');
+      } else {
+        text.classList.remove('memory-blurred');
+        btn.classList.remove('bg-indigo-600', 'text-white');
+      }
+    }
+
+    function updateDockButtons() {
+      WH_KEYS.forEach(wh => {
+        const btn = document.getElementById(`dock-${wh}`);
+        const theme = WH_THEMES[wh];
+        if (wh === state.selectedWh && state.mode === 'spotlight') {
+          btn.className = `dock-btn py-2.5 sm:py-3 rounded-xl font-display font-extrabold text-xs sm:text-base tracking-wider uppercase transition-all shadow-md ${theme.bg} text-white ${theme.border}`;
+        } else {
+          btn.className = `dock-btn py-2.5 sm:py-3 rounded-xl font-display font-bold text-xs sm:text-base tracking-wider uppercase transition-all border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-800/80 text-slate-700 dark:text-slate-300 hover:border-slate-300 dark:hover:border-slate-700`;
+        }
+      });
+    }
+
+    /* Scoreboard Handler */
+    function updateScore(team, delta) {
+      state.scores[team] = Math.max(0, state.scores[team] + delta);
+      document.getElementById(`score-${team}`).textContent = state.scores[team];
+    }
+
+    function resetScores() {
+      state.scores = { a: 0, b: 0 };
+      document.getElementById('score-a').textContent = 0;
+      document.getElementById('score-b').textContent = 0;
+    }
+
+    /* Theme Toggle Handler */
+    function toggleDarkMode() {
+      state.isDark = !state.isDark;
+      const html = document.documentElement;
+      const icon = document.getElementById('theme-icon');
+      if (state.isDark) {
+        html.classList.add('dark');
+        icon.textContent = '🌙';
+      } else {
+        html.classList.remove('dark');
+        icon.textContent = '☀️';
+      }
+    }
+
+    /* Modals Handler */
+    function openModal(modalId) {
+      if (modalId === 'witnessSlips') {
+        renderWitnessSlipsModal();
+      }
+      document.getElementById(`modal-${modalId}`).classList.remove('hidden');
+    }
+
+    function closeModal(modalId) {
+      document.getElementById(`modal-${modalId}`).classList.add('hidden');
+    }
+
+    function initSlidePickerGrid() {
+      const container = document.getElementById('slide-picker-grid');
+      container.innerHTML = SENTENCES_DATA.map((slide, idx) => `
+        <button onclick="selectSlideFromPicker(${idx})" class="p-3.5 rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/60 hover:bg-indigo-50 dark:hover:bg-indigo-950/40 hover:border-indigo-500/50 transition text-left space-y-1 group">
+          <div class="flex items-center justify-between text-xs font-bold">
+            <span class="text-indigo-600 dark:text-indigo-400">Slide ${slide.id}</span>
+            <span class="text-[10px] uppercase px-2 py-0.5 rounded bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-300">${slide.category}</span>
+          </div>
+          <p class="font-display font-semibold text-xs sm:text-sm text-slate-800 dark:text-slate-200 line-clamp-2 group-hover:text-indigo-600 dark:group-hover:text-indigo-400">
+            ${slide.fullSentence}
+          </p>
+        </button>
+      `).join('');
+    }
+
+    function selectSlideFromPicker(idx) {
+      state.currentSlide = idx;
+      resetSlideStates();
+      renderSlide();
+      closeModal('slidePicker');
+    }
+
+    /* Random Wh Spinner Wheel */
+    function spinWhWheel() {
+      const display = document.getElementById('spinner-display');
+      const subtext = document.getElementById('spinner-subtext');
+      const keys = WH_KEYS;
+
+      let spins = 0;
+      const interval = setInterval(() => {
+        const randKey = keys[Math.floor(Math.random() * keys.length)];
+        display.textContent = randKey;
+        spins++;
+        if (spins > 15) {
+          clearInterval(interval);
+          const finalWh = keys[Math.floor(Math.random() * keys.length)];
+          display.textContent = finalWh;
+          subtext.textContent = `Selected: ${finalWh}! Ask a ${finalWh} question for your team!`;
+        }
+      }, 70);
+    }
+
+    /* Keyboard Shortcuts */
+    function setupKeyboardShortcuts() {
+      document.addEventListener('keydown', (e) => {
+        // Prevent keybinds when typing in inputs
+        if (['INPUT', 'TEXTAREA'].includes(document.activeElement.tagName)) return;
+
+        if (e.key === 'ArrowRight') {
+          nextSlide();
+        } else if (e.key === 'ArrowLeft') {
+          prevSlide();
+        } else if (e.key === 'd' || e.key === 'D') {
+          const modes = ['spotlight', 'board', 'detective'];
+          const nextIndex = (modes.indexOf(state.mode) + 1) % modes.length;
+          setMode(modes[nextIndex]);
+        } else if (e.key >= '1' && e.key <= '6') {
+          const idx = parseInt(e.key) - 1;
+          const wh = WH_KEYS[idx];
+
+          if (state.mode === 'spotlight') {
+            selectWh(wh);
+          } else if (state.mode === 'detective') {
+            toggleDetectiveClue(wh);
+          }
+        } else if (e.code === 'Space') {
+          e.preventDefault();
+          if (state.mode === 'spotlight') {
+            if (!state.spotlight.q) state.spotlight.q = true;
+            else if (!state.spotlight.a) state.spotlight.a = true;
+            else { state.spotlight = { q: false, a: false }; }
+            renderSpotlightStage();
+          } else if (state.mode === 'detective') {
+            toggleDetectiveFullSentence();
+          }
+        }
+      });
+    }
+  </script>
+</body>
+</html>
