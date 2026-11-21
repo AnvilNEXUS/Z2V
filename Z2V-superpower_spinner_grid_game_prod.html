@@ -1,0 +1,1478 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Superpower Spinner Grid - EFL Classroom Game</title>
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'system-ui', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'sans-serif'],
+          },
+          colors: {
+            brand: {
+              50: '#eef2ff',
+              100: '#e0e7ff',
+              500: '#6366f1',
+              600: '#4f46e5',
+              700: '#4338ca',
+            }
+          },
+          animation: {
+            'bounce-short': 'bounceShort 0.3s ease-in-out',
+            'pulse-glow': 'pulseGlow 2s infinite',
+            'pop-in': 'popIn 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275)'
+          },
+          keyframes: {
+            bounceShort: {
+              '0%, 100%': { transform: 'translateY(0)' },
+              '50%': { transform: 'translateY(-6px)' }
+            },
+            pulseGlow: {
+              '0%, 100%': { boxShadow: '0 0 15px rgba(99, 102, 241, 0.4)' },
+              '50%': { boxShadow: '0 0 25px rgba(99, 102, 241, 0.8)' }
+            },
+            popIn: {
+              '0%': { opacity: '0', transform: 'scale(0.85)' },
+              '100%': { opacity: '1', transform: 'scale(1)' }
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    /* Custom scrollbars for clean UI */
+    ::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+    }
+    ::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: rgba(156, 163, 175, 0.5);
+      border-radius: 9999px;
+    }
+    .dark ::-webkit-scrollbar-thumb {
+      background: rgba(75, 85, 99, 0.6);
+    }
+    /* Touch target optimizations */
+    .touch-target {
+      min-height: 48px;
+      min-width: 48px;
+    }
+  </style>
+</head>
+<body class="bg-slate-100 dark:bg-slate-900 text-slate-800 dark:text-slate-100 min-h-screen font-sans antialiased transition-colors duration-200 selection:bg-indigo-500 selection:text-white flex flex-col justify-between overflow-x-hidden">
+
+  <!-- ================= TOP HEADER BAR ================= -->
+  <header class="sticky top-0 z-30 bg-white/90 dark:bg-slate-800/90 backdrop-blur-md border-b border-slate-200 dark:border-slate-700/80 px-4 py-2.5 shadow-sm">
+    <div class="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-3">
+      
+      <!-- Logo & Title -->
+      <div class="flex items-center gap-3">
+        <div class="bg-gradient-to-tr from-indigo-600 to-violet-500 text-white p-2.5 rounded-2xl shadow-lg flex items-center justify-center">
+          <svg class="w-6 h-6 sm:w-7 sm:h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 10V3L4 14h7v7l9-11h-7z" />
+          </svg>
+        </div>
+        <div>
+          <h1 class="text-xl sm:text-2xl font-black tracking-tight bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-500 dark:from-indigo-400 dark:via-purple-300 dark:to-pink-400 bg-clip-text text-transparent">
+            SUPERPOWER SPINNER GRID
+          </h1>
+          <p class="text-xs font-semibold text-slate-500 dark:text-slate-400 flex items-center gap-1.5">
+            <span>EFL Speaking & Matrix Game</span>
+            <span class="inline-block w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+            <span id="levelIndicator" class="uppercase text-indigo-600 dark:text-indigo-400 font-bold">A1 LEVEL</span>
+          </p>
+        </div>
+      </div>
+
+      <!-- Action & Controls Bar -->
+      <div class="flex items-center flex-wrap gap-2">
+        
+        <!-- CEFR Level Toggle Button -->
+        <button id="levelToggleBtn" onclick="toggleCEFRLevel()" title="Switch Level (A1 / A2)" class="px-3.5 py-2 rounded-xl text-sm font-bold border-2 transition flex items-center gap-1.5 border-indigo-500/30 bg-indigo-50 dark:bg-indigo-950/50 text-indigo-700 dark:text-indigo-300 hover:bg-indigo-100 dark:hover:bg-indigo-900/60 active:scale-95">
+          <span class="text-xs uppercase opacity-75">Level:</span>
+          <span id="levelBtnBadge" class="bg-indigo-600 text-white px-2 py-0.5 rounded-md font-black">A1</span>
+        </button>
+
+        <!-- Add Skill Button -->
+        <button onclick="openSkillsModal()" class="px-3.5 py-2 rounded-xl text-sm font-bold bg-purple-600 hover:bg-purple-700 text-white shadow-md hover:shadow-lg transition active:scale-95 flex items-center gap-1.5">
+          <span class="text-lg leading-none">+</span>
+          <span class="hidden sm:inline">Add Skill</span>
+        </button>
+
+        <!-- Manage Students Button -->
+        <button onclick="openSetupModal()" class="px-3.5 py-2 rounded-xl text-sm font-bold bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 transition active:scale-95 flex items-center gap-1.5">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" /></svg>
+          <span class="hidden sm:inline">Students</span>
+        </button>
+
+        <!-- Mute Sound Toggle -->
+        <button id="audioToggleBtn" onclick="toggleAudio()" title="Toggle Sound SFX" class="p-2.5 rounded-xl border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 transition active:scale-95">
+          <svg id="soundOnIcon" class="w-5 h-5 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" /></svg>
+          <svg id="soundOffIcon" class="w-5 h-5 text-slate-400 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15zM17 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2" /></svg>
+        </button>
+
+        <!-- Dark/Light Theme Toggle -->
+        <button id="themeToggleBtn" onclick="toggleTheme()" title="Toggle Dark/Light Mode" class="p-2.5 rounded-xl border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-amber-500 dark:text-amber-400 hover:bg-slate-100 dark:hover:bg-slate-700 transition active:scale-95">
+          <svg id="sunIcon" class="w-5 h-5 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" /></svg>
+          <svg id="moonIcon" class="w-5 h-5 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" /></svg>
+        </button>
+
+        <!-- Mode View Toggle (Summary Mode vs Spinner Mode) -->
+        <button id="modeToggleBtn" onclick="toggleSummaryMode()" class="px-4 py-2 rounded-xl text-sm font-extrabold bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white shadow-md hover:shadow-lg transition transform active:scale-95 flex items-center gap-2 ml-1">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h55.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
+          <span id="modeBtnText">Summary Mode</span>
+        </button>
+
+      </div>
+    </div>
+  </header>
+
+  <!-- ================= MAIN CONTENT AREA ================= -->
+  <main class="flex-1 max-w-7xl w-full mx-auto p-3 sm:p-5 flex flex-col justify-start gap-4">
+    
+    <!-- STANDARD GAME VIEW (SPLIT 60 / 40 LAYOUT) -->
+    <div id="spinnerGameView" class="w-full grid grid-cols-1 lg:grid-cols-12 gap-5 items-start">
+      
+      <!-- LEFT 60%: SPINNER STAGE -->
+      <section class="lg:col-span-7 flex flex-col items-center bg-white dark:bg-slate-800 rounded-3xl p-4 sm:p-6 shadow-xl border border-slate-200 dark:border-slate-700/70 relative overflow-hidden min-h-[520px] justify-between">
+        
+        <!-- Spinner Header & Pointer -->
+        <div class="w-full flex flex-col items-center relative">
+          
+          <div class="flex items-center justify-between w-full mb-2">
+            <span class="text-xs font-black uppercase tracking-wider px-3 py-1 bg-slate-100 dark:bg-slate-700/70 text-slate-500 dark:text-slate-300 rounded-full">
+              🎯 Superpower Wheel
+            </span>
+            <span class="text-xs font-bold text-slate-400 dark:text-slate-500">Press <kbd class="px-1.5 py-0.5 bg-slate-200 dark:bg-slate-700 rounded text-slate-700 dark:text-slate-200">Space</kbd> to spin</span>
+          </div>
+
+          <!-- Wheel Pointer Arrow -->
+          <div class="relative z-20 -mb-5">
+            <div id="wheelNeedle" class="w-10 h-12 text-rose-500 dark:text-rose-400 drop-shadow-md transition-transform duration-75 origin-top">
+              <svg viewBox="0 0 40 50" fill="currentColor">
+                <polygon points="20,50 0,0 40,0" />
+              </svg>
+            </div>
+          </div>
+
+          <!-- Spinner Canvas Container -->
+          <div class="relative flex items-center justify-center p-2">
+            <canvas id="wheelCanvas" width="460" height="460" class="w-full max-w-[400px] sm:max-w-[440px] h-auto drop-shadow-2xl cursor-pointer transition-transform duration-300 hover:scale-[1.01]"></canvas>
+            
+            <!-- Center Spin Button Badge -->
+            <button onclick="spinWheel()" id="centerSpinBtn" class="absolute z-10 w-20 h-20 sm:w-24 sm:h-24 rounded-full bg-gradient-to-tr from-indigo-600 via-purple-600 to-pink-500 text-white font-black text-xl sm:text-2xl shadow-2xl border-4 border-white dark:border-slate-800 flex items-center justify-center hover:scale-105 active:scale-95 transition tracking-wider">
+              SPIN!
+            </button>
+          </div>
+
+        </div>
+
+        <!-- WINNING CARD POPUP / BANNER -->
+        <div id="winningCard" class="w-full mt-4 bg-gradient-to-r from-slate-900 via-indigo-950 to-purple-950 border-2 border-indigo-500/50 rounded-2xl p-5 shadow-2xl animate-pop-in hidden relative overflow-hidden">
+          
+          <div class="flex flex-col sm:flex-row items-center justify-between gap-4">
+            
+            <!-- Skill Emoji + Phrase Display -->
+            <div class="flex items-center gap-4 text-center sm:text-left">
+              <div id="winEmoji" class="text-4xl sm:text-5xl p-3.5 bg-slate-800/90 border border-slate-700/80 rounded-2xl shadow-xl flex items-center justify-center shrink-0 w-16 h-16 sm:w-20 sm:h-20">
+                🎤
+              </div>
+              <div>
+                <span class="text-xs font-black uppercase text-indigo-400 tracking-wider block">SELECTED SKILL</span>
+                <h2 id="winSkillName" class="text-3xl sm:text-4xl font-black text-white capitalize leading-tight tracking-tight">
+                  Sing A Song
+                </h2>
+              </div>
+            </div>
+
+            <!-- Student Pair Randomizer Widget -->
+            <div class="bg-slate-800/80 backdrop-blur border border-slate-700/80 p-2.5 rounded-2xl flex items-center gap-3 shadow-inner">
+              <button onclick="pickRandomPair()" title="Pick random student pair" class="px-3 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl font-black text-xs sm:text-sm flex items-center gap-1.5 transition active:scale-95 shrink-0">
+                <span>🎲 Pick Pair:</span>
+              </button>
+              <div id="pairDisplay" class="font-black text-white text-sm sm:text-base pr-1">
+                <span class="text-indigo-400">Lan</span> <span class="text-slate-400 text-xs mx-0.5">➡️ asks ➡️</span> <span class="text-purple-400">Nam</span>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- Dismiss Card Link -->
+          <div class="mt-3 flex justify-end">
+            <button onclick="dismissWinningCard()" class="text-xs font-black text-slate-400 hover:text-white transition underline">
+              Dismiss Card ✕
+            </button>
+          </div>
+
+        </div>
+
+      </section>
+
+      <!-- RIGHT 40%: LIVE CLASS MATRIX -->
+      <section class="lg:col-span-5 bg-white dark:bg-slate-800 rounded-3xl p-4 sm:p-5 shadow-xl border border-slate-200 dark:border-slate-700/70 flex flex-col justify-between min-h-[520px]">
+        
+        <div>
+          <!-- Matrix Title & Helper Info -->
+          <div class="flex items-center justify-between mb-3 border-b border-slate-100 dark:border-slate-700 pb-2">
+            <div>
+              <h2 class="text-lg font-black text-slate-800 dark:text-white flex items-center gap-2">
+                <span>📋 Class Skill Matrix</span>
+              </h2>
+              <p class="text-xs text-slate-500 dark:text-slate-400">Click cell: Empty ➔ <span class="text-emerald-600 font-bold">✓ CAN</span> ➔ <span class="text-rose-600 font-bold">✕ CAN'T</span></p>
+            </div>
+            <button onclick="openSkillsModal()" class="text-xs font-extrabold bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 px-2.5 py-1.5 rounded-lg transition">
+              + Skill Column
+            </button>
+          </div>
+
+          <!-- Matrix Table Container -->
+          <div class="overflow-x-auto max-h-[460px]">
+            <table class="w-full border-collapse text-left">
+              <thead>
+                <tr class="border-b-2 border-slate-200 dark:border-slate-700">
+                  <th class="p-2 sm:p-3 text-xs sm:text-sm font-black text-slate-600 dark:text-slate-300 uppercase tracking-wider sticky left-0 bg-white dark:bg-slate-800 z-10 min-w-[100px]">
+                    Student
+                  </th>
+                  <!-- Dynamic Skill Headers will populate here -->
+                  <th id="skillsHeaderContainer" class="p-0">
+                    <div id="skillsHeaderRow" class="flex items-center gap-1.5"></div>
+                  </th>
+                </tr>
+              </thead>
+              <tbody id="matrixTableBody" class="divide-y divide-slate-100 dark:divide-slate-700/50">
+                <!-- Dynamic Student Rows will populate here -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Bottom Matrix Progress Tracker -->
+        <div class="mt-4 pt-3 border-t border-slate-100 dark:border-slate-700 flex items-center justify-between text-xs text-slate-500 dark:text-slate-400">
+          <div class="flex items-center gap-1.5">
+            <span class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span>
+            <span>Target: 2 responses per student</span>
+          </div>
+          <button onclick="resetMatrixData()" class="text-rose-500 hover:text-rose-600 font-bold underline">
+            Reset Matrix
+          </button>
+        </div>
+
+      </section>
+
+    </div>
+
+    <!-- SUMMARY MODE FULL-SCREEN VIEW -->
+    <div id="summaryModeView" class="w-full flex-col gap-6 hidden">
+      
+      <!-- Speaking Frame Banner -->
+      <section class="w-full bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 rounded-3xl p-6 shadow-2xl text-white relative overflow-hidden">
+        
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div>
+            <span class="px-3 py-1 bg-white/20 rounded-full text-xs font-black uppercase tracking-wider text-indigo-100">
+              🗣️ Speaking Wrap-Up
+            </span>
+            <h2 class="text-2xl sm:text-4xl font-black tracking-tight mt-1">
+              Classroom Summary Practice
+            </h2>
+            <p class="text-sm font-semibold text-indigo-100 mt-1">
+              Have students report using 3rd-person contrast sentences: <span class="font-extrabold text-white">"[Name] can ..., and [Name] can't ..."</span>
+            </p>
+          </div>
+          <div class="flex items-center gap-3 shrink-0">
+            <button onclick="pickRandomSpeaker()" class="px-5 py-3 bg-yellow-400 hover:bg-yellow-300 text-slate-900 font-black rounded-2xl shadow-xl transition transform active:scale-95 flex items-center gap-2 text-base">
+              <span>🎲 Pick Speaker</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Speaker Highlight Display -->
+        <div id="speakerHighlightBox" class="mt-4 bg-slate-900/60 backdrop-blur border border-white/20 p-4 rounded-2xl flex items-center justify-between gap-4 hidden animate-pop-in">
+          <div class="flex items-center gap-3">
+            <span class="text-3xl">🎙️</span>
+            <div>
+              <span class="text-xs font-black uppercase text-yellow-300">Selected Speaker</span>
+              <div id="speakerNameText" class="text-xl sm:text-2xl font-black text-white">
+                Lan
+              </div>
+            </div>
+          </div>
+          <span class="text-xs font-bold text-slate-300">Click any student row to highlight custom selection</span>
+        </div>
+
+      </section>
+
+      <!-- EXPANDED FULL-WIDTH MATRIX TABLE -->
+      <section class="w-full bg-white dark:bg-slate-800 rounded-3xl p-6 shadow-2xl border border-slate-200 dark:border-slate-700/80 overflow-x-auto">
+        <h3 class="text-xl font-black text-slate-800 dark:text-white mb-4 flex items-center justify-between">
+          <span>📊 Full Class Skill Matrix</span>
+          <span class="text-xs font-semibold text-slate-400">Click any student cell to update live</span>
+        </h3>
+        <table class="w-full border-collapse text-left">
+          <thead>
+            <tr class="border-b-2 border-slate-300 dark:border-slate-700">
+              <th class="p-3 sm:p-4 text-base sm:text-xl font-black text-slate-700 dark:text-slate-200 uppercase min-w-[140px]">
+                Student
+              </th>
+              <th id="summaryHeaderContainer" class="p-0">
+                <div id="summaryHeaderRow" class="flex items-center gap-2"></div>
+              </th>
+            </tr>
+          </thead>
+          <tbody id="summaryTableBody" class="divide-y divide-slate-200 dark:divide-slate-700">
+            <!-- Dynamic Summary Rows -->
+          </tbody>
+        </table>
+      </section>
+
+    </div>
+
+  </main>
+
+  <!-- ================= MODAL 1: GAME SETUP (STUDENTS & LEVEL) ================= -->
+  <div id="setupModal" class="fixed inset-0 z-50 bg-slate-900/80 backdrop-blur-sm flex items-center justify-center p-4 hidden">
+    <div class="bg-white dark:bg-slate-800 rounded-3xl p-6 sm:p-8 max-w-lg w-full shadow-2xl border border-slate-200 dark:border-slate-700 animate-pop-in">
+      
+      <div class="flex items-center justify-between mb-5 border-b border-slate-100 dark:border-slate-700 pb-3">
+        <h2 class="text-2xl font-black text-slate-900 dark:text-white flex items-center gap-2">
+          <span>⚙️ Classroom Setup</span>
+        </h2>
+        <button onclick="closeSetupModal()" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 text-xl font-bold">✕</button>
+      </div>
+
+      <!-- Step 1: Number of Students -->
+      <div class="mb-5">
+        <label class="block text-sm font-extrabold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-2">
+          1. Number of Students (2 to 8)
+        </label>
+        <div class="grid grid-cols-7 gap-2" id="numStudentsSelector">
+          <!-- Buttons 2 through 8 populated dynamically -->
+        </div>
+      </div>
+
+      <!-- Step 2: Level Selection -->
+      <div class="mb-5">
+        <label class="block text-sm font-extrabold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-2">
+          2. Select CEFR Level
+        </label>
+        <div class="grid grid-cols-2 gap-3">
+          <button id="modalLevelA1" onclick="setModalLevel('A1')" class="p-3 rounded-2xl border-2 font-black text-center transition flex flex-col items-center gap-1 border-indigo-600 bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400">
+            <span class="text-lg">A1 Beginner</span>
+            <span class="text-xs font-normal opacity-80">Simple everyday skills</span>
+          </button>
+          <button id="modalLevelA2" onclick="setModalLevel('A2')" class="p-3 rounded-2xl border-2 font-black text-center transition flex flex-col items-center gap-1 border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400">
+            <span class="text-lg">A2 Elementary</span>
+            <span class="text-xs font-normal opacity-80">Higher challenge skills</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Step 3: Student Names Input Fields -->
+      <div class="mb-6">
+        <label class="block text-sm font-extrabold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-2">
+          3. Student Names
+        </label>
+        <div id="studentInputsContainer" class="grid grid-cols-2 gap-2.5 max-h-48 overflow-y-auto p-1">
+          <!-- Dynamic name inputs -->
+        </div>
+      </div>
+
+      <!-- Start Button -->
+      <button onclick="applySetupChanges()" class="w-full py-3.5 bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 hover:from-indigo-700 hover:to-pink-700 text-white font-black text-lg rounded-2xl shadow-xl transition transform active:scale-95">
+        🚀 Save & Start Game
+      </button>
+
+    </div>
+  </div>
+
+  <!-- ================= MODAL 2: ADD / EDIT SKILLS MANAGER ================= -->
+  <div id="skillsModal" class="fixed inset-0 z-50 bg-slate-900/80 backdrop-blur-sm flex items-center justify-center p-4 hidden">
+    <div class="bg-white dark:bg-slate-800 rounded-3xl p-6 sm:p-8 max-w-lg w-full shadow-2xl border border-slate-200 dark:border-slate-700 animate-pop-in">
+      
+      <div class="flex items-center justify-between mb-4 border-b border-slate-100 dark:border-slate-700 pb-3">
+        <h2 class="text-2xl font-black text-slate-900 dark:text-white flex items-center gap-2">
+          <span>✨ Manage Wheel Skills</span>
+        </h2>
+        <button onclick="closeSkillsModal()" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 text-xl font-bold">✕</button>
+      </div>
+
+      <!-- Add New Skill Form -->
+      <form onsubmit="handleAddNewSkill(event)" class="mb-6 bg-slate-50 dark:bg-slate-900/60 p-4 rounded-2xl border border-slate-200 dark:border-slate-700">
+        <label class="block text-xs font-black uppercase text-indigo-600 dark:text-indigo-400 mb-2">
+          Add New Class Skill
+        </label>
+        <div class="flex items-center gap-2 mb-3">
+          <input type="text" id="newEmojiInput" maxlength="3" value="⭐" class="w-14 p-2.5 text-center text-xl font-bold rounded-xl border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-500" />
+          <input type="text" id="newVerbInput" placeholder="e.g. play chess, speak French" required class="flex-1 p-2.5 text-sm font-bold rounded-xl border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-500" />
+          <button type="submit" class="px-4 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl text-sm transition">
+            Add
+          </button>
+        </div>
+
+        <!-- Quick Emoji Picker Options -->
+        <div class="flex flex-wrap gap-1.5 pt-1">
+          <span class="text-xs font-semibold text-slate-400 self-center mr-1">Quick:</span>
+          <button type="button" onclick="setNewEmoji('🎸')" class="p-1 hover:bg-slate-200 dark:hover:bg-slate-700 rounded text-base">🎸</button>
+          <button type="button" onclick="setNewEmoji('🏀')" class="p-1 hover:bg-slate-200 dark:hover:bg-slate-700 rounded text-base">🏀</button>
+          <button type="button" onclick="setNewEmoji('🎨')" class="p-1 hover:bg-slate-200 dark:hover:bg-slate-700 rounded text-base">🎨</button>
+          <button type="button" onclick="setNewEmoji('🛹')" class="p-1 hover:bg-slate-200 dark:hover:bg-slate-700 rounded text-base">🛹</button>
+          <button type="button" onclick="setNewEmoji('💃')" class="p-1 hover:bg-slate-200 dark:hover:bg-slate-700 rounded text-base">💃</button>
+          <button type="button" onclick="setNewEmoji('🧘')" class="p-1 hover:bg-slate-200 dark:hover:bg-slate-700 rounded text-base">🧘</button>
+          <button type="button" onclick="setNewEmoji('🚗')" class="p-1 hover:bg-slate-200 dark:hover:bg-slate-700 rounded text-base">🚗</button>
+        </div>
+      </form>
+
+      <!-- Active Wheel Slices List -->
+      <div class="mb-4">
+        <div class="flex items-center justify-between mb-2">
+          <span class="text-xs font-black uppercase text-slate-500 dark:text-slate-400">Current Wheel Slices (<span id="skillCount">8</span>)</span>
+          <button onclick="resetSkillsToDefault()" class="text-xs text-indigo-600 dark:text-indigo-400 font-bold hover:underline">
+            Reset to Level Defaults
+          </button>
+        </div>
+        <div id="activeSkillsList" class="max-h-48 overflow-y-auto space-y-1.5 pr-1">
+          <!-- Dynamic list items with delete options -->
+        </div>
+      </div>
+
+      <div class="flex justify-end pt-2 border-t border-slate-100 dark:border-slate-700">
+        <button onclick="closeSkillsModal()" class="px-5 py-2 bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600 text-slate-800 dark:text-slate-200 font-bold rounded-xl text-sm transition">
+          Done
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Footer Info -->
+  <footer class="py-2 px-4 text-center text-xs font-semibold text-slate-400 dark:text-slate-600">
+    Superpower Spinner Grid • Designed for Classroom Interactive Displays
+  </footer>
+
+
+  <!-- ================= JAVASCRIPT LOGIC ================= -->
+  <script>
+    /* ================= 1. STATE & DATA CONFIGURATION ================= */
+    
+    // Default Skill Sets
+    const DEFAULT_SKILLS = {
+      A1: [
+        { id: 'a1_1', verb: 'cook rice', emoji: '🍚' },
+        { id: 'a1_2', verb: 'swim', emoji: '🏊' },
+        { id: 'a1_3', verb: 'ride a bike', emoji: '🚲' },
+        { id: 'a1_4', verb: 'draw a cat', emoji: '🐱' },
+        { id: 'a1_5', verb: 'sing a song', emoji: '🎤' },
+        { id: 'a1_6', verb: 'whistle', emoji: '😗' },
+        { id: 'a1_7', verb: 'play football', emoji: '⚽' },
+        { id: 'a1_8', verb: 'dance', emoji: '💃' }
+      ],
+      A2: [
+        { id: 'a2_1', verb: 'ride a motorbike', emoji: '🛵' },
+        { id: 'a2_2', verb: 'cook noodles', emoji: '🍜' },
+        { id: 'a2_3', verb: 'skateboard', emoji: '🛹' },
+        { id: 'a2_4', verb: 'play guitar', emoji: '🎸' },
+        { id: 'a2_5', verb: 'bake a cake', emoji: '🎂' },
+        { id: 'a2_6', verb: 'juggle', emoji: '🤹' },
+        { id: 'a2_7', verb: 'do a magic trick', emoji: '🪄' },
+        { id: 'a2_8', verb: 'speak two languages', emoji: '🗣️' }
+      ]
+    };
+
+    // Pre-filled student defaults
+    const DEFAULT_NAMES = ['Lan', 'Nam', 'Mai', 'Minh', 'Linh', 'Khoa', 'Vy', 'Huy'];
+
+    // Distinct slice color palette for spinner
+    const SLICE_COLORS = [
+      '#4f46e5', '#059669', '#d97706', '#dc2626', '#0284c7', 
+      '#7c3aed', '#db2777', '#65a30d', '#0891b2', '#ea580c', 
+      '#4338ca', '#15803d', '#b45309', '#be123c'
+    ];
+
+    // Global Game State
+    let state = {
+      level: 'A1',
+      students: ['Lan', 'Nam', 'Mai', 'Minh'],
+      activeSkills: [...DEFAULT_SKILLS.A1],
+      revealedSkillIds: [], // skills that have been spun or logged
+      matrix: {}, // key: `${studentIndex}_${skillId}` -> 'can' | 'cant' | undefined
+      activeColumnId: null, // currently spun skill highlight
+      activePair: { studentA: null, studentB: null },
+      activeSpeakerIndex: null,
+      summaryMode: false,
+      isAudioMuted: false,
+      isSpinning: false,
+      wheelAngle: 0,
+      activeModalLevel: 'A1',
+      tempNumStudents: 4
+    };
+
+    /* ================= 2. WEB AUDIO API SYNTHESIZER ================= */
+    let audioCtx = null;
+
+    function getAudioContext() {
+      if (!audioCtx) {
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      }
+      if (audioCtx.state === 'suspended') {
+        audioCtx.resume();
+      }
+      return audioCtx;
+    }
+
+    function playTickSFX() {
+      if (state.isAudioMuted) return;
+      try {
+        const ctx = getAudioContext();
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(600, ctx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(150, ctx.currentTime + 0.03);
+        gain.gain.setValueAtTime(0.15, ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.03);
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start();
+        osc.stop(ctx.currentTime + 0.03);
+      } catch (e) {}
+    }
+
+    function playWinSFX() {
+      if (state.isAudioMuted) return;
+      try {
+        const ctx = getAudioContext();
+        const notes = [523.25, 659.25, 783.99, 1046.50]; // C5, E5, G5, C6
+        notes.forEach((freq, idx) => {
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.type = 'sine';
+          osc.frequency.value = freq;
+          gain.gain.setValueAtTime(0.2, ctx.currentTime + idx * 0.08);
+          gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + idx * 0.08 + 0.25);
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          osc.start(ctx.currentTime + idx * 0.08);
+          osc.stop(ctx.currentTime + idx * 0.08 + 0.25);
+        });
+      } catch (e) {}
+    }
+
+    function playCanPopSFX() {
+      if (state.isAudioMuted) return;
+      try {
+        const ctx = getAudioContext();
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(400, ctx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(800, ctx.currentTime + 0.08);
+        gain.gain.setValueAtTime(0.25, ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.08);
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start();
+        osc.stop(ctx.currentTime + 0.08);
+      } catch (e) {}
+    }
+
+    function playCantPopSFX() {
+      if (state.isAudioMuted) return;
+      try {
+        const ctx = getAudioContext();
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(240, ctx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(120, ctx.currentTime + 0.1);
+        gain.gain.setValueAtTime(0.2, ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.1);
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start();
+        osc.stop(ctx.currentTime + 0.1);
+      } catch (e) {}
+    }
+
+    /* ================= 3. CANVAS SPINNER WHEEL ================= */
+    let lastSliceIdx = -1;
+
+    function drawWheel() {
+      const canvas = document.getElementById('wheelCanvas');
+      if (!canvas) return;
+      const ctx = canvas.getContext('2d');
+      const width = canvas.width;
+      const height = canvas.height;
+      const centerX = width / 2;
+      const centerY = height / 2;
+      const radius = width / 2 - 12;
+
+      ctx.clearRect(0, 0, width, height);
+
+      const numSlices = state.activeSkills.length;
+      if (numSlices === 0) return;
+      const sliceAngle = (2 * Math.PI) / numSlices;
+
+      ctx.save();
+      ctx.translate(centerX, centerY);
+      ctx.rotate(state.wheelAngle);
+
+      // Render Slices
+      for (let i = 0; i < numSlices; i++) {
+        const startAngle = i * sliceAngle;
+        const endAngle = startAngle + sliceAngle;
+
+        // Draw slice wedge
+        ctx.beginPath();
+        ctx.moveTo(0, 0);
+        ctx.arc(0, 0, radius, startAngle, endAngle);
+        ctx.closePath();
+        ctx.fillStyle = SLICE_COLORS[i % SLICE_COLORS.length];
+        ctx.fill();
+        ctx.lineWidth = 3;
+        ctx.strokeStyle = '#ffffff';
+        ctx.stroke();
+
+        // Draw Label & Emoji inside slice
+        ctx.save();
+        ctx.rotate(startAngle + sliceAngle / 2);
+        ctx.textAlign = 'right';
+        ctx.textBaseline = 'middle';
+        ctx.fillStyle = '#ffffff';
+
+        const skill = state.activeSkills[i];
+        
+        // Font sizing based on slice count
+        const fontSize = numSlices > 10 ? 14 : 16;
+        ctx.font = `bold ${fontSize}px Inter, sans-serif`;
+        
+        // Render verb string & emoji
+        const text = skill.verb;
+        const emoji = skill.emoji;
+        
+        ctx.fillText(text, radius - 45, 0);
+        ctx.font = '24px sans-serif';
+        ctx.fillText(emoji, radius - 15, 0);
+
+        ctx.restore();
+      }
+
+      ctx.restore();
+
+      // Outer Wheel Ring Shadow Effect
+      ctx.beginPath();
+      ctx.arc(centerX, centerY, radius, 0, 2 * Math.PI);
+      ctx.lineWidth = 8;
+      ctx.strokeStyle = 'rgba(255, 255, 255, 0.4)';
+      ctx.stroke();
+    }
+
+    function spinWheel() {
+      if (state.isSpinning || state.activeSkills.length === 0) return;
+      getAudioContext();
+
+      state.isSpinning = true;
+      document.getElementById('centerSpinBtn').disabled = true;
+      dismissWinningCard();
+
+      const numSlices = state.activeSkills.length;
+      const sliceAngle = (2 * Math.PI) / numSlices;
+      
+      // Random target angle (minimum 5 full spins = 10 * PI)
+      const extraSpins = 5 + Math.random() * 3;
+      const targetRotation = state.wheelAngle + (extraSpins * 2 * Math.PI) + (Math.random() * 2 * Math.PI);
+      
+      const startAngle = state.wheelAngle;
+      const startTime = performance.now();
+      const duration = 4500; // 4.5 seconds spin duration
+
+      lastSliceIdx = -1;
+
+      function animateSpin(currentTime) {
+        const elapsed = currentTime - startTime;
+        const progress = Math.min(elapsed / duration, 1);
+        
+        // Ease-out cubic formula for crisp deceleration
+        const easeOut = 1 - Math.pow(1 - progress, 3);
+        state.wheelAngle = startAngle + (targetRotation - startAngle) * easeOut;
+
+        // Calculate top pointer boundary crossings for audio ticks & needle flick
+        // Pointer is at 12 o'clock (-Math.PI / 2)
+        const currentNormAngle = (2 * Math.PI - (state.wheelAngle % (2 * Math.PI)) - Math.PI / 2 + 4 * Math.PI) % (2 * Math.PI);
+        const currentSliceIdx = Math.floor(currentNormAngle / sliceAngle) % numSlices;
+
+        if (currentSliceIdx !== lastSliceIdx) {
+          lastSliceIdx = currentSliceIdx;
+          playTickSFX();
+          
+          // Animate needle flick
+          const needle = document.getElementById('wheelNeedle');
+          if (needle) {
+            needle.style.transform = 'rotate(-15deg)';
+            setTimeout(() => { needle.style.transform = 'rotate(0deg)'; }, 60);
+          }
+        }
+
+        drawWheel();
+
+        if (progress < 1) {
+          requestAnimationFrame(animateSpin);
+        } else {
+          state.isSpinning = false;
+          document.getElementById('centerSpinBtn').disabled = false;
+          onSpinComplete(currentSliceIdx);
+        }
+      }
+
+      requestAnimationFrame(animateSpin);
+    }
+
+    function onSpinComplete(winningIdx) {
+      const skill = state.activeSkills[winningIdx];
+      if (!skill) return;
+
+      playWinSFX();
+
+      // Ensure skill is in revealed list
+      if (!state.revealedSkillIds.includes(skill.id)) {
+        state.revealedSkillIds.push(skill.id);
+      }
+      state.activeColumnId = skill.id;
+
+      // Update Winning Card Display (Skill Name + Emoji ONLY)
+      document.getElementById('winEmoji').textContent = skill.emoji;
+      document.getElementById('winSkillName').textContent = skill.verb;
+
+      pickRandomPair();
+      document.getElementById('winningCard').classList.remove('hidden');
+
+      renderMatrix();
+    }
+
+    function dismissWinningCard() {
+      document.getElementById('winningCard').classList.add('hidden');
+    }
+
+    function pickRandomPair() {
+      if (state.students.length < 2) return;
+      const idxA = Math.floor(Math.random() * state.students.length);
+      let idxB = Math.floor(Math.random() * state.students.length);
+      while (idxB === idxA) {
+        idxB = Math.floor(Math.random() * state.students.length);
+      }
+      state.activePair = { studentA: idxA, studentB: idxB };
+
+      const studentA = state.students[idxA];
+      const studentB = state.students[idxB];
+      document.getElementById('pairDisplay').innerHTML = `
+        <span class="text-indigo-400 font-extrabold">${escapeHTML(studentA)}</span> <span class="text-slate-400 text-xs mx-0.5">➡️ asks ➡️</span> <span class="text-purple-400 font-extrabold">${escapeHTML(studentB)}</span>
+      `;
+      renderMatrix();
+    }
+
+    /* ================= 4. CLASS MATRIX RENDER & LOGIC ================= */
+
+    function renderMatrix() {
+      // 1. Render Normal Matrix View
+      renderMatrixHeaders('skillsHeaderRow', 'normal');
+      renderMatrixBody('matrixTableBody', 'normal');
+
+      // 2. Render Summary View Table
+      renderMatrixHeaders('summaryHeaderRow', 'summary');
+      renderMatrixBody('summaryTableBody', 'summary');
+    }
+
+    function renderMatrixHeaders(containerId, mode) {
+      const container = document.getElementById(containerId);
+      if (!container) return;
+      container.innerHTML = '';
+
+      if (state.revealedSkillIds.length === 0) {
+        container.innerHTML = `<span class="text-xs text-slate-400 italic p-2">Spin the wheel to reveal skills!</span>`;
+        return;
+      }
+
+      state.revealedSkillIds.forEach(skillId => {
+        const skill = state.activeSkills.find(s => s.id === skillId) || { verb: 'skill', emoji: '⭐' };
+        const isHighlighted = (skillId === state.activeColumnId);
+
+        const headerChip = document.createElement('div');
+        headerChip.className = `flex flex-col items-center justify-center p-2 rounded-xl transition min-w-[70px] sm:min-w-[90px] text-center ${
+          isHighlighted 
+            ? 'bg-indigo-600 text-white shadow-lg ring-2 ring-indigo-400 animate-pulse-glow' 
+            : 'bg-slate-100 dark:bg-slate-700/60 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-600'
+        }`;
+        
+        headerChip.innerHTML = `
+          <span class="${mode === 'summary' ? 'text-2xl' : 'text-xl'}">${skill.emoji}</span>
+          <span class="${mode === 'summary' ? 'text-xs sm:text-sm' : 'text-[11px] sm:text-xs'} font-black capitalize leading-tight mt-0.5 line-clamp-1">${escapeHTML(skill.verb)}</span>
+        `;
+
+        container.appendChild(headerChip);
+      });
+    }
+
+    function renderMatrixBody(tbodyId, mode) {
+      const tbody = document.getElementById(tbodyId);
+      if (!tbody) return;
+      tbody.innerHTML = '';
+
+      state.students.forEach((student, sIdx) => {
+        const isPairA = (state.activePair.studentA === sIdx);
+        const isPairB = (state.activePair.studentB === sIdx);
+        const isSpeaker = (state.activeSpeakerIndex === sIdx);
+
+        const tr = document.createElement('tr');
+        
+        let rowBg = 'hover:bg-slate-50/50 dark:hover:bg-slate-700/30';
+        if (mode === 'normal' && (isPairA || isPairB)) {
+          rowBg = isPairA ? 'bg-indigo-500/10 dark:bg-indigo-950/40 border-l-4 border-indigo-500' : 'bg-purple-500/10 dark:bg-purple-950/40 border-l-4 border-purple-500';
+        } else if (mode === 'summary' && isSpeaker) {
+          rowBg = 'bg-yellow-500/15 dark:bg-yellow-950/40 border-l-4 border-yellow-400 font-bold';
+        }
+
+        tr.className = `transition ${rowBg}`;
+        tr.onclick = () => {
+          if (mode === 'summary') {
+            state.activeSpeakerIndex = sIdx;
+            document.getElementById('speakerHighlightBox').classList.remove('hidden');
+            document.getElementById('speakerNameText').textContent = student;
+            renderMatrix();
+          }
+        };
+
+        // Calculate student completed count badge
+        let studentAnswered = 0;
+        state.revealedSkillIds.forEach(skillId => {
+          if (state.matrix[`${sIdx}_${skillId}`]) studentAnswered++;
+        });
+
+        // Student Name Cell
+        const nameTd = document.createElement('td');
+        nameTd.className = `p-2 sm:p-3 font-extrabold text-slate-900 dark:text-white sticky left-0 bg-white dark:bg-slate-800 z-10 cursor-pointer`;
+        nameTd.innerHTML = `
+          <div class="flex items-center justify-between gap-1">
+            <span class="${mode === 'summary' ? 'text-base sm:text-xl' : 'text-sm sm:text-base'}">${escapeHTML(student)} ${isPairA ? '💬' : isPairB ? '👂' : ''}</span>
+            <span class="text-[10px] font-black px-1.5 py-0.5 rounded-full ${studentAnswered >= 2 ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300' : 'bg-slate-100 text-slate-400 dark:bg-slate-700 dark:text-slate-500'}">
+              ${studentAnswered}
+            </span>
+          </div>
+        `;
+        tr.appendChild(nameTd);
+
+        // Cells Container
+        const cellsTd = document.createElement('td');
+        cellsTd.className = 'p-0';
+        const cellsRow = document.createElement('div');
+        cellsRow.className = 'flex items-center gap-1.5 p-1';
+
+        state.revealedSkillIds.forEach(skillId => {
+          const key = `${sIdx}_${skillId}`;
+          const val = state.matrix[key]; // 'can', 'cant', or undefined
+          const isColumnHighlighted = (skillId === state.activeColumnId);
+
+          const cellBtn = document.createElement('button');
+          cellBtn.setAttribute('id', `cell_${mode}_${key}`);
+          cellBtn.onclick = (e) => {
+            e.stopPropagation();
+            toggleCellState(sIdx, skillId);
+          };
+          
+          let stateStyle = 'bg-slate-100 dark:bg-slate-700/40 text-slate-300 dark:text-slate-600 border border-dashed border-slate-300 dark:border-slate-600 hover:border-indigo-400';
+          let icon = '•';
+
+          if (val === 'can') {
+            stateStyle = 'bg-emerald-500 text-white shadow-md border-2 border-emerald-400';
+            icon = '✓';
+          } else if (val === 'cant') {
+            stateStyle = 'bg-rose-500 text-white shadow-md border-2 border-rose-400';
+            icon = '✕';
+          }
+
+          const cellSizeClass = mode === 'summary' 
+            ? 'w-16 h-12 text-2xl rounded-xl' 
+            : 'w-14 h-10 sm:w-16 sm:h-11 text-xl sm:text-2xl rounded-xl';
+
+          cellBtn.className = `${cellSizeClass} font-black flex items-center justify-center transition-all transform active:scale-90 ${stateStyle} ${isColumnHighlighted ? 'ring-2 ring-indigo-500' : ''}`;
+          cellBtn.innerHTML = `<span>${icon}</span>`;
+
+          cellsRow.appendChild(cellBtn);
+        });
+
+        cellsTd.appendChild(cellsRow);
+        tr.appendChild(cellsTd);
+        tbody.appendChild(tr);
+      });
+    }
+
+    /* ================= 5. SUMMARY MODE LOGIC ================= */
+
+    function toggleSummaryMode() {
+      state.summaryMode = !state.summaryMode;
+      const gameView = document.getElementById('spinnerGameView');
+      const summaryView = document.getElementById('summaryModeView');
+      const btnText = document.getElementById('modeBtnText');
+
+      if (state.summaryMode) {
+        gameView.classList.add('hidden');
+        summaryView.classList.remove('hidden');
+        summaryView.classList.add('flex');
+        btnText.textContent = 'Back to Spinner';
+      } else {
+        summaryView.classList.add('hidden');
+        summaryView.classList.remove('flex');
+        gameView.classList.remove('hidden');
+        btnText.textContent = 'Summary Mode';
+      }
+
+      renderMatrix();
+    }
+
+    function pickRandomSpeaker() {
+      if (state.students.length === 0) return;
+      getAudioContext();
+      const randomIdx = Math.floor(Math.random() * state.students.length);
+      state.activeSpeakerIndex = randomIdx;
+
+      document.getElementById('speakerHighlightBox').classList.remove('hidden');
+      document.getElementById('speakerNameText').textContent = state.students[randomIdx];
+      playCanPopSFX();
+
+      renderMatrix();
+    }
+
+    function dismissWinningCard() {
+      document.getElementById('winningCard').classList.add('hidden');
+    }
+
+    function pickRandomPair() {
+      if (state.students.length < 2) return;
+      const idxA = Math.floor(Math.random() * state.students.length);
+      let idxB = Math.floor(Math.random() * state.students.length);
+      while (idxB === idxA) {
+        idxB = Math.floor(Math.random() * state.students.length);
+      }
+      const studentA = state.students[idxA];
+      const studentB = state.students[idxB];
+      document.getElementById('pairDisplay').innerHTML = `
+        <span class="text-indigo-600 dark:text-indigo-400">${escapeHTML(studentA)}</span> ➡️ asks ➡️ <span class="text-purple-600 dark:text-purple-400">${escapeHTML(studentB)}</span>
+      `;
+    }
+
+    /* ================= 4. CLASS MATRIX RENDER & LOGIC ================= */
+
+    function renderMatrix() {
+      // 1. Render Normal Matrix View
+      renderMatrixHeaders('skillsHeaderRow', 'normal');
+      renderMatrixBody('matrixTableBody', 'normal');
+
+      // 2. Render Summary View Table
+      renderMatrixHeaders('summaryHeaderRow', 'summary');
+      renderMatrixBody('summaryTableBody', 'summary');
+
+      // Update Summary Frame Text
+      updateSummaryFrameText();
+    }
+
+    function renderMatrixHeaders(containerId, mode) {
+      const container = document.getElementById(containerId);
+      if (!container) return;
+      container.innerHTML = '';
+
+      if (state.revealedSkillIds.length === 0) {
+        container.innerHTML = `<span class="text-xs text-slate-400 italic p-2">Spin the wheel to reveal skills!</span>`;
+        return;
+      }
+
+      state.revealedSkillIds.forEach(skillId => {
+        const skill = state.activeSkills.find(s => s.id === skillId) || { verb: 'skill', emoji: '⭐' };
+        const isHighlighted = (skillId === state.activeColumnId);
+
+        const headerChip = document.createElement('div');
+        headerChip.className = `flex flex-col items-center justify-center p-2 rounded-xl transition min-w-[70px] sm:min-w-[90px] text-center ${
+          isHighlighted 
+            ? 'bg-indigo-600 text-white shadow-lg ring-2 ring-indigo-400 animate-pulse-glow' 
+            : 'bg-slate-100 dark:bg-slate-700/60 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-600'
+        }`;
+        
+        headerChip.innerHTML = `
+          <span class="${mode === 'summary' ? 'text-2xl' : 'text-xl'}">${skill.emoji}</span>
+          <span class="${mode === 'summary' ? 'text-xs sm:text-sm' : 'text-[11px] sm:text-xs'} font-black capitalize leading-tight mt-0.5 line-clamp-1">${escapeHTML(skill.verb)}</span>
+        `;
+
+        container.appendChild(headerChip);
+      });
+    }
+
+    function renderMatrixBody(tbodyId, mode) {
+      const tbody = document.getElementById(tbodyId);
+      if (!tbody) return;
+      tbody.innerHTML = '';
+
+      state.students.forEach((student, sIdx) => {
+        const tr = document.createElement('tr');
+        tr.className = 'hover:bg-slate-50/50 dark:hover:bg-slate-700/30 transition';
+
+        // Calculate student completed count badge (target 2 per student)
+        let studentAnswered = 0;
+        state.revealedSkillIds.forEach(skillId => {
+          if (state.matrix[`${sIdx}_${skillId}`]) studentAnswered++;
+        });
+
+        // Student Name Cell
+        const nameTd = document.createElement('td');
+        nameTd.className = 'p-2 sm:p-3 font-extrabold text-slate-900 dark:text-white sticky left-0 bg-white dark:bg-slate-800 z-10';
+        nameTd.innerHTML = `
+          <div class="flex items-center justify-between gap-1">
+            <span class="${mode === 'summary' ? 'text-base sm:text-xl' : 'text-sm sm:text-base'}">${escapeHTML(student)}</span>
+            <span class="text-[10px] font-black px-1.5 py-0.5 rounded-full ${studentAnswered >= 2 ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300' : 'bg-slate-100 text-slate-400 dark:bg-slate-700 dark:text-slate-500'}">
+              ${studentAnswered}
+            </span>
+          </div>
+        `;
+        tr.appendChild(nameTd);
+
+        // Cells Container
+        const cellsTd = document.createElement('td');
+        cellsTd.className = 'p-0';
+        const cellsRow = document.createElement('div');
+        cellsRow.className = 'flex items-center gap-1.5 p-1';
+
+        state.revealedSkillIds.forEach(skillId => {
+          const key = `${sIdx}_${skillId}`;
+          const val = state.matrix[key]; // 'can', 'cant', or undefined
+          const isColumnHighlighted = (skillId === state.activeColumnId);
+
+          const cellBtn = document.createElement('button');
+          cellBtn.setAttribute('id', `cell_${mode}_${key}`);
+          cellBtn.onclick = () => toggleCellState(sIdx, skillId);
+          
+          let stateStyle = 'bg-slate-100 dark:bg-slate-700/40 text-slate-300 dark:text-slate-600 border border-dashed border-slate-300 dark:border-slate-600 hover:border-indigo-400';
+          let icon = '•';
+
+          if (val === 'can') {
+            stateStyle = 'bg-emerald-500 text-white shadow-md border-2 border-emerald-400';
+            icon = '✓';
+          } else if (val === 'cant') {
+            stateStyle = 'bg-rose-500 text-white shadow-md border-2 border-rose-400';
+            icon = '✕';
+          }
+
+          const cellSizeClass = mode === 'summary' 
+            ? 'w-16 h-12 text-2xl rounded-xl' 
+            : 'w-14 h-10 sm:w-16 sm:h-11 text-xl sm:text-2xl rounded-xl';
+
+          cellBtn.className = `${cellSizeClass} font-black flex items-center justify-center transition-all transform active:scale-90 ${stateStyle} ${isColumnHighlighted ? 'ring-2 ring-indigo-500' : ''}`;
+          cellBtn.innerHTML = `<span>${icon}</span>`;
+
+          cellsRow.appendChild(cellBtn);
+        });
+
+        cellsTd.appendChild(cellsRow);
+        tr.appendChild(cellsTd);
+        tbody.appendChild(tr);
+      });
+    }
+
+    function toggleCellState(sIdx, skillId) {
+      getAudioContext();
+      const key = `${sIdx}_${skillId}`;
+      const current = state.matrix[key];
+
+      if (!current) {
+        state.matrix[key] = 'can';
+        playCanPopSFX();
+      } else if (current === 'can') {
+        state.matrix[key] = 'cant';
+        playCantPopSFX();
+      } else {
+        delete state.matrix[key];
+      }
+
+      renderMatrix();
+    }
+
+    function resetMatrixData() {
+      if (confirm('Are you sure you want to reset all logged answers in the grid?')) {
+        state.matrix = {};
+        renderMatrix();
+      }
+    }
+
+    /* ================= 5. SUMMARY MODE & RANDOM CHALLENGE ================= */
+
+    function toggleSummaryMode() {
+      state.summaryMode = !state.summaryMode;
+      const gameView = document.getElementById('spinnerGameView');
+      const summaryView = document.getElementById('summaryModeView');
+      const btnText = document.getElementById('modeBtnText');
+
+      if (state.summaryMode) {
+        gameView.classList.add('hidden');
+        summaryView.classList.remove('hidden');
+        summaryView.classList.add('flex');
+        btnText.textContent = 'Back to Spinner';
+      } else {
+        summaryView.classList.add('hidden');
+        summaryView.classList.remove('flex');
+        gameView.classList.remove('hidden');
+        btnText.textContent = 'Summary Mode';
+      }
+
+      renderMatrix();
+    }
+
+    function updateSummaryFrameText() {
+      const frame = document.getElementById('summarySentenceFrame');
+      if (!frame) return;
+
+      if (state.level === 'A1') {
+        frame.innerHTML = `
+          <div>"[Name] <span class="text-emerald-300">can</span> [skill], and [Name] <span class="text-rose-300">can't</span> [skill]."</div>
+          <div class="text-base font-normal text-indigo-100 mt-1">Alternative: "[Name] <span class="text-emerald-300">can</span> [skill], but he/she <span class="text-rose-300">can't</span> [skill]."</div>
+        `;
+      } else {
+        frame.innerHTML = `
+          <div>"[Name] <span class="text-emerald-300">can</span> [skill], <span class="text-amber-300">whereas</span> [Name] <span class="text-rose-300">can't</span> [skill]."</div>
+          <div class="text-base font-normal text-indigo-100 mt-1">Alternative: "Both [Name] and [Name] <span class="text-emerald-300">can</span> [skill], but neither <span class="text-rose-300">can</span> [skill]."</div>
+        `;
+      }
+    }
+
+    let activeChallengeData = null;
+
+    function generateRandomChallenge() {
+      getAudioContext();
+      
+      // Find logged entries
+      const entries = [];
+      state.students.forEach((student, sIdx) => {
+        state.revealedSkillIds.forEach(skillId => {
+          const val = state.matrix[`${sIdx}_${skillId}`];
+          if (val) {
+            const skill = state.activeSkills.find(s => s.id === skillId);
+            entries.push({ sIdx, student, skillId, skill, val });
+          }
+        });
+      });
+
+      const cans = entries.filter(e => e.val === 'can');
+      const cants = entries.filter(e => e.val === 'cant');
+
+      const challengeBox = document.getElementById('challengeBox');
+      const promptText = document.getElementById('challengePromptText');
+      const modelAns = document.getElementById('modelAnswerText');
+      
+      // Clear old cell highlights
+      document.querySelectorAll('[id^="cell_"]').forEach(el => el.classList.remove('ring-4', 'ring-yellow-400', 'scale-110'));
+
+      if (cans.length === 0 || cants.length === 0) {
+        challengeBox.classList.remove('hidden');
+        promptText.innerHTML = `<span class="text-rose-500">Need at least one ✅ CAN and one ✕ CAN'T marked in the grid!</span>`;
+        modelAns.classList.add('hidden');
+        return;
+      }
+
+      const itemCan = cans[Math.floor(Math.random() * cans.length)];
+      const itemCant = cants[Math.floor(Math.random() * cants.length)];
+
+      activeChallengeData = { itemCan, itemCant };
+
+      promptText.innerHTML = `
+        <span class="text-emerald-600 dark:text-emerald-400 font-black">${escapeHTML(itemCan.student)}</span> ✅ ${itemCan.skill.emoji} ${itemCan.skill.verb}
+        <span class="mx-2 text-slate-400">VS</span>
+        <span class="text-rose-600 dark:text-rose-400 font-black">${escapeHTML(itemCant.student)}</span> ❌ ${itemCant.skill.emoji} ${itemCant.skill.verb}
+      `;
+
+      // Highlight target cells in grid
+      const cell1 = document.getElementById(`cell_summary_${itemCan.sIdx}_${itemCan.skillId}`);
+      const cell2 = document.getElementById(`cell_summary_${itemCant.sIdx}_${itemCant.skillId}`);
+      if (cell1) cell1.classList.add('ring-4', 'ring-yellow-400', 'scale-110');
+      if (cell2) cell2.classList.add('ring-4', 'ring-yellow-400', 'scale-110');
+
+      // Prepare Model Answer
+      if (state.level === 'A1') {
+        modelAns.textContent = `"${itemCan.student} can ${itemCan.skill.verb}, and ${itemCant.student} can't ${itemCant.skill.verb}."`;
+      } else {
+        modelAns.textContent = `"${itemCan.student} can ${itemCan.skill.verb}, whereas ${itemCant.student} can't ${itemCant.skill.verb}."`;
+      }
+
+      modelAns.classList.add('hidden');
+      document.getElementById('modelAnsBtnText').textContent = 'Show Model Sentence 👁️';
+      challengeBox.classList.remove('hidden');
+      playCanPopSFX();
+    }
+
+    function toggleModelAnswer() {
+      const modelAns = document.getElementById('modelAnswerText');
+      const btnText = document.getElementById('modelAnsBtnText');
+      if (modelAns.classList.contains('hidden')) {
+        modelAns.classList.remove('hidden');
+        btnText.textContent = 'Hide Model Sentence 🙈';
+      } else {
+        modelAns.classList.add('hidden');
+        btnText.textContent = 'Show Model Sentence 👁️';
+      }
+    }
+
+    /* ================= 6. SKILLS & MODAL MANAGERS ================= */
+
+    function toggleCEFRLevel() {
+      const nextLevel = state.level === 'A1' ? 'A2' : 'A1';
+      setCEFRLevel(nextLevel);
+    }
+
+    function setCEFRLevel(newLevel) {
+      state.level = newLevel;
+      state.activeSkills = [...DEFAULT_SKILLS[newLevel]];
+      state.revealedSkillIds = [];
+      state.activeColumnId = null;
+
+      // Update Top Bar & Badge
+      document.getElementById('levelIndicator').textContent = `${newLevel} LEVEL`;
+      document.getElementById('levelBtnBadge').textContent = newLevel;
+
+      drawWheel();
+      renderMatrix();
+    }
+
+    function openSetupModal() {
+      state.activeModalLevel = state.level;
+      state.tempNumStudents = state.students.length;
+      renderNumStudentsSelector();
+      renderModalLevelToggle();
+      renderStudentInputs();
+      document.getElementById('setupModal').classList.remove('hidden');
+    }
+
+    function closeSetupModal() {
+      document.getElementById('setupModal').classList.add('hidden');
+    }
+
+    function renderNumStudentsSelector() {
+      const container = document.getElementById('numStudentsSelector');
+      container.innerHTML = '';
+      for (let i = 2; i <= 8; i++) {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.onclick = () => {
+          state.tempNumStudents = i;
+          renderNumStudentsSelector();
+          renderStudentInputs();
+        };
+        const isActive = (i === state.tempNumStudents);
+        btn.className = `p-2.5 rounded-xl font-black text-base transition ${
+          isActive 
+            ? 'bg-indigo-600 text-white shadow-lg scale-105' 
+            : 'bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-200'
+        }`;
+        btn.textContent = i;
+        container.appendChild(btn);
+      }
+    }
+
+    function setModalLevel(lvl) {
+      state.activeModalLevel = lvl;
+      renderModalLevelToggle();
+    }
+
+    function renderModalLevelToggle() {
+      const bA1 = document.getElementById('modalLevelA1');
+      const bA2 = document.getElementById('modalLevelA2');
+      if (state.activeModalLevel === 'A1') {
+        bA1.className = 'p-3 rounded-2xl border-2 font-black text-center transition flex flex-col items-center gap-1 border-indigo-600 bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400';
+        bA2.className = 'p-3 rounded-2xl border-2 font-black text-center transition flex flex-col items-center gap-1 border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400';
+      } else {
+        bA2.className = 'p-3 rounded-2xl border-2 font-black text-center transition flex flex-col items-center gap-1 border-indigo-600 bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400';
+        bA1.className = 'p-3 rounded-2xl border-2 font-black text-center transition flex flex-col items-center gap-1 border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400';
+      }
+    }
+
+    function renderStudentInputs() {
+      const container = document.getElementById('studentInputsContainer');
+      container.innerHTML = '';
+      for (let i = 0; i < state.tempNumStudents; i++) {
+        const val = state.students[i] || DEFAULT_NAMES[i] || `Student ${i+1}`;
+        const input = document.createElement('input');
+        input.type = 'text';
+        input.id = `studentInput_${i}`;
+        input.value = val;
+        input.className = 'p-2.5 text-sm font-extrabold rounded-xl border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 focus:outline-none focus:ring-2 focus:ring-indigo-500';
+        container.appendChild(input);
+      }
+    }
+
+    function applySetupChanges() {
+      const newNames = [];
+      for (let i = 0; i < state.tempNumStudents; i++) {
+        const inp = document.getElementById(`studentInput_${i}`);
+        const name = inp ? inp.value.trim() : '';
+        newNames.push(name || `Student ${i+1}`);
+      }
+
+      state.students = newNames;
+
+      if (state.level !== state.activeModalLevel) {
+        setCEFRLevel(state.activeModalLevel);
+      } else {
+        renderMatrix();
+      }
+
+      closeSetupModal();
+    }
+
+    /* Skills Modal Logic */
+    function openSkillsModal() {
+      renderActiveSkillsList();
+      document.getElementById('skillsModal').classList.remove('hidden');
+    }
+
+    function closeSkillsModal() {
+      document.getElementById('skillsModal').classList.add('hidden');
+    }
+
+    function setNewEmoji(emoji) {
+      document.getElementById('newEmojiInput').value = emoji;
+    }
+
+    function handleAddNewSkill(e) {
+      e.preventDefault();
+      const emoji = document.getElementById('newEmojiInput').value.trim() || '⭐';
+      const verb = document.getElementById('newVerbInput').value.trim();
+      if (!verb) return;
+
+      const newSkill = {
+        id: `custom_${Date.now()}`,
+        verb: verb.toLowerCase(),
+        emoji: emoji
+      };
+
+      state.activeSkills.push(newSkill);
+      document.getElementById('newVerbInput').value = '';
+
+      drawWheel();
+      renderActiveSkillsList();
+      renderMatrix();
+    }
+
+    function removeSkill(skillId) {
+      if (state.activeSkills.length <= 4) {
+        alert('Minimum 4 skills required for wheel spinner!');
+        return;
+      }
+      state.activeSkills = state.activeSkills.filter(s => s.id !== skillId);
+      state.revealedSkillIds = state.revealedSkillIds.filter(id => id !== skillId);
+      drawWheel();
+      renderActiveSkillsList();
+      renderMatrix();
+    }
+
+    function resetSkillsToDefault() {
+      state.activeSkills = [...DEFAULT_SKILLS[state.level]];
+      state.revealedSkillIds = [];
+      state.activeColumnId = null;
+      drawWheel();
+      renderActiveSkillsList();
+      renderMatrix();
+    }
+
+    function renderActiveSkillsList() {
+      const container = document.getElementById('activeSkillsList');
+      const countLabel = document.getElementById('skillCount');
+      if (!container) return;
+
+      countLabel.textContent = state.activeSkills.length;
+      container.innerHTML = '';
+
+      state.activeSkills.forEach(skill => {
+        const row = document.createElement('div');
+        row.className = 'flex items-center justify-between p-2 rounded-xl bg-slate-100 dark:bg-slate-700/60 text-sm font-bold';
+        row.innerHTML = `
+          <div class="flex items-center gap-2">
+            <span class="text-lg">${skill.emoji}</span>
+            <span class="capitalize text-slate-800 dark:text-slate-200">${escapeHTML(skill.verb)}</span>
+          </div>
+          <button onclick="removeSkill('${skill.id}')" class="text-rose-500 hover:text-rose-700 text-xs px-2 py-1 rounded">
+            ✕ Remove
+          </button>
+        `;
+        container.appendChild(row);
+      });
+    }
+
+    /* Theme & Sound Toggles */
+    function toggleTheme() {
+      const html = document.documentElement;
+      const sunIcon = document.getElementById('sunIcon');
+      const moonIcon = document.getElementById('moonIcon');
+
+      if (html.classList.contains('dark')) {
+        html.classList.remove('dark');
+        sunIcon.classList.remove('hidden');
+        moonIcon.classList.add('hidden');
+      } else {
+        html.classList.add('dark');
+        sunIcon.classList.add('hidden');
+        moonIcon.classList.remove('hidden');
+      }
+      drawWheel();
+    }
+
+    function toggleAudio() {
+      state.isAudioMuted = !state.isAudioMuted;
+      const soundOn = document.getElementById('soundOnIcon');
+      const soundOff = document.getElementById('soundOffIcon');
+
+      if (state.isAudioMuted) {
+        soundOn.classList.add('hidden');
+        soundOff.classList.remove('hidden');
+      } else {
+        soundOn.classList.remove('hidden');
+        soundOff.classList.add('hidden');
+      }
+    }
+
+    function escapeHTML(str) {
+      return str.replace(/[&<>'"]/g, 
+        tag => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[tag] || tag)
+      );
+    }
+
+    /* Key listener for Spacebar to spin */
+    window.addEventListener('keydown', (e) => {
+      if (e.code === 'Space' && !state.isSpinning && !state.summaryMode) {
+        // Prevent page scroll if not focused inside input
+        if (['INPUT', 'TEXTAREA'].includes(document.activeElement.tagName)) return;
+        e.preventDefault();
+        spinWheel();
+      }
+    });
+
+    /* Window Resize listener to update wheel canvas */
+    window.addEventListener('resize', () => {
+      drawWheel();
+    });
+
+    /* ================= INITIALIZATION ================= */
+    window.onload = function() {
+      drawWheel();
+      renderMatrix();
+
+      // Open Setup modal automatically on launch
+      setTimeout(() => {
+        openSetupModal();
+      }, 300);
+    };
+
+  </script>
+</body>
+</html>
