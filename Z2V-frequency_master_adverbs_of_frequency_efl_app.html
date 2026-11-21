@@ -1,0 +1,2338 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Frequency Master - English Adverbs of Frequency (A1/A2)</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              always: '#10b981',
+              usually: '#0ea5e9',
+              sometimes: '#f59e0b',
+              rarely: '#f97316',
+              never: '#ef4444'
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <!-- Google Fonts Fallback & Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      user-select: none;
+    }
+    .font-fun {
+      font-family: 'Fredoka', 'Inter', sans-serif;
+    }
+    /* Pulse & glow effects */
+    .glow-always { box-shadow: 0 0 15px rgba(16, 185, 129, 0.4); }
+    .glow-usually { box-shadow: 0 0 15px rgba(14, 165, 233, 0.4); }
+    .glow-sometimes { box-shadow: 0 0 15px rgba(245, 158, 11, 0.4); }
+    .glow-rarely { box-shadow: 0 0 15px rgba(249, 115, 22, 0.4); }
+    .glow-never { box-shadow: 0 0 15px rgba(239, 68, 68, 0.4); }
+    
+    /* Day tile transition */
+    .day-tile {
+      transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .day-tile:hover {
+      transform: translateY(-2px);
+    }
+    .day-tile:active {
+      transform: translateY(1px);
+    }
+
+    /* Custom scrollbars */
+    ::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #0f172a;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #334155;
+      border-radius: 4px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #475569;
+    }
+
+    /* Confetti canvas overlay */
+    #confettiCanvas {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      pointer-events: none;
+      z-index: 9999;
+    }
+  </style>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col justify-between overflow-x-hidden selection:bg-indigo-500 selection:text-white">
+
+  <!-- Confetti Canvas overlay -->
+  <canvas id="confettiCanvas"></canvas>
+
+  <!-- Top Navigation Header -->
+  <header class="bg-slate-900/90 backdrop-blur border-b border-slate-800 sticky top-0 z-40 px-4 py-3 shadow-lg">
+    <div class="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-3">
+      <!-- Logo & Title -->
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-emerald-500 via-sky-500 to-indigo-500 flex items-center justify-center font-black text-xl text-white shadow-md">
+          ⚡
+        </div>
+        <div>
+          <h1 class="font-fun text-xl md:text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-emerald-400 via-sky-300 to-indigo-300 leading-none">
+            FREQUENCY MASTER
+          </h1>
+          <p class="text-xs text-slate-400 font-medium">Adverbs of Frequency • Vietnamese Pre-Teen EFL</p>
+        </div>
+      </div>
+
+      <!-- Center Controls: View Nav & Level Switch -->
+      <div class="flex items-center flex-wrap gap-2">
+        <!-- View Selector Buttons -->
+        <div id="navViewButtons" class="bg-slate-800/80 p-1 rounded-xl border border-slate-700/60 flex items-center gap-1 text-xs sm:text-sm font-semibold">
+          <button id="btnNavSetup" onclick="switchView('setup')" class="px-3 py-1.5 rounded-lg transition-all hover:text-white text-slate-400">
+            ⚙️ Setup
+          </button>
+          <button id="btnNavDemos" onclick="switchView('demos')" class="px-3 py-1.5 rounded-lg transition-all hover:text-white text-slate-400">
+            💡 Demos (24)
+          </button>
+          <button id="btnNavQuiz" onclick="switchView('quiz')" class="px-3 py-1.5 rounded-lg transition-all hover:text-white text-slate-400">
+            🎯 Quiz (24)
+          </button>
+        </div>
+
+        <!-- CEFR Level Switch (A1 / A2) -->
+        <div class="bg-slate-800/80 p-1 rounded-xl border border-slate-700/60 flex items-center gap-1 text-xs font-bold">
+          <span class="text-slate-400 pl-2 text-[10px] uppercase tracking-wider hidden sm:inline">Level:</span>
+          <button id="btnLevelA1" onclick="setCEFRLevel('A1')" class="px-3 py-1 rounded-lg transition-all bg-emerald-500 text-slate-950 font-extrabold shadow">
+            A1 Basic
+          </button>
+          <button id="btnLevelA2" onclick="setCEFRLevel('A2')" class="px-3 py-1 rounded-lg transition-all text-slate-400 hover:text-white">
+            A2 Plus
+          </button>
+        </div>
+      </div>
+
+      <!-- Right Utility Actions -->
+      <div class="flex items-center gap-2">
+        <!-- Sound FX Toggle -->
+        <button id="btnMuteToggle" onclick="toggleMute()" class="p-2 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-300 hover:text-white transition" title="Toggle Sound FX">
+          🔊
+        </button>
+        <!-- Collapsible Frequency Scale Toggle -->
+        <button onclick="toggleScaleBar()" class="p-2 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-300 hover:text-white transition flex items-center gap-1 text-xs font-semibold" title="Toggle Frequency Bar">
+          📊 <span class="hidden md:inline">Scale</span>
+        </button>
+        <!-- Subtle Teacher Tools Button (Hidden-in-plain-sight) -->
+        <button id="btnTeacherSubtle" onclick="toggleTeacherDrawer()" class="p-2 rounded-xl bg-slate-800/50 hover:bg-slate-800 border border-slate-800 text-slate-500 hover:text-slate-300 transition" title="Teacher Tools (Shift + M)">
+          🔒
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Collapsible Frequency Scale Bar (Always Accessible) -->
+  <section id="frequencyScaleDrawer" class="bg-slate-900 border-b border-slate-800 px-4 py-3 hidden transition-all">
+    <div class="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-3">
+      <div class="flex items-center gap-2">
+        <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Frequency Scale:</span>
+        <button onclick="toggleVietnameseGloss()" class="text-xs bg-slate-800 hover:bg-slate-700 px-2 py-1 rounded text-indigo-300 border border-slate-700 transition">
+          🇻🇳 Gloss Hint: <span id="vnGlossStatus">OFF</span>
+        </button>
+      </div>
+
+      <!-- Scale Pills -->
+      <div class="grid grid-cols-5 gap-1.5 sm:gap-2 w-full md:w-auto">
+        <!-- ALWAYS -->
+        <div class="bg-emerald-950/60 border border-emerald-500/50 rounded-xl p-2 text-center">
+          <div class="text-[10px] font-bold text-emerald-400 uppercase">100%</div>
+          <div class="font-black text-xs sm:text-sm text-emerald-300">ALWAYS</div>
+          <div class="vn-gloss text-[10px] text-emerald-400/80 hidden font-medium">luôn luôn</div>
+        </div>
+        <!-- USUALLY -->
+        <div class="bg-sky-950/60 border border-sky-500/50 rounded-xl p-2 text-center">
+          <div class="text-[10px] font-bold text-sky-400 uppercase">~80%</div>
+          <div class="font-black text-xs sm:text-sm text-sky-300">USUALLY</div>
+          <div class="vn-gloss text-[10px] text-sky-400/80 hidden font-medium">thường xuyên</div>
+        </div>
+        <!-- SOMETIMES -->
+        <div class="bg-amber-950/60 border border-amber-500/50 rounded-xl p-2 text-center">
+          <div class="text-[10px] font-bold text-amber-400 uppercase">~50%</div>
+          <div class="font-black text-xs sm:text-sm text-amber-300">SOMETIMES</div>
+          <div class="vn-gloss text-[10px] text-amber-400/80 hidden font-medium">thỉnh thoảng</div>
+        </div>
+        <!-- RARELY -->
+        <div class="bg-orange-950/60 border border-orange-500/50 rounded-xl p-2 text-center">
+          <div class="text-[10px] font-bold text-orange-400 uppercase">~15%</div>
+          <div class="font-black text-xs sm:text-sm text-orange-300">RARELY</div>
+          <div class="vn-gloss text-[10px] text-orange-400/80 hidden font-medium">hiếm khi</div>
+        </div>
+        <!-- NEVER -->
+        <div class="bg-rose-950/60 border border-rose-500/50 rounded-xl p-2 text-center">
+          <div class="text-[10px] font-bold text-rose-400 uppercase">0%</div>
+          <div class="font-black text-xs sm:text-sm text-rose-300">NEVER</div>
+          <div class="vn-gloss text-[10px] text-rose-400/80 hidden font-medium">không bao giờ</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- MAIN APP CONTAINER -->
+  <main class="max-w-7xl mx-auto w-full px-4 py-6 flex-grow">
+
+    <!-- VIEW 1: SETUP SCREEN (2-8 Students) -->
+    <section id="viewSetup" class="max-w-3xl mx-auto bg-slate-900 border border-slate-800 rounded-3xl p-6 md:p-8 shadow-2xl relative overflow-hidden">
+      <div class="absolute -top-24 -right-24 w-60 h-60 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none"></div>
+      <div class="absolute -bottom-24 -left-24 w-60 h-60 bg-indigo-500/10 rounded-full blur-3xl pointer-events-none"></div>
+
+      <!-- Setup Header -->
+      <div class="text-center mb-8">
+        <div class="inline-block px-3 py-1 rounded-full bg-indigo-500/10 text-indigo-400 border border-indigo-500/30 text-xs font-bold uppercase tracking-wider mb-3">
+          Classroom Setup
+        </div>
+        <h2 class="font-fun text-3xl md:text-4xl font-extrabold text-white mb-2">
+          Ready for the Frequency Challenge?
+        </h2>
+        <p class="text-slate-400 text-sm md:text-base max-w-md mx-auto">
+          Add 2 to 8 students in your group. Cycle avatars, select target level, and launch into interactive practice!
+        </p>
+      </div>
+
+      <!-- Quick Demo Names & Level Control Row -->
+      <div class="flex flex-wrap items-center justify-between gap-3 bg-slate-950 p-4 rounded-2xl border border-slate-800 mb-6">
+        <div>
+          <h3 class="text-xs font-bold uppercase tracking-wider text-slate-400">CEFR Target Level</h3>
+          <p class="text-xs text-slate-500">You can also switch anytime in top bar.</p>
+        </div>
+        <div class="flex items-center gap-2">
+          <button onclick="setCEFRLevel('A1')" id="setupLevelA1Btn" class="px-4 py-2 rounded-xl text-xs font-bold bg-emerald-500 text-slate-950 transition">
+            A1 (Basic)
+          </button>
+          <button onclick="setCEFRLevel('A2')" id="setupLevelA2Btn" class="px-4 py-2 rounded-xl text-xs font-bold bg-slate-800 text-slate-400 hover:text-white transition">
+            A2 (Plus)
+          </button>
+        </div>
+      </div>
+
+      <!-- Student Roster Grid -->
+      <div class="space-y-4 mb-6">
+        <div class="flex items-center justify-between">
+          <label class="text-sm font-bold text-slate-300 uppercase tracking-wider">
+            Students Enrolled (<span id="studentCount">4</span> / 8)
+          </label>
+          <button onclick="quickFillDemoNames()" class="text-xs text-indigo-400 hover:text-indigo-300 font-semibold bg-indigo-950/60 px-3 py-1.5 rounded-lg border border-indigo-800/50 transition">
+            ⚡ Quick-Fill VN Demo Names
+          </button>
+        </div>
+
+        <div id="studentInputsContainer" class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <!-- Dynamically populated student inputs -->
+        </div>
+
+        <!-- Add Student / Remove Controls -->
+        <div class="flex items-center justify-between pt-2">
+          <button id="btnAddStudent" onclick="addStudentSlot()" class="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-bold border border-slate-700 transition flex items-center gap-2">
+            <span>➕</span> Add Student
+          </button>
+          <button id="btnRemoveStudent" onclick="removeStudentSlot()" class="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-rose-400 text-xs font-bold border border-slate-700 transition flex items-center gap-2">
+            <span>➖</span> Remove
+          </button>
+        </div>
+      </div>
+
+      <!-- Launch Action Buttons -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-4 border-t border-slate-800">
+        <button onclick="launchApp('demos')" class="w-full py-4 rounded-2xl bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 text-slate-950 font-black text-lg shadow-lg shadow-emerald-950/50 transition transform hover:-translate-y-0.5 flex items-center justify-center gap-2">
+          <span>💡</span> Start 24 Demonstrations
+        </button>
+        <button onclick="launchApp('quiz')" class="w-full py-4 rounded-2xl bg-gradient-to-r from-sky-500 to-indigo-600 hover:from-sky-400 hover:to-indigo-500 text-white font-black text-lg shadow-lg shadow-indigo-950/50 transition transform hover:-translate-y-0.5 flex items-center justify-center gap-2">
+          <span>🎯</span> Jump directly to 24 Quizzes
+        </button>
+      </div>
+    </section>
+
+    <!-- VIEW 2: 24 INTERACTIVE DEMONSTRATIONS -->
+    <section id="viewDemos" class="hidden space-y-6">
+      
+      <!-- Top Demo Navigation Controls -->
+      <div class="bg-slate-900 p-4 rounded-2xl border border-slate-800 flex flex-wrap items-center justify-between gap-4 shadow-md">
+        <!-- Demo Index Indicator -->
+        <div class="flex items-center gap-3">
+          <span class="w-10 h-10 rounded-xl bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 flex items-center justify-center font-black text-lg">
+            #<span id="demoNumber">1</span>
+          </span>
+          <div>
+            <div class="text-xs text-slate-400 uppercase tracking-wider font-bold">Demonstration Scenario</div>
+            <h3 id="demoTitle" class="text-base sm:text-lg font-bold text-white">Brushing Teeth Before Bed</h3>
+          </div>
+        </div>
+
+        <!-- Quick Jump Dropdown & Prev/Next -->
+        <div class="flex items-center gap-2">
+          <select id="demoSelectDropdown" onchange="jumpToDemo(parseInt(this.value))" class="bg-slate-950 text-slate-200 border border-slate-800 text-xs font-bold rounded-xl px-3 py-2 focus:outline-none focus:border-emerald-500">
+            <!-- Populated via JS -->
+          </select>
+          <button onclick="prevDemo()" class="p-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 text-sm font-bold transition">
+            ⬅️ Prev
+          </button>
+          <button onclick="nextDemo()" class="p-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-sm transition">
+            Next ➡️
+          </button>
+        </div>
+      </div>
+
+      <!-- Main Interactive Demonstration Card -->
+      <div class="bg-slate-900 border border-slate-800 rounded-3xl p-6 md:p-8 shadow-2xl space-y-6 relative overflow-hidden">
+        
+        <!-- Active Student Spotlight Prompt -->
+        <div id="demoStudentSpotlight" class="bg-gradient-to-r from-indigo-950/80 via-slate-950 to-purple-950/80 border border-indigo-500/30 rounded-2xl p-3 sm:p-4 flex flex-wrap items-center justify-between gap-3 shadow-inner">
+          <div class="flex items-center gap-3">
+            <span id="demoSpotlightAvatar" class="text-3xl bg-slate-800 p-2 rounded-2xl shadow">👦</span>
+            <div>
+              <div class="text-[11px] uppercase tracking-wider font-bold text-indigo-400">Classroom Spotlight Prompt</div>
+              <div class="text-sm sm:text-base font-bold text-white">
+                "Is this true for you, <span id="demoSpotlightName" class="text-indigo-300 underline underline-offset-4 font-black">Minh</span>? Speak out loud!"
+              </div>
+            </div>
+          </div>
+          <button onclick="rotateSpotlightStudent()" class="px-3 py-1.5 rounded-xl bg-indigo-900/50 hover:bg-indigo-800 text-indigo-200 text-xs font-bold border border-indigo-700 transition">
+            🔄 Next Student
+          </button>
+        </div>
+
+        <!-- Scenario Context Header -->
+        <div class="flex flex-wrap items-start justify-between gap-4 border-b border-slate-800 pb-4">
+          <div>
+            <span id="demoCategoryBadge" class="inline-block px-2.5 py-1 rounded-md text-[10px] font-extrabold uppercase tracking-widest bg-slate-800 text-slate-300 border border-slate-700 mb-2">
+              DAILY ROUTINE
+            </span>
+            <p id="demoDescription" class="text-slate-300 text-sm sm:text-base font-medium">
+              Every single night before going to sleep, Minh brushes his teeth to keep them clean and healthy.
+            </p>
+          </div>
+          <div class="flex items-center gap-2">
+            <button onclick="speakSentence('demoSentenceText')" class="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 text-xs font-bold transition flex items-center gap-2">
+              <span>🔊</span> Listen
+            </button>
+          </div>
+        </div>
+
+        <!-- Dynamic Sentence & Grammar Highlighter Box -->
+        <div class="bg-slate-950 border border-slate-800 rounded-2xl p-5 md:p-6 text-center space-y-3 relative">
+          <div class="text-[11px] uppercase tracking-wider font-bold text-slate-500">Live Target Sentence</div>
+
+          <!-- Highlighted Sentence Display -->
+          <div id="demoSentenceDisplay" class="text-lg sm:text-2xl md:text-3xl font-black text-white leading-relaxed flex flex-wrap items-center justify-center gap-2">
+            <!-- Populated via JS -->
+          </div>
+          <p id="demoSentenceText" class="hidden"></p> <!-- Plain text for Speech Synthesis -->
+
+          <!-- Grammar Rule Note -->
+          <div id="demoGrammarNote" class="inline-block text-xs font-semibold px-4 py-1.5 rounded-full bg-slate-900 text-slate-400 border border-slate-800">
+            Grammar: Subject + Adverb + Main Verb
+          </div>
+        </div>
+
+        <!-- Interactive 7-Day Frequency Board -->
+        <div class="bg-slate-950/60 border border-slate-800 rounded-2xl p-5 space-y-4">
+          <div class="flex flex-wrap items-center justify-between gap-3">
+            <div>
+              <h4 class="font-bold text-sm text-slate-200">Interactive Weekly Tracker (Mon – Sun)</h4>
+              <p class="text-xs text-slate-400">Click days to test Sandbox Mode or click Play Animation!</p>
+            </div>
+            <div class="flex items-center gap-2">
+              <button onclick="playDemoWeekAnimation()" id="btnPlayDemoAnim" class="px-4 py-2 rounded-xl bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-400 hover:to-purple-500 text-white font-extrabold text-xs shadow-md transition flex items-center gap-1.5">
+                <span>▶</span> Play Week Animation
+              </button>
+              <button onclick="resetDemoDays()" class="px-3 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-bold border border-slate-700 transition">
+                ↺ Reset
+              </button>
+            </div>
+          </div>
+
+          <!-- 7-Day Grid Tiles -->
+          <div class="grid grid-cols-7 gap-2" id="demoDaysGrid">
+            <!-- Populated dynamically via JS -->
+          </div>
+
+          <!-- Live Percentage Meter & Adverb Detector -->
+          <div class="bg-slate-900 p-4 rounded-xl border border-slate-800 flex flex-wrap items-center justify-between gap-4">
+            <div class="flex items-center gap-3 w-full sm:w-auto">
+              <div class="text-center">
+                <span id="demoActiveDayCount" class="text-2xl font-black text-white">7</span>
+                <span class="text-[10px] text-slate-400 uppercase font-bold block">/ 7 Days</span>
+              </div>
+              <div class="h-8 w-px bg-slate-800 hidden sm:block"></div>
+              <!-- Frequency Gauge Bar -->
+              <div class="flex-grow sm:w-48 bg-slate-950 rounded-full h-4 p-0.5 border border-slate-800 overflow-hidden">
+                <div id="demoGaugeFill" class="h-full rounded-full transition-all duration-500 bg-emerald-500 w-full"></div>
+              </div>
+              <span id="demoPercentageText" class="font-extrabold text-sm text-slate-300 w-12 text-right">100%</span>
+            </div>
+
+            <!-- Matching Frequency Adverb Pill -->
+            <div class="flex items-center gap-2">
+              <span class="text-xs text-slate-400 font-bold uppercase">Detected Frequency:</span>
+              <span id="demoAdverbBadge" class="px-4 py-1.5 rounded-xl font-black text-sm tracking-wide bg-emerald-500 text-slate-950 shadow-md">
+                ALWAYS
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Next / Quiz Switcher Footer -->
+        <div class="flex flex-wrap items-center justify-between gap-3 pt-2">
+          <span class="text-xs text-slate-500 font-medium">Scenario <span id="demoIndexFooter">1</span> of 24</span>
+          <div class="flex items-center gap-2">
+            <button onclick="nextDemo()" class="px-5 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-white font-bold text-xs border border-slate-700 transition">
+              Next Demonstration ➡️
+            </button>
+            <button onclick="switchView('quiz')" class="px-5 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-extrabold text-xs shadow-md transition">
+              🎯 Ready to Quiz?
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- VIEW 3: 24 INTERACTIVE QUIZ SCREENS -->
+    <section id="viewQuiz" class="hidden space-y-6">
+
+      <!-- Quiz Top Navigation & Student Turn Bar -->
+      <div class="bg-slate-900 p-4 rounded-2xl border border-slate-800 space-y-3 shadow-md">
+        
+        <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-800/80 pb-3">
+          <!-- Question Progress -->
+          <div class="flex items-center gap-3">
+            <span class="w-10 h-10 rounded-xl bg-sky-500/10 text-sky-400 border border-sky-500/30 flex items-center justify-center font-black text-lg">
+              Q<span id="quizNumber">1</span>
+            </span>
+            <div>
+              <div class="text-xs text-slate-400 uppercase tracking-wider font-bold">Interactive Classroom Quiz</div>
+              <div class="text-xs font-semibold text-sky-400" id="quizChallengeTypeTag">Visual Week Decoder</div>
+            </div>
+          </div>
+
+          <!-- Question Quick Select Dropdown & Prev/Next -->
+          <div class="flex items-center gap-2">
+            <select id="quizSelectDropdown" onchange="jumpToQuiz(parseInt(this.value))" class="bg-slate-950 text-slate-200 border border-slate-800 text-xs font-bold rounded-xl px-3 py-2 focus:outline-none focus:border-sky-500">
+              <!-- Populated via JS -->
+            </select>
+            <button onclick="prevQuiz()" class="p-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 text-xs font-bold transition">
+              ⬅️ Prev
+            </button>
+            <button onclick="nextQuiz()" class="p-2.5 rounded-xl bg-sky-500 hover:bg-sky-400 text-slate-950 font-extrabold text-xs transition">
+              Next ➡️
+            </button>
+          </div>
+        </div>
+
+        <!-- Student Turn Bar (Multiplayer 2-8 Students) -->
+        <div class="flex items-center gap-2 overflow-x-auto py-1">
+          <span class="text-xs font-bold text-slate-400 uppercase tracking-wider whitespace-nowrap pr-1">Current Turn:</span>
+          <div id="studentTurnPills" class="flex items-center gap-2">
+            <!-- Dynamic Student Pills -->
+          </div>
+        </div>
+      </div>
+
+      <!-- Main Quiz Question Card -->
+      <div class="bg-slate-900 border border-slate-800 rounded-3xl p-6 md:p-8 shadow-2xl space-y-6 relative overflow-hidden">
+
+        <!-- Question Prompt / Context -->
+        <div class="space-y-3">
+          <div class="flex items-center justify-between">
+            <span id="quizStyleBadge" class="px-3 py-1 rounded-full text-[10px] font-extrabold uppercase tracking-widest bg-sky-950 text-sky-300 border border-sky-800">
+              CHALLENGE STYLE 1 OF 3
+            </span>
+            <button onclick="speakSentence('quizPromptText')" class="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-300 text-xs font-bold transition flex items-center gap-1.5">
+              <span>🔊</span> Read Question
+            </button>
+          </div>
+          
+          <h3 id="quizPromptText" class="text-base sm:text-xl font-bold text-white leading-relaxed">
+            Look at Nam's weekly schedule. Which frequency word best completes the sentence?
+          </h3>
+        </div>
+
+        <!-- Interactive Visual Element for Question (Week Tracker OR Clue Box) -->
+        <div id="quizVisualContainer" class="bg-slate-950 border border-slate-800 rounded-2xl p-5">
+          <!-- Populated dynamically based on Challenge Style -->
+        </div>
+
+        <!-- Fill-in-the-blank Target Sentence -->
+        <div class="bg-slate-950/80 border border-slate-800 rounded-2xl p-5 text-center">
+          <div class="text-[11px] uppercase tracking-wider font-bold text-slate-400 mb-2">Complete the Sentence</div>
+          <div id="quizSentenceDisplay" class="text-lg sm:text-2xl font-black text-white leading-relaxed">
+            "Nam <span class="inline-block px-4 py-1 border-2 border-dashed border-sky-400 text-sky-400 rounded-xl bg-slate-900 font-mono">[ _____ ]</span> does morning stretches."
+          </div>
+        </div>
+
+        <!-- Multiple Choice Options Area -->
+        <div id="quizOptionsContainer" class="grid grid-cols-1 sm:grid-cols-5 gap-3">
+          <!-- Dynamically populated options -->
+        </div>
+
+        <!-- Feedback & Explanation Box (Shown after answering) -->
+        <div id="quizFeedbackBox" class="hidden p-5 rounded-2xl border transition-all space-y-3">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-2">
+              <span id="quizFeedbackIcon" class="text-2xl">🎉</span>
+              <h4 id="quizFeedbackTitle" class="font-extrabold text-lg">Excellent Work!</h4>
+            </div>
+            <button onclick="speakSentence('quizFullSentenceResult')" class="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 text-xs font-bold transition flex items-center gap-1">
+              <span>🔊</span> Listen Full Sentence
+            </button>
+          </div>
+
+          <p id="quizFullSentenceResult" class="text-base font-bold text-white italic bg-slate-950/50 p-3 rounded-xl border border-slate-800/80">
+            <!-- Full sentence text -->
+          </p>
+
+          <p id="quizExplanationText" class="text-xs sm:text-sm text-slate-300 font-medium">
+            <!-- Detailed explanation adapted for A1 or A2 -->
+          </p>
+
+          <div class="pt-2 flex justify-end">
+            <button onclick="nextQuiz()" class="px-6 py-2.5 rounded-xl bg-sky-500 hover:bg-sky-400 text-slate-950 font-black text-xs shadow-md transition">
+              Next Question ➡️
+            </button>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- VIEW 4: CELEBRATION SUMMARY SCREEN (End of Quiz) -->
+    <section id="viewSummary" class="hidden max-w-3xl mx-auto bg-slate-900 border border-slate-800 rounded-3xl p-6 md:p-8 shadow-2xl text-center space-y-6">
+      <div class="w-20 h-20 mx-auto rounded-3xl bg-gradient-to-tr from-amber-400 via-emerald-400 to-sky-400 p-1 flex items-center justify-center shadow-xl">
+        <div class="w-full h-full bg-slate-900 rounded-[22px] flex items-center justify-center text-4xl">
+          🏆
+        </div>
+      </div>
+
+      <div class="space-y-2">
+        <h2 class="font-fun text-3xl md:text-4xl font-black text-white">Quiz Completed!</h2>
+        <p class="text-slate-400 text-sm md:text-base">Fantastic job, class! You have practiced all 24 Adverbs of Frequency scenarios.</p>
+      </div>
+
+      <!-- Quick Roster Score Cards -->
+      <div id="summaryRosterGrid" class="grid grid-cols-2 sm:grid-cols-4 gap-3 text-left">
+        <!-- Populated via JS -->
+      </div>
+
+      <div class="flex flex-wrap items-center justify-center gap-3 pt-4 border-t border-slate-800">
+        <button onclick="switchView('demos')" class="px-6 py-3 rounded-2xl bg-slate-800 hover:bg-slate-700 text-white font-bold text-sm border border-slate-700 transition">
+          💡 Review 24 Demos
+        </button>
+        <button onclick="restartQuiz()" class="px-6 py-3 rounded-2xl bg-sky-500 hover:bg-sky-400 text-slate-950 font-extrabold text-sm shadow-lg transition">
+          🔄 Restart Quiz
+        </button>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- HIDDEN-BY-DEFAULT TEACHER TOOLS DRAWER & RESPONSE MATRIX MODAL -->
+
+  <!-- Subtle Teacher Overlay / Modal -->
+  <div id="teacherModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md z-50 flex items-center justify-center p-4 hidden">
+    <div class="bg-slate-900 border border-slate-800 rounded-3xl max-w-4xl w-full max-h-[90vh] flex flex-col shadow-2xl overflow-hidden">
+      
+      <!-- Modal Header -->
+      <div class="p-5 border-b border-slate-800 flex items-center justify-between bg-slate-950">
+        <div class="flex items-center gap-2">
+          <span class="text-xl">🔒</span>
+          <div>
+            <h3 class="font-bold text-base text-white">Teacher Admin Tools & Response Matrix</h3>
+            <p class="text-xs text-slate-400">Hidden from students by default • Shortcut: Shift + M</p>
+          </div>
+        </div>
+        <button onclick="toggleTeacherDrawer()" class="p-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white transition">
+          ✕
+        </button>
+      </div>
+
+      <!-- Modal Body -->
+      <div class="p-6 overflow-y-auto space-y-6 flex-grow">
+        
+        <!-- Response Tracking Switch -->
+        <div class="bg-slate-950 p-4 rounded-2xl border border-slate-800 flex flex-wrap items-center justify-between gap-4">
+          <div>
+            <h4 class="font-bold text-sm text-slate-200">Track Student Quiz Responses</h4>
+            <p class="text-xs text-slate-400">When enabled, student quiz attempts are logged in the matrix below.</p>
+          </div>
+          <label class="relative inline-flex items-center cursor-pointer">
+            <input type="checkbox" id="toggleTrackingCheckbox" onchange="toggleTracking(this.checked)" class="sr-only peer">
+            <div class="w-11 h-6 bg-slate-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-emerald-500"></div>
+            <span class="ml-3 text-xs font-bold text-slate-300" id="trackingStatusLabel">OFF</span>
+          </label>
+        </div>
+
+        <!-- Student Mastered Summary Table -->
+        <div class="space-y-3">
+          <h4 class="font-bold text-sm text-slate-200">Adverb Mastery Breakdown</h4>
+          <div class="overflow-x-auto rounded-xl border border-slate-800">
+            <table class="w-full text-xs text-left text-slate-300">
+              <thead class="bg-slate-950 text-slate-400 font-bold uppercase tracking-wider">
+                <tr>
+                  <th class="p-3">Student</th>
+                  <th class="p-3 text-emerald-400">ALWAYS</th>
+                  <th class="p-3 text-sky-400">USUALLY</th>
+                  <th class="p-3 text-amber-400">SOMETIMES</th>
+                  <th class="p-3 text-orange-400">RARELY</th>
+                  <th class="p-3 text-rose-400">NEVER</th>
+                  <th class="p-3 text-right">Overall %</th>
+                </tr>
+              </thead>
+              <tbody id="matrixSummaryTbody" class="divide-y divide-slate-800 bg-slate-900/60">
+                <!-- Populated via JS -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Full Q1 - Q24 Student Grid View -->
+        <div class="space-y-3">
+          <h4 class="font-bold text-sm text-slate-200">Question Matrix Grid (Q1 – Q24)</h4>
+          <div class="overflow-x-auto rounded-xl border border-slate-800">
+            <table class="w-full text-xs text-center border-collapse">
+              <thead class="bg-slate-950 text-slate-400 font-bold">
+                <tr>
+                  <th class="p-2 text-left sticky left-0 bg-slate-950 border-r border-slate-800 min-w-[120px]">Student</th>
+                  <!-- Q1 to Q24 headers -->
+                  <script>
+                    for(let i=1; i<=24; i++) {
+                      document.write(`<th class="p-2 min-w-[36px] border-r border-slate-800">Q${i}</th>`);
+                    }
+                  </script>
+                </tr>
+              </thead>
+              <tbody id="matrixGridTbody" class="divide-y divide-slate-800 bg-slate-900/60">
+                <!-- Populated via JS -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Modal Footer -->
+      <div class="p-4 bg-slate-950 border-t border-slate-800 flex flex-wrap items-center justify-between gap-3">
+        <button onclick="resetTrackingData()" class="px-4 py-2 rounded-xl bg-slate-800 hover:bg-rose-900/50 text-slate-300 hover:text-rose-300 text-xs font-bold border border-slate-700 transition">
+          🗑️ Reset Tracking Data
+        </button>
+        <div class="flex items-center gap-2">
+          <button onclick="exportCSV()" class="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-slate-950 text-xs font-black transition">
+            📥 Export CSV Data
+          </button>
+          <button onclick="toggleTeacherDrawer()" class="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-white text-xs font-bold border border-slate-700 transition">
+            Close
+          </button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Main App Footer -->
+  <footer class="bg-slate-950 border-t border-slate-900 px-4 py-4 text-center text-xs text-slate-500">
+    <div class="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-2">
+      <div>Frequency Master • Vietnamese Pre-Teen EFL Interactive Activity</div>
+      <div>Level: <span id="footerLevelBadge" class="font-bold text-slate-300">A1</span> | 24 Demos & 24 Quizzes</div>
+    </div>
+  </footer>
+
+  <!-- JAVASCRIPT DATA & APP LOGIC -->
+  <script>
+    /* ==========================================================================
+       1. GLOBAL STATE & SOUND EFFECTS (WEB AUDIO API)
+       ========================================================================== */
+    let currentCEFRLevel = 'A1'; // 'A1' or 'A2'
+    let currentView = 'setup'; // 'setup', 'demos', 'quiz', 'summary'
+    let isMuted = false;
+    let showVnGloss = false;
+    let trackingEnabled = false;
+
+    // Student Roster (2 to 8)
+    const availableAvatars = ['👦', '👧', '🧑', '👨‍🎓', '👩‍🎓', '🚀', '⚽', '🎨', '🎧', '🎮'];
+    let students = [
+      { id: 1, name: 'Linh', avatar: '👧' },
+      { id: 2, name: 'Minh', avatar: '👦' },
+      { id: 3, name: 'Bảo', avatar: '🧑' },
+      { id: 4, name: 'Vy', avatar: '👩‍🎓' }
+    ];
+    let currentStudentIndex = 0;
+
+    // Navigation Indexes
+    let currentDemoIndex = 0; // 0 to 23
+    let currentQuizIndex = 0; // 0 to 23
+
+    // Tracking Matrix Data structure: studentId -> { questionId: { attempted: true, correct: boolean, chosen: string, level: string } }
+    let trackingData = {};
+
+    // Web Audio Synthesizer
+    const AudioCtx = window.AudioContext || window.webkitAudioContext;
+    let audioCtx = null;
+
+    function initAudio() {
+      if (!audioCtx) {
+        audioCtx = new AudioCtx();
+      }
+      if (audioCtx.state === 'suspended') {
+        audioCtx.resume();
+      }
+    }
+
+    function playTone(freq, type, duration, gainVal = 0.1) {
+      if (isMuted) return;
+      try {
+        initAudio();
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = type;
+        osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+        gain.gain.setValueAtTime(gainVal, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + duration);
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start();
+        osc.stop(audioCtx.currentTime + duration);
+      } catch (e) { }
+    }
+
+    function playSound(effect) {
+      if (isMuted) return;
+      if (effect === 'click') {
+        playTone(600, 'sine', 0.05, 0.05);
+      } else if (effect === 'tick') {
+        playTone(800, 'triangle', 0.04, 0.03);
+      } else if (effect === 'correct') {
+        initAudio();
+        playTone(523.25, 'sine', 0.1, 0.1); // C5
+        setTimeout(() => playTone(659.25, 'sine', 0.1, 0.1), 100); // E5
+        setTimeout(() => playTone(783.99, 'sine', 0.2, 0.1), 200); // G5
+      } else if (effect === 'wrong') {
+        playTone(220, 'sawtooth', 0.2, 0.08);
+      } else if (effect === 'fanfare') {
+        playTone(440, 'triangle', 0.15, 0.1);
+        setTimeout(() => playTone(554.37, 'triangle', 0.15, 0.1), 150);
+        setTimeout(() => playTone(659.25, 'triangle', 0.3, 0.1), 300);
+      }
+    }
+
+    function toggleMute() {
+      isMuted = !isMuted;
+      document.getElementById('btnMuteToggle').innerText = isMuted ? '🔇' : '🔊';
+    }
+
+    // Web Speech Synthesis
+    function speakSentence(elementId) {
+      const el = document.getElementById(elementId);
+      if (!el) return;
+      const text = el.innerText || el.textContent;
+      if ('speechSynthesis' in window) {
+        window.speechSynthesis.cancel(); // Stop ongoing
+        const utterance = new SpeechSynthesisUtterance(text);
+        utterance.lang = 'en-US';
+        utterance.rate = 0.9; // natural classroom speed
+        window.speechSynthesis.speak(utterance);
+      }
+    }
+
+    // Confetti Engine
+    function triggerConfetti() {
+      const canvas = document.getElementById('confettiCanvas');
+      const ctx = canvas.getContext('2d');
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+
+      const particles = [];
+      const colors = ['#10b981', '#0ea5e9', '#f59e0b', '#f97316', '#8b5cf6', '#ec4899'];
+      for (let i = 0; i < 60; i++) {
+        particles.push({
+          x: canvas.width / 2,
+          y: canvas.height / 2,
+          vx: (Math.random() - 0.5) * 16,
+          vy: (Math.random() - 0.7) * 16,
+          size: Math.random() * 8 + 4,
+          color: colors[Math.floor(Math.random() * colors.length)],
+          rotation: Math.random() * 360,
+          rotationSpeed: (Math.random() - 0.5) * 10
+        });
+      }
+
+      let animationFrame;
+      const startTime = Date.now();
+
+      function render() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        let alive = false;
+        particles.forEach(p => {
+          p.x += p.vx;
+          p.y += p.vy;
+          p.vy += 0.4; // gravity
+          p.rotation += p.rotationSpeed;
+          if (p.y < canvas.height) alive = true;
+
+          ctx.save();
+          ctx.translate(p.x, p.y);
+          ctx.rotate((p.rotation * Math.PI) / 180);
+          ctx.fillStyle = p.color;
+          ctx.fillRect(-p.size / 2, -p.size / 2, p.size, p.size);
+          ctx.restore();
+        });
+
+        if (alive && Date.now() - startTime < 1800) {
+          animationFrame = requestAnimationFrame(render);
+        } else {
+          ctx.clearRect(0, 0, canvas.width, canvas.height);
+          cancelAnimationFrame(animationFrame);
+        }
+      }
+      render();
+    }
+
+    /* ==========================================================================
+       2. DATABASE: 24 DEMONSTRATIONS & 24 QUIZZES (FULL A1 / A2 CONTENT)
+       ========================================================================== */
+
+    const demoDatabase = [
+      // 1-5: ALWAYS (7/7)
+      {
+        id: 1, targetAdverb: 'ALWAYS', defaultDays: 7, category: 'HYGIENE',
+        icon: '🪥', title: 'Brushing Teeth Before Bed',
+        A1: {
+          description: 'Every single night before sleeping, Linh brushes her teeth.',
+          subj: 'Linh', adv: 'ALWAYS', verb: 'brushes her teeth before bed.', beVerb: false,
+          grammarTip: 'Subject + ALWAYS + Main Verb'
+        },
+        A2: {
+          description: 'To maintain strong dental health and avoid cavities, Linh ensures her teeth are clean.',
+          subj: 'Linh', adv: 'ALWAYS', verb: 'brushes her teeth before she goes to sleep.', beVerb: false,
+          grammarTip: 'Subject + ALWAYS + Main Verb (Present Simple habitual action)'
+        }
+      },
+      {
+        id: 2, targetAdverb: 'ALWAYS', defaultDays: 7, category: 'SAFETY',
+        icon: '🪖', title: 'Wearing a Helmet on a Motorbike',
+        A1: {
+          description: 'When riding on his father’s motorbike, Minh wears a helmet.',
+          subj: 'Minh', adv: 'ALWAYS', verb: 'wears a helmet on the motorbike.', beVerb: false,
+          grammarTip: 'Subject + ALWAYS + Main Verb'
+        },
+        A2: {
+          description: 'Road safety laws in Vietnam are strict, so Minh fasten his helmet strap every time.',
+          subj: 'Minh', adv: 'ALWAYS', verb: 'fastens his helmet strap before his dad starts the motorbike.', beVerb: false,
+          grammarTip: 'Subject + ALWAYS + Main Verb + Clause'
+        }
+      },
+      {
+        id: 3, targetAdverb: 'ALWAYS', defaultDays: 7, category: 'LANGUAGE',
+        icon: '🏠', title: 'Speaking Vietnamese at Home',
+        A1: {
+          description: 'Bảo speaks Vietnamese with his parents and family at home.',
+          subj: 'Bảo and his family', adv: 'ALWAYS', verb: 'speak Vietnamese at home.', beVerb: false,
+          grammarTip: 'Subject + ALWAYS + Main Verb'
+        },
+        A2: {
+          description: 'Even though he practices English at school, Bảo communicates in Vietnamese with his elders.',
+          subj: 'Bảo', adv: 'ALWAYS', verb: 'speaks Vietnamese when conversing with his family.', beVerb: false,
+          grammarTip: 'Subject + ALWAYS + Main Verb'
+        }
+      },
+      {
+        id: 4, targetAdverb: 'ALWAYS', defaultDays: 7, category: 'NATURE',
+        icon: '🌅', title: 'The Sun Rising in the East',
+        A1: {
+          description: 'The sun comes up in the east every morning.',
+          subj: 'The sun', adv: 'ALWAYS', verb: 'rises in the east.', beVerb: false,
+          grammarTip: 'Universal Fact: Subject + ALWAYS + Verb'
+        },
+        A2: {
+          description: 'Due to the Earth’s rotation from west to east, sunrise occurs in the eastern horizon.',
+          subj: 'The sun', adv: 'ALWAYS', verb: 'rises in the eastern sky every morning.', beVerb: false,
+          grammarTip: 'Universal Fact: Subject + ALWAYS + Verb'
+        }
+      },
+      {
+        id: 5, targetAdverb: 'ALWAYS', defaultDays: 7, category: 'SCIENCE',
+        icon: '💧', title: 'Needing Water to Live',
+        A1: {
+          description: 'All living people and animals need clean water to live.',
+          subj: 'Humans', adv: 'ALWAYS', verb: 'need fresh water to survive.', beVerb: false,
+          grammarTip: 'Subject + ALWAYS + Main Verb'
+        },
+        A2: {
+          description: 'Biological processes require hydration continuously throughout life.',
+          subj: 'Human bodies', adv: 'ALWAYS', verb: 'require water to function properly.', beVerb: false,
+          grammarTip: 'Scientific Fact: Subject + ALWAYS + Verb'
+        }
+      },
+
+      // 6-10: USUALLY (5-6 days)
+      {
+        id: 6, targetAdverb: 'USUALLY', defaultDays: 6, category: 'MEALS',
+        icon: '🍚', title: 'Eating Rice for Dinner',
+        A1: {
+          description: 'Vy eats rice with her family for dinner most days of the week.',
+          subj: 'Vy’s family', adv: 'USUALLY', verb: 'eats rice for dinner.', beVerb: false,
+          grammarTip: 'Subject + USUALLY + Main Verb (~80%)'
+        },
+        A2: {
+          description: 'Steamed rice is the central staple of Vietnamese meals, though they occasionally have noodles.',
+          subj: 'Vy’s family', adv: 'USUALLY', verb: 'serves warm rice for family dinner.', beVerb: false,
+          grammarTip: 'Subject + USUALLY + Main Verb'
+        }
+      },
+      {
+        id: 7, targetAdverb: 'USUALLY', defaultDays: 5, category: 'STUDIES',
+        icon: '📚', title: 'Evening Homework Routine',
+        A1: {
+          description: 'Khoa does his homework after dinner on school nights.',
+          subj: 'Khoa', adv: 'USUALLY', verb: 'completes his homework in the evening.', beVerb: false,
+          grammarTip: 'Subject + USUALLY + Main Verb'
+        },
+        A2: {
+          description: 'Unless he has a special day off, Khoa spends an hour studying at his desk after dinner.',
+          subj: 'Khoa', adv: 'USUALLY', verb: 'finishes his assignments before relaxing.', beVerb: false,
+          grammarTip: 'Subject + USUALLY + Main Verb'
+        }
+      },
+      {
+        id: 8, targetAdverb: 'USUALLY', defaultDays: 6, category: 'WEATHER',
+        icon: '🌧️', title: 'Raincoats in Saigon Monsoon',
+        A1: {
+          description: 'During the rainy season, people carry raincoats in their motorbikes.',
+          subj: 'People in Ho Chi Minh City', adv: 'USUALLY', verb: 'carry raincoats in May.', beVerb: false,
+          grammarTip: 'Subject + USUALLY + Main Verb'
+        },
+        A2: {
+          description: 'Because afternoon downpours are frequent during monsoon season, commuters pack rain gear.',
+          subj: 'Commuters', adv: 'USUALLY', verb: 'keep raincoats stored inside their motorbikes.', beVerb: false,
+          grammarTip: 'Subject + USUALLY + Main Verb'
+        }
+      },
+      {
+        id: 9, targetAdverb: 'USUALLY', defaultDays: 6, category: 'COMMUTE',
+        icon: '🚲', title: 'Going to School by Bicycle or Motorbike',
+        A1: {
+          description: 'Ngọc goes to school on her bicycle with her classmates.',
+          subj: 'Ngọc', adv: 'USUALLY', verb: 'rides her bicycle to school.', beVerb: false,
+          grammarTip: 'Subject + USUALLY + Main Verb'
+        },
+        A2: {
+          description: 'Since her school is only one kilometer away from home, riding a bicycle is her main commute.',
+          subj: 'Ngọc', adv: 'USUALLY', verb: 'cycles to school unless it rains heavily.', beVerb: false,
+          grammarTip: 'Subject + USUALLY + Main Verb'
+        }
+      },
+      {
+        id: 10, targetAdverb: 'USUALLY', defaultDays: 6, category: 'TECH',
+        icon: '🔋', title: 'Charging Devices Before Battery Dies',
+        A1: {
+          description: 'Huy charges his tablet when the battery drops low.',
+          subj: 'Huy', adv: 'USUALLY', verb: 'charges his tablet at night.', beVerb: false,
+          grammarTip: 'Subject + USUALLY + Main Verb'
+        },
+        A2: {
+          description: 'To ensure his device is ready for school projects, Huy plugs it in every evening.',
+          subj: 'Huy', adv: 'USUALLY', verb: 'plugs in his tablet before the battery turns red.', beVerb: false,
+          grammarTip: 'Subject + USUALLY + Main Verb'
+        }
+      },
+
+      // 11-15: SOMETIMES (2-4 days)
+      {
+        id: 11, targetAdverb: 'SOMETIMES', defaultDays: 3, category: 'TREATS',
+        icon: '🧋', title: 'Drinking Bubble Tea (Trà Sữa)',
+        A1: {
+          description: 'Trang drinks bubble tea with her friends on warm afternoons.',
+          subj: 'Trang', adv: 'SOMETIMES', verb: 'drinks bubble tea after class.', beVerb: false,
+          grammarTip: 'Subject + SOMETIMES + Main Verb (~50%)'
+        },
+        A2: {
+          description: 'As a weekend treat, Trang joins her friends at the tea shop near school.',
+          subj: 'Trang', adv: 'SOMETIMES', verb: 'buys boba milk tea on Friday afternoons.', beVerb: false,
+          grammarTip: 'Subject + SOMETIMES + Main Verb'
+        }
+      },
+      {
+        id: 12, targetAdverb: 'SOMETIMES', defaultDays: 3, category: 'BREAKFAST',
+        icon: '🥖', title: 'Eating Bánh Mì or Phở for Breakfast',
+        A1: {
+          description: 'Nam eats bánh mì for breakfast on his way to school.',
+          subj: 'Nam', adv: 'SOMETIMES', verb: 'eats bánh mì for breakfast.', beVerb: false,
+          grammarTip: 'Subject + SOMETIMES + Main Verb'
+        },
+        A2: {
+          description: 'When his mother doesn’t cook breakfast at home, Nam buys a crispy bánh mì at the street stall.',
+          subj: 'Nam', adv: 'SOMETIMES', verb: 'grabs a warm bánh mì before morning class.', beVerb: false,
+          grammarTip: 'Subject + SOMETIMES + Main Verb'
+        }
+      },
+      {
+        id: 13, targetAdverb: 'SOMETIMES', defaultDays: 3, category: 'SPORTS',
+        icon: '🏸', title: 'Playing Badminton in the Alley',
+        A1: {
+          description: 'Hoa plays badminton with her neighbor in the afternoon.',
+          subj: 'Hoa', adv: 'SOMETIMES', verb: 'plays badminton after school.', beVerb: false,
+          grammarTip: 'Subject + SOMETIMES + Main Verb'
+        },
+        A2: {
+          description: 'When the weather is cool and sunny, Hoa meets her neighbors for a game of badminton.',
+          subj: 'Hoa', adv: 'SOMETIMES', verb: 'matches up with friends for badminton.', beVerb: false,
+          grammarTip: 'Subject + SOMETIMES + Main Verb'
+        }
+      },
+      {
+        id: 14, targetAdverb: 'SOMETIMES', defaultDays: 3, category: 'MEDIA',
+        icon: '📺', title: 'Watching English Cartoons',
+        A1: {
+          description: 'Tân watches English cartoons on YouTube on weekends.',
+          subj: 'Tân', adv: 'SOMETIMES', verb: 'watches English cartoons on Sunday.', beVerb: false,
+          grammarTip: 'Subject + SOMETIMES + Main Verb'
+        },
+        A2: {
+          description: 'To practice listening skills, Tân enjoys animated videos on YouTube during his free time.',
+          subj: 'Tân', adv: 'SOMETIMES', verb: 'streams English animated shows on weekends.', beVerb: false,
+          grammarTip: 'Subject + SOMETIMES + Main Verb'
+        }
+      },
+      {
+        id: 15, targetAdverb: 'SOMETIMES', defaultDays: 4, category: 'CHORES',
+        icon: '🧹', title: 'Helping Wash Dishes & Sweep',
+        A1: {
+          description: 'Phúc helps his mother sweep the floor and clean dishes.',
+          subj: 'Phúc', adv: 'SOMETIMES', verb: 'helps his parents with household chores.', beVerb: false,
+          grammarTip: 'Subject + SOMETIMES + Main Verb'
+        },
+        A2: {
+          description: 'When his homework is completed early, Phúc assists his family with evening house cleaning.',
+          subj: 'Phúc', adv: 'SOMETIMES', verb: 'washes dishes after family dinner.', beVerb: false,
+          grammarTip: 'Subject + SOMETIMES + Main Verb'
+        }
+      },
+
+      // 16-20: RARELY (1 day)
+      {
+        id: 16, targetAdverb: 'RARELY', defaultDays: 1, category: 'SLEEP',
+        icon: '🌙', title: 'Staying Awake Past Midnight',
+        A1: {
+          description: 'Mai goes to bed early. She stays up past 12 AM very seldom.',
+          subj: 'Mai', adv: 'RARELY', verb: 'stays awake past midnight on school nights.', beVerb: false,
+          grammarTip: 'Subject + RARELY + Main Verb (~15%)'
+        },
+        A2: {
+          description: 'Because Mai prioritizes getting enough sleep for school, late nights are very unusual for her.',
+          subj: 'Mai', adv: 'RARELY', verb: 'remains awake after 12:00 AM.', beVerb: false,
+          grammarTip: 'Subject + RARELY + Main Verb'
+        }
+      },
+      {
+        id: 17, targetAdverb: 'RARELY', defaultDays: 1, category: 'ENTERTAINMENT',
+        icon: '🍿', title: 'Going to Cinema on a Tuesday Night',
+        A1: {
+          description: 'Going to the movie theater happens only on special occasions.',
+          subj: 'Students', adv: 'RARELY', verb: 'go to the cinema on Tuesday evenings.', beVerb: false,
+          grammarTip: 'Subject + RARELY + Main Verb'
+        },
+        A2: {
+          description: 'Mid-week cinema trips are uncommon since students have homework and early morning classes.',
+          subj: 'Pre-teens', adv: 'RARELY', verb: 'visit movie theaters during mid-week nights.', beVerb: false,
+          grammarTip: 'Subject + RARELY + Main Verb'
+        }
+      },
+      {
+        id: 18, targetAdverb: 'RARELY', defaultDays: 1, category: 'CLIMATE',
+        icon: '❄️', title: 'Natural Snowfall in Vietnam',
+        A1: {
+          description: 'Snow only falls on high mountain peaks like Sa Pa in extreme winter.',
+          subj: 'It', adv: 'RARELY', verb: 'snows in the northern mountains of Vietnam.', beVerb: false,
+          grammarTip: 'Subject + RARELY + Main Verb'
+        },
+        A2: {
+          description: 'Because Vietnam has a tropical climate, snow occurs exclusively in high peak areas during severe cold snaps.',
+          subj: 'High regions like Sa Pa', adv: 'RARELY', verb: 'experience real snowfall.', beVerb: false,
+          grammarTip: 'Subject + RARELY + Main Verb'
+        }
+      },
+      {
+        id: 19, targetAdverb: 'RARELY', defaultDays: 1, category: 'MISTAKES',
+        icon: '🎒', title: 'Forgetting Backpack at Home',
+        A1: {
+          description: 'An checks his school bag every night so he does not forget it.',
+          subj: 'An', adv: 'RARELY', verb: 'forgets his backpack at home.', beVerb: false,
+          grammarTip: 'Subject + RARELY + Main Verb'
+        },
+        A2: {
+          description: 'Because An packs his timetable books the evening before, leaving his bag behind is very uncommon.',
+          subj: 'An', adv: 'RARELY', verb: 'leaves his school bag behind.', beVerb: false,
+          grammarTip: 'Subject + RARELY + Main Verb'
+        }
+      },
+      {
+        id: 20, targetAdverb: 'RARELY', defaultDays: 1, category: 'FOOD',
+        icon: '🌶️', title: 'Eating Whole Raw Chili Peppers',
+        A1: {
+          description: 'Spicy chili is very hot, so kids do not eat raw chilis whole.',
+          subj: 'Young students', adv: 'RARELY', verb: 'eat an entire spicy chili pepper raw.', beVerb: false,
+          grammarTip: 'Subject + RARELY + Main Verb'
+        },
+        A2: {
+          description: 'Due to the intense spice level of bird’s eye chilis, kids seldom eat them without food.',
+          subj: 'Children', adv: 'RARELY', verb: 'chew on raw chili peppers directly.', beVerb: false,
+          grammarTip: 'Subject + RARELY + Main Verb'
+        }
+      },
+
+      // 21-24: NEVER (0 days)
+      {
+        id: 21, targetAdverb: 'NEVER', defaultDays: 0, category: 'RULES',
+        icon: '🚌', title: '12-Year-Old Driving a Bus',
+        A1: {
+          description: 'Twelve-year-old children are too young to drive buses on roads.',
+          subj: 'A 12-year-old student', adv: 'NEVER', verb: 'drives a city bus.', beVerb: false,
+          grammarTip: 'Subject + NEVER + Main Verb (0%)'
+        },
+        A2: {
+          description: 'Under Vietnamese driving laws, minors under 18 cannot operate heavy motor vehicles.',
+          subj: 'Pre-teens', adv: 'NEVER', verb: 'drive public buses on municipal roads.', beVerb: false,
+          grammarTip: 'Subject + NEVER + Main Verb'
+        }
+      },
+      {
+        id: 22, targetAdverb: 'NEVER', defaultDays: 0, category: 'WEATHER',
+        icon: '🧥', title: 'Heavy Winter Snow Coats in Saigon',
+        A1: {
+          description: 'Ho Chi Minh City is always hot and warm, never freezing cold.',
+          subj: 'Students in Saigon', adv: 'NEVER', verb: 'wear heavy snow coats to school.', beVerb: false,
+          grammarTip: 'Subject + NEVER + Main Verb'
+        },
+        A2: {
+          description: 'With year-round tropical temperatures averaging 28°C, heavy winter outerwear is completely unnecessary.',
+          subj: 'Saigon residents', adv: 'NEVER', verb: 'wear Arctic snow coats during school term.', beVerb: false,
+          grammarTip: 'Subject + NEVER + Main Verb'
+        }
+      },
+      {
+        id: 23, targetAdverb: 'NEVER', defaultDays: 0, category: 'HOLIDAYS',
+        icon: '🧧', title: 'School Classes on First Day of Tết',
+        A1: {
+          description: 'On Mùng 1 Tết, all schools in Vietnam are closed for Lunar New Year.',
+          subj: 'Vietnamese schools', adv: 'NEVER', verb: 'hold regular classes on the 1st day of Tết.', beVerb: false,
+          grammarTip: 'Subject + NEVER + Main Verb'
+        },
+        A2: {
+          description: 'The Lunar New Year is the most sacred national holiday, so educational institutions are shut.',
+          subj: 'Students', adv: 'NEVER', verb: 'attend regular academic classes on Mùng 1 Tết.', beVerb: false,
+          grammarTip: 'Subject + NEVER + Main Verb'
+        }
+      },
+      {
+        id: 24, targetAdverb: 'NEVER', defaultDays: 0, category: 'LOGIC',
+        icon: '🐟', title: 'Goldfish Riding Bicycles',
+        A1: {
+          description: 'Goldfish live underwater in aquariums and do not have legs.',
+          subj: 'A pet goldfish', adv: 'NEVER', verb: 'rides a bicycle to the market.', beVerb: false,
+          grammarTip: 'Subject + NEVER + Main Verb'
+        },
+        A2: {
+          description: 'Aquatic animals lack limbs and land respiration, making bicycle riding physically impossible.',
+          subj: 'Goldfish', adv: 'NEVER', verb: 'ride bicycles down street markets.', beVerb: false,
+          grammarTip: 'Subject + NEVER + Main Verb'
+        }
+      }
+    ];
+
+    const quizDatabase = [
+      // 1-8: VISUAL WEEK DECODER (Style 1)
+      {
+        id: 1, style: 'VISUAL', styleName: 'Visual Week Decoder',
+        days: [true, true, true, true, true, true, true], // 7/7 ALWAYS
+        icon: '🤸', targetAdverb: 'ALWAYS',
+        A1: {
+          prompt: 'Look at Nam’s weekly schedule. He does morning stretches from Monday to Sunday.',
+          sentenceBefore: 'Nam', sentenceAfter: 'does morning stretches before school.',
+          explanation: 'Nam does stretches 7 out of 7 days (100%), so we use ALWAYS.'
+        },
+        A2: {
+          prompt: 'Observe Nam’s morning habit log for all 7 days of the week.',
+          sentenceBefore: 'Nam is dedicated to fitness, so he', sentenceAfter: 'performs morning stretches before breakfast.',
+          explanation: 'With a 100% completion frequency across the entire week, ALWAYS is the logically correct adverb.'
+        }
+      },
+      {
+        id: 2, style: 'VISUAL', styleName: 'Visual Week Decoder',
+        days: [true, true, true, true, true, true, false], // 6/7 USUALLY
+        icon: '🎹', targetAdverb: 'USUALLY',
+        A1: {
+          prompt: 'Look at Mai’s piano schedule. She plays 6 days a week.',
+          sentenceBefore: 'Mai', sentenceAfter: 'practices piano in the evening.',
+          explanation: 'Mai practices 6 out of 7 days (~80%), so we use USUALLY.'
+        },
+        A2: {
+          prompt: 'Examine Mai’s music practice chart. She rests only on Sunday.',
+          sentenceBefore: 'Mai', sentenceAfter: 'rehearses her piano pieces after finishing homework.',
+          explanation: 'Practicing on 6 out of 7 days represents high regular frequency (~85%), corresponding to USUALLY.'
+        }
+      },
+      {
+        id: 3, style: 'VISUAL', styleName: 'Visual Week Decoder',
+        days: [true, false, true, false, true, false, false], // 3/7 SOMETIMES
+        icon: '🏊', targetAdverb: 'SOMETIMES',
+        A1: {
+          prompt: 'Look at Tuấn’s calendar. He swims on Mon, Wed, and Fri.',
+          sentenceBefore: 'Tuấn', sentenceAfter: 'goes swimming after school.',
+          explanation: 'Tuấn swims 3 days a week (~50%), so we use SOMETIMES.'
+        },
+        A2: {
+          prompt: 'Review Tuấn’s sports log showing 3 active days per week.',
+          sentenceBefore: 'Tuấn', sentenceAfter: 'swims at the local pool on alternating weekdays.',
+          explanation: '3 days out of 7 represents mid-level frequency (~43%), matching SOMETIMES.'
+        }
+      },
+      {
+        id: 4, style: 'VISUAL', styleName: 'Visual Week Decoder',
+        days: [false, false, false, false, false, true, false], // 1/7 RARELY
+        icon: '🍕', targetAdverb: 'RARELY',
+        A1: {
+          prompt: 'Look at Lan’s dinner chart. She eats pizza only on Saturday.',
+          sentenceBefore: 'Lan', sentenceAfter: 'eats fast-food pizza for dinner.',
+          explanation: 'Lan eats pizza only 1 day a week (~15%), so we use RARELY.'
+        },
+        A2: {
+          prompt: 'Check Lan’s meal tracker for fast food consumption.',
+          sentenceBefore: 'Lan prefers home-cooked rice, so she', sentenceAfter: 'orders takeaway pizza.',
+          explanation: 'Only 1 occurrence out of 7 days signifies low frequency (~14%), which aligns with RARELY.'
+        }
+      },
+      {
+        id: 5, style: 'VISUAL', styleName: 'Visual Week Decoder',
+        days: [false, false, false, false, false, false, false], // 0/7 NEVER
+        icon: '🥐', targetAdverb: 'NEVER',
+        A1: {
+          prompt: 'Look at Khoa’s breakfast tracker. 0 checkmarks for fast food breakfasts.',
+          sentenceBefore: 'Khoa', sentenceAfter: 'skips his morning meal.',
+          explanation: 'Khoa skips breakfast 0 days (0%), so he NEVER skips breakfast.'
+        },
+        A2: {
+          prompt: 'Analyze Khoa’s health record showing zero skipped meals.',
+          sentenceBefore: 'Khoa understands the importance of nutrition, so he', sentenceAfter: 'misses morning breakfast.',
+          explanation: '0 days out of 7 equals 0% frequency, making NEVER the correct choice.'
+        }
+      },
+      {
+        id: 6, style: 'VISUAL', styleName: 'Visual Week Decoder',
+        days: [true, true, true, true, true, true, true], // 7/7 ALWAYS
+        icon: '🌱', targetAdverb: 'ALWAYS',
+        A1: {
+          prompt: 'Hoa waters her desk plants every morning from Mon to Sun.',
+          sentenceBefore: 'Hoa', sentenceAfter: 'waters her desk plants in the morning.',
+          explanation: '7/7 days is 100% frequency: ALWAYS.'
+        },
+        A2: {
+          prompt: 'Inspect Hoa’s garden care calendar covering all 7 days.',
+          sentenceBefore: 'To keep her balcony green, Hoa', sentenceAfter: 'waters her flowers every morning.',
+          explanation: 'Consistency across all 7 days demands ALWAYS.'
+        }
+      },
+      {
+        id: 7, style: 'VISUAL', styleName: 'Visual Week Decoder',
+        days: [true, true, true, true, true, false, false], // 5/7 USUALLY
+        icon: '📖', targetAdverb: 'USUALLY',
+        A1: {
+          prompt: 'Đức reads English books 5 days a week after school.',
+          sentenceBefore: 'Đức', sentenceAfter: 'reads storybooks before bedtime.',
+          explanation: '5 days out of 7 is high frequency (~70%): USUALLY.'
+        },
+        A2: {
+          prompt: 'Review Đức’s weekly reading log on school days.',
+          sentenceBefore: 'Đức', sentenceAfter: 'spends 20 minutes reading English stories on weekdays.',
+          explanation: '5 days out of 7 represents regular habit (~70%), so USUALLY is correct.'
+        }
+      },
+      {
+        id: 8, style: 'VISUAL', styleName: 'Visual Week Decoder',
+        days: [false, true, false, false, true, false, false], // 2/7 SOMETIMES
+        icon: '🍦', targetAdverb: 'SOMETIMES',
+        A1: {
+          prompt: 'Linh eats ice cream on Tuesday and Friday afternoons.',
+          sentenceBefore: 'Linh', sentenceAfter: 'treats herself to coconut ice cream.',
+          explanation: '2 days a week is occasional (~30%): SOMETIMES.'
+        },
+        A2: {
+          prompt: 'Look at Linh’s dessert log showing 2 days per week.',
+          sentenceBefore: 'Linh', sentenceAfter: 'enjoys an ice cream cone after school.',
+          explanation: '2 days out of 7 is occasional (~28%), corresponding to SOMETIMES.'
+        }
+      },
+
+      // 9-18: REAL-LIFE LOGIC DETECTIVE (Style 2)
+      {
+        id: 9, style: 'LOGIC', styleName: 'Real-Life Logic Detective',
+        clue: '🫁 Scientific Fact: Without oxygen, human cells stop working in minutes.',
+        targetAdverb: 'ALWAYS',
+        A1: {
+          prompt: 'Logical Fact: Humans need oxygen to stay alive.',
+          sentenceBefore: 'Human beings', sentenceAfter: 'need oxygen to breathe and live.',
+          explanation: 'Oxygen is required 100% of the time, so ALWAYS is correct.'
+        },
+        A2: {
+          prompt: 'Biological Necessity: Respiration is a continuous involuntary function.',
+          sentenceBefore: 'Living humans', sentenceAfter: 'require oxygen to sustain bodily functions.',
+          explanation: 'Since respiration never stops in living beings, ALWAYS is required.'
+        }
+      },
+      {
+        id: 10, style: 'LOGIC', styleName: 'Real-Life Logic Detective',
+        clue: '🚘 Legal Rule: Driving licenses in Vietnam require drivers to be at least 18 years old.',
+        targetAdverb: 'NEVER',
+        A1: {
+          prompt: 'Legal Fact: 12-year-old students do not have driver’s licenses.',
+          sentenceBefore: 'A 12-year-old student', sentenceAfter: 'drives a car on the highway legally.',
+          explanation: 'Children cannot legally drive cars, so the answer is NEVER.'
+        },
+        A2: {
+          prompt: 'Traffic Law Logic: Minors are legally prohibited from driving cars.',
+          sentenceBefore: 'Grade 7 students', sentenceAfter: 'operate motor vehicles on national highways.',
+          explanation: 'Because it is legally impossible and unsafe, NEVER is the only correct answer.'
+        }
+      },
+      {
+        id: 11, style: 'LOGIC', styleName: 'Real-Life Logic Detective',
+        clue: '☀️ Saigon Climate: April is the hottest month in Southern Vietnam, regularly hitting 35°C–38°C.',
+        targetAdverb: 'USUALLY',
+        A1: {
+          prompt: 'Weather Logic: April in Ho Chi Minh City is very hot almost every day.',
+          sentenceBefore: 'The weather in Saigon in April', sentenceAfter: 'is hot and sunny.',
+          explanation: 'Hot weather in April happens almost every day (~80%+), so USUALLY fits best.'
+        },
+        A2: {
+          prompt: 'Climatic Data: April falls right in the peak of Southern Vietnam’s dry season.',
+          sentenceBefore: 'Daytime temperatures in April', sentenceAfter: 'exceed 34°C in Ho Chi Minh City.',
+          explanation: 'High temperatures occur on the vast majority of days in April, pointing to USUALLY.'
+        }
+      },
+      {
+        id: 12, style: 'LOGIC', styleName: 'Real-Life Logic Detective',
+        clue: '🌀 Meteorology: Typhoons hit Central Vietnam often, but direct strikes in HCMC are rare.',
+        targetAdverb: 'RARELY',
+        A1: {
+          prompt: 'Weather Fact: Direct severe typhoons hit Ho Chi Minh City very seldom.',
+          sentenceBefore: 'Ho Chi Minh City', sentenceAfter: 'gets direct typhoon landfalls.',
+          explanation: 'Typhoons rarely hit Saigon directly (~15%), so RARELY is correct.'
+        },
+        A2: {
+          prompt: 'Geographic Protection: Inland Southern location protects HCMC from direct eye strikes.',
+          sentenceBefore: 'Southern Vietnam coastal regions', sentenceAfter: 'experience eye-level typhoon strikes.',
+          explanation: 'Low historical frequency of direct strikes makes RARELY the accurate adverb.'
+        }
+      },
+      {
+        id: 13, style: 'LOGIC', styleName: 'Real-Life Logic Detective',
+        clue: '🏡 Family Life: Minh’s family visits his grandparents’ farm 2 or 3 times a month.',
+        targetAdverb: 'SOMETIMES',
+        A1: {
+          prompt: 'Family Habit: Minh visits his countryside grandparents a few weekends a month.',
+          sentenceBefore: 'Minh’s family', sentenceAfter: 'travels to the countryside on weekends.',
+          explanation: 'Visiting 2-3 times a month is occasional (~40%), so SOMETIMES is correct.'
+        },
+        A2: {
+          prompt: 'Weekend Trips: Minh balances school with occasional countryside visits.',
+          sentenceBefore: 'During school breaks, Minh’s family', sentenceAfter: 'spends weekends at their village home.',
+          explanation: 'Periodic visits represent medium frequency, so SOMETIMES is selected.'
+        }
+      },
+      {
+        id: 14, style: 'LOGIC', styleName: 'Real-Life Logic Detective',
+        clue: '✨ Astronomy: Stars emit their own light in space continuously night after night.',
+        targetAdverb: 'ALWAYS',
+        A1: {
+          prompt: 'Night Sky Fact: On clear nights, stars twinkle in the dark sky.',
+          sentenceBefore: 'Stars', sentenceAfter: 'shine in the dark night sky.',
+          explanation: 'Stars always emit light in space (100%), so ALWAYS is correct.'
+        },
+        A2: {
+          prompt: 'Astronomical Reality: Celestial stars produce light non-stop.',
+          sentenceBefore: 'Distant stars', sentenceAfter: 'emit light across the night universe.',
+          explanation: 'Continuous celestial light emission means ALWAYS is the true answer.'
+        }
+      },
+      {
+        id: 15, style: 'LOGIC', styleName: 'Real-Life Logic Detective',
+        clue: '🐱 Animal Biology: House cats have no wings and cannot fly through the air.',
+        targetAdverb: 'NEVER',
+        A1: {
+          prompt: 'Animal Fact: Domestic cats cannot fly in the sky.',
+          sentenceBefore: 'Pet cats', sentenceAfter: 'fly in the sky like birds.',
+          explanation: 'Cats do not have wings (0%), so NEVER is correct.'
+        },
+        A2: {
+          prompt: 'Biological Fact: Feline mammals lack wing structures.',
+          sentenceBefore: 'Domestic cats', sentenceAfter: 'fly unassisted through the clouds.',
+          explanation: 'Physical impossibility equals 0% probability: NEVER.'
+        }
+      },
+      {
+        id: 16, style: 'LOGIC', styleName: 'Real-Life Logic Detective',
+        clue: '🥮 Mid-Autumn Festival: Children parade with star lanterns during Tết Trung Thu.',
+        targetAdverb: 'USUALLY',
+        A1: {
+          prompt: 'Cultural Tradition: During Mid-Autumn, kids carry colorful lanterns.',
+          sentenceBefore: 'Vietnamese children', sentenceAfter: 'carry star lanterns during Mid-Autumn Festival.',
+          explanation: 'Carrying lanterns is a major tradition (~80%), so USUALLY is correct.'
+        },
+        A2: {
+          prompt: 'Cultural Heritage: Star lanterns are an iconic element of Trung Thu celebrations.',
+          sentenceBefore: 'Pre-teens celebrating Mid-Autumn', sentenceAfter: 'join lantern parades in their neighborhoods.',
+          explanation: 'High cultural consistency means USUALLY is the appropriate answer.'
+        }
+      },
+      {
+        id: 17, style: 'LOGIC', styleName: 'Real-Life Logic Detective',
+        clue: '🏥 Health Record: Bảo has strong immunity and only missed 1 day of school all year.',
+        targetAdverb: 'RARELY',
+        A1: {
+          prompt: 'Student Health: Bảo is almost never sick.',
+          sentenceBefore: 'Bảo', sentenceAfter: 'misses school because of illness.',
+          explanation: 'Bảo misses school very seldom (~5%), so RARELY fits best.'
+        },
+        A2: {
+          prompt: 'Attendance Record: 99% attendance record throughout the academic term.',
+          sentenceBefore: 'With excellent physical fitness, Bảo', sentenceAfter: 'stays home sick on school days.',
+          explanation: 'Low occurrence of illness aligns with RARELY.'
+        }
+      },
+      {
+        id: 18, style: 'LOGIC', styleName: 'Real-Life Logic Detective',
+        clue: '🌊 Urban Storms: Extreme downpours cause temporary street flooding in certain low streets.',
+        targetAdverb: 'SOMETIMES',
+        A1: {
+          prompt: 'Rainy Season Fact: Heavy rain floods low streets occasionally.',
+          sentenceBefore: 'Low street areas', sentenceAfter: 'flood during heavy rainy storms.',
+          explanation: 'Street flooding happens on some heavy rain days (~30%), so SOMETIMES fits.'
+        },
+        A2: {
+          prompt: 'Urban Hydrology: Flash downpours exceed drainage capacity occasionally.',
+          sentenceBefore: 'Low-lying road sections in the city', sentenceAfter: 'collect standing water after sudden downpours.',
+          explanation: 'Occasional occurrence during heavy storms corresponds to SOMETIMES.'
+        }
+      },
+
+      // 19-24: SENTENCE LOGIC & WORD-ORDER FIXER (Style 3 - Spotlights "be" vs main verb order)
+      {
+        id: 19, style: 'FIXER', styleName: 'Word-Order & Grammar Fixer',
+        targetAdverb: 'ALWAYS',
+        A1: {
+          prompt: 'Spot the correct word order! Hint: Verb "is" comes BEFORE the frequency adverb.',
+          sentenceBefore: 'Vy', sentenceAfter: 'polite and friendly to her teachers.',
+          options: ['is always', 'always is', 'is never', 'rarely is', 'is sometimes'],
+          correctOptionIndex: 0,
+          explanation: 'Rule: With the verb "TO BE" (am/is/are), the frequency adverb comes AFTER: Vy + IS + ALWAYS + polite.'
+        },
+        A2: {
+          prompt: 'Choose the grammatically correct option. Remember the BE-verb position rule!',
+          sentenceBefore: 'Because she respects her instructors, Vy', sentenceAfter: 'polite in the classroom.',
+          options: ['is always', 'always is', 'never is', 'is rarely', 'sometimes is'],
+          correctOptionIndex: 0,
+          explanation: 'BE-verb Rule Spotlight: Subject + AM/IS/ARE + Frequency Adverb + Adjective ("Vy is always polite").'
+        }
+      },
+      {
+        id: 20, style: 'FIXER', styleName: 'Word-Order & Grammar Fixer',
+        targetAdverb: 'USUALLY',
+        A1: {
+          prompt: 'Spot the correct word order for main verbs! (Adverb BEFORE main verb)',
+          sentenceBefore: 'Khoa', sentenceAfter: 'his homework right after school.',
+          options: ['finishes usually', 'usually finishes', 'finishes never', 'is usually finish', 'usually finishing'],
+          correctOptionIndex: 1,
+          explanation: 'Rule: With main verbs (finishes), the frequency adverb comes BEFORE: Khoa + USUALLY + finishes.'
+        },
+        A2: {
+          prompt: 'Select the proper word order for main verb sentences.',
+          sentenceBefore: 'To avoid late-night stress, Khoa', sentenceAfter: 'his assignments before dinner.',
+          options: ['finishes usually', 'usually finishes', 'is finish usually', 'usually is finish', 'finishes rarely'],
+          correctOptionIndex: 1,
+          explanation: 'Main Verb Rule Spotlight: Subject + Frequency Adverb + Main Verb ("Khoa usually finishes").'
+        }
+      },
+      {
+        id: 21, style: 'FIXER', styleName: 'Word-Order & Grammar Fixer',
+        targetAdverb: 'RARELY',
+        A1: {
+          prompt: 'Choose the correct placement with the BE-verb "is".',
+          sentenceBefore: 'The weather in Đà Nẵng', sentenceAfter: 'freezing cold in July.',
+          options: ['is rarely', 'rarely is', 'is always', 'always is', 'rarely are'],
+          correctOptionIndex: 0,
+          explanation: 'Rule: Frequency adverb comes AFTER "is": The weather + IS + RARELY + freezing.'
+        },
+        A2: {
+          prompt: 'Select the grammatically precise phrase for tropical climate description.',
+          sentenceBefore: 'During summer months, coastal Đà Nẵng', sentenceAfter: 'cold enough for heavy coats.',
+          options: ['is rarely', 'rarely is', 'is usually', 'never is', 'is always'],
+          correctOptionIndex: 0,
+          explanation: 'BE-verb Rule: Subject + IS + RARELY + Adjective.'
+        }
+      },
+      {
+        id: 22, style: 'FIXER', styleName: 'Word-Order & Grammar Fixer',
+        targetAdverb: 'SOMETIMES',
+        A1: {
+          prompt: 'Where does "sometimes" go with main verb "eats"?',
+          sentenceBefore: 'My family', sentenceAfter: 'seafood at the night market on weekends.',
+          options: ['eats sometimes', 'sometimes eats', 'is eat sometimes', 'sometimes is eat', 'never eats'],
+          correctOptionIndex: 1,
+          explanation: 'Rule: Adverb BEFORE main verb: My family + SOMETIMES + eats.'
+        },
+        A2: {
+          prompt: 'Identify the grammatically sound sentence structure.',
+          sentenceBefore: 'For weekend family gatherings, my parents', sentenceAfter: 'fresh seafood near the beach.',
+          options: ['eat sometimes', 'sometimes eat', 'are eat sometimes', 'rarely eat', 'never eat'],
+          correctOptionIndex: 1,
+          explanation: 'Main Verb Rule: Subject + SOMETIMES + Main Verb.'
+        }
+      },
+      {
+        id: 23, style: 'FIXER', styleName: 'Word-Order & Grammar Fixer',
+        targetAdverb: 'NEVER',
+        A1: {
+          prompt: 'Choose the correct placement for 0% frequency with BE-verb "are".',
+          sentenceBefore: 'School classrooms', sentenceAfter: 'open at 3:00 AM at night.',
+          options: ['are never', 'never are', 'are always', 'always are', 'are usually'],
+          correctOptionIndex: 0,
+          explanation: 'Rule: Adverb comes AFTER "are": Classrooms + ARE + NEVER + open.'
+        },
+        A2: {
+          prompt: 'Select the correct form testing BE-verb plural order.',
+          sentenceBefore: 'During midnight hours, primary school facilities', sentenceAfter: 'unlocked for students.',
+          options: ['are never', 'never are', 'are usually', 'are rarely', 'never is'],
+          correctOptionIndex: 0,
+          explanation: 'Plural BE-verb Rule: Subject (Classrooms) + ARE + NEVER + Adjective.'
+        }
+      },
+      {
+        id: 24, style: 'FIXER', styleName: 'Word-Order & Grammar Fixer',
+        targetAdverb: 'ALWAYS',
+        A1: {
+          prompt: 'Complete the sentence with correct adverb position before "listen".',
+          sentenceBefore: 'Good students', sentenceAfter: 'to their teacher during class.',
+          options: ['always listen', 'listen always', 'are always listen', 'always is listen', 'never listen'],
+          correctOptionIndex: 0,
+          explanation: 'Rule: Adverb BEFORE main verb: Students + ALWAYS + listen.'
+        },
+        A2: {
+          prompt: 'Select the correct syntax for high frequency main verb habits.',
+          sentenceBefore: 'Attentive students', sentenceAfter: 'carefully to classroom instructions.',
+          options: ['always listen', 'listen always', 'are always listen', 'always are listening', 'rarely listen'],
+          correctOptionIndex: 0,
+          explanation: 'Main Verb Syntax: Subject + ALWAYS + Main Verb.'
+        }
+      }
+    ];
+
+    /* ==========================================================================
+       3. ROSTER & SETUP MANAGEMENT
+       ========================================================================== */
+
+    function renderSetupRoster() {
+      const container = document.getElementById('studentInputsContainer');
+      container.innerHTML = '';
+
+      students.forEach((student, index) => {
+        const div = document.createElement('div');
+        div.className = 'bg-slate-950 p-3 rounded-2xl border border-slate-800 flex items-center gap-3 shadow-sm';
+        div.innerHTML = `
+          <button type="button" onclick="cycleAvatar(${index})" class="text-2xl bg-slate-800 hover:bg-slate-700 p-2 rounded-xl border border-slate-700 transition" title="Click to change avatar">
+            ${student.avatar}
+          </button>
+          <div class="flex-grow">
+            <label class="text-[10px] text-slate-500 font-bold uppercase block">Student ${index + 1}</label>
+            <input type="text" value="${student.name}" oninput="updateStudentName(${index}, this.value)" class="w-full bg-transparent font-bold text-sm text-white focus:outline-none border-b border-slate-800 focus:border-emerald-500 transition py-0.5" placeholder="Enter name...">
+          </div>
+        `;
+        container.appendChild(div);
+      });
+
+      document.getElementById('studentCount').innerText = students.length;
+      document.getElementById('btnAddStudent').disabled = students.length >= 8;
+      document.getElementById('btnRemoveStudent').disabled = students.length <= 2;
+    }
+
+    function addStudentSlot() {
+      playSound('click');
+      if (students.length < 8) {
+        const defaultNames = ['Bảo', 'Nhi', 'Huy', 'Trang'];
+        const avatarList = ['👦', '👧', '🧑', '👨‍🎓', '👩‍🎓'];
+        const newId = students.length + 1;
+        students.push({
+          id: newId,
+          name: defaultNames[students.length - 4] || `Student ${newId}`,
+          avatar: avatarList[students.length % avatarList.length]
+        });
+        renderSetupRoster();
+        renderStudentTurnPills();
+      }
+    }
+
+    function removeStudentSlot() {
+      playSound('click');
+      if (students.length > 2) {
+        students.pop();
+        if (currentStudentIndex >= students.length) {
+          currentStudentIndex = 0;
+        }
+        renderSetupRoster();
+        renderStudentTurnPills();
+      }
+    }
+
+    function cycleAvatar(index) {
+      playSound('click');
+      const currentAv = students[index].avatar;
+      const curIdx = availableAvatars.indexOf(currentAv);
+      const nextIdx = (curIdx + 1) % availableAvatars.length;
+      students[index].avatar = availableAvatars[nextIdx];
+      renderSetupRoster();
+      renderStudentTurnPills();
+    }
+
+    function updateStudentName(index, newName) {
+      students[index].name = newName || `Student ${index + 1}`;
+      renderStudentTurnPills();
+    }
+
+    function quickFillDemoNames() {
+      playSound('click');
+      const demoNames = [
+        { name: 'Linh', avatar: '👧' },
+        { name: 'Minh', avatar: '👦' },
+        { name: 'Bảo', avatar: '🧑' },
+        { name: 'Vy', avatar: '👩‍🎓' },
+        { name: 'Khoa', avatar: '🚀' },
+        { name: 'Ngọc', avatar: '🎨' },
+        { name: 'Huy', avatar: '🎧' },
+        { name: 'Trang', avatar: '🎮' }
+      ];
+      students = demoNames.slice(0, Math.max(2, students.length));
+      renderSetupRoster();
+      renderStudentTurnPills();
+    }
+
+    /* ==========================================================================
+       4. LEVEL & VIEW SWITCHING LOGIC
+       ========================================================================== */
+
+    function setCEFRLevel(level) {
+      playSound('click');
+      currentCEFRLevel = level;
+      
+      // Update UI button states
+      const btnA1 = document.getElementById('btnLevelA1');
+      const btnA2 = document.getElementById('btnLevelA2');
+      const setupA1 = document.getElementById('setupLevelA1Btn');
+      const setupA2 = document.getElementById('setupLevelA2Btn');
+      const footerBadge = document.getElementById('footerLevelBadge');
+
+      if (level === 'A1') {
+        btnA1.className = 'px-3 py-1 rounded-lg transition-all bg-emerald-500 text-slate-950 font-extrabold shadow';
+        btnA2.className = 'px-3 py-1 rounded-lg transition-all text-slate-400 hover:text-white';
+        setupA1.className = 'px-4 py-2 rounded-xl text-xs font-bold bg-emerald-500 text-slate-950 transition';
+        setupA2.className = 'px-4 py-2 rounded-xl text-xs font-bold bg-slate-800 text-slate-400 hover:text-white transition';
+        footerBadge.innerText = 'A1 (Basic)';
+      } else {
+        btnA2.className = 'px-3 py-1 rounded-lg transition-all bg-emerald-500 text-slate-950 font-extrabold shadow';
+        btnA1.className = 'px-3 py-1 rounded-lg transition-all text-slate-400 hover:text-white';
+        setupA2.className = 'px-4 py-2 rounded-xl text-xs font-bold bg-emerald-500 text-slate-950 transition';
+        setupA1.className = 'px-4 py-2 rounded-xl text-xs font-bold bg-slate-800 text-slate-400 hover:text-white transition';
+        footerBadge.innerText = 'A2 (Plus)';
+      }
+
+      // Re-render active view to update sentences immediately
+      if (currentView === 'demos') {
+        renderDemoCard();
+      } else if (currentView === 'quiz') {
+        renderQuizCard();
+      }
+    }
+
+    function switchView(viewName) {
+      playSound('click');
+      currentView = viewName;
+
+      document.getElementById('viewSetup').classList.add('hidden');
+      document.getElementById('viewDemos').classList.add('hidden');
+      document.getElementById('viewQuiz').classList.add('hidden');
+      document.getElementById('viewSummary').classList.add('hidden');
+
+      // Update Header Nav Buttons
+      const btnSetup = document.getElementById('btnNavSetup');
+      const btnDemos = document.getElementById('btnNavDemos');
+      const btnQuiz = document.getElementById('btnNavQuiz');
+
+      [btnSetup, btnDemos, btnQuiz].forEach(b => b.className = 'px-3 py-1.5 rounded-lg transition-all hover:text-white text-slate-400');
+
+      if (viewName === 'setup') {
+        document.getElementById('viewSetup').classList.remove('hidden');
+        btnSetup.className = 'px-3 py-1.5 rounded-lg transition-all bg-slate-700 text-white font-bold shadow';
+      } else if (viewName === 'demos') {
+        document.getElementById('viewDemos').classList.remove('hidden');
+        btnDemos.className = 'px-3 py-1.5 rounded-lg transition-all bg-emerald-600 text-white font-bold shadow';
+        renderDemoCard();
+      } else if (viewName === 'quiz') {
+        document.getElementById('viewQuiz').classList.remove('hidden');
+        btnQuiz.className = 'px-3 py-1.5 rounded-lg transition-all bg-sky-600 text-white font-bold shadow';
+        renderStudentTurnPills();
+        renderQuizCard();
+      } else if (viewName === 'summary') {
+        document.getElementById('viewSummary').classList.remove('hidden');
+        renderSummaryScreen();
+      }
+    }
+
+    function launchApp(targetView) {
+      switchView(targetView);
+    }
+
+    function toggleScaleBar() {
+      playSound('click');
+      const drawer = document.getElementById('frequencyScaleDrawer');
+      drawer.classList.toggle('hidden');
+    }
+
+    function toggleVietnameseGloss() {
+      playSound('click');
+      showVnGloss = !showVnGloss;
+      document.getElementById('vnGlossStatus').innerText = showVnGloss ? 'ON' : 'OFF';
+      const glosses = document.querySelectorAll('.vn-gloss');
+      glosses.forEach(g => {
+        if (showVnGloss) g.classList.remove('hidden');
+        else g.classList.add('hidden');
+      });
+    }
+
+    /* ==========================================================================
+       5. PART 1: DEMONSTRATION ENGINE (24 INTERACTIVE DEMOS)
+       ========================================================================== */
+
+    // Sandbox state for current demo
+    let currentDemoDays = [true, true, true, true, true, true, true];
+    let isDemoAnimating = false;
+
+    function initDemoDropdown() {
+      const select = document.getElementById('demoSelectDropdown');
+      select.innerHTML = '';
+      demoDatabase.forEach((demo, i) => {
+        const opt = document.createElement('option');
+        opt.value = i;
+        opt.innerText = `${i + 1}. ${demo.title} (${demo.targetAdverb})`;
+        select.appendChild(opt);
+      });
+    }
+
+    function renderDemoCard() {
+      const demo = demoDatabase[currentDemoIndex];
+      const content = demo[currentCEFRLevel];
+
+      // Reset active days to default for this demo initially
+      currentDemoDays = getArrayForDayCount(demo.defaultDays);
+
+      document.getElementById('demoNumber').innerText = currentDemoIndex + 1;
+      document.getElementById('demoTitle').innerText = demo.title;
+      document.getElementById('demoCategoryBadge').innerText = `${demo.category} • ${demo.icon}`;
+      document.getElementById('demoDescription').innerText = content.description;
+      document.getElementById('demoSelectDropdown').value = currentDemoIndex;
+      document.getElementById('demoIndexFooter').innerText = currentDemoIndex + 1;
+      document.getElementById('demoGrammarNote').innerText = `Grammar: ${content.grammarTip}`;
+
+      // Update Student Spotlight
+      const curStudent = students[currentStudentIndex] || students[0];
+      document.getElementById('demoSpotlightAvatar').innerText = curStudent.avatar;
+      document.getElementById('demoSpotlightName').innerText = curStudent.name;
+
+      updateDemoVisuals();
+    }
+
+    function getArrayForDayCount(count) {
+      const arr = [false, false, false, false, false, false, false];
+      for (let i = 0; i < count; i++) arr[i] = true;
+      return arr;
+    }
+
+    function updateDemoVisuals() {
+      const demo = demoDatabase[currentDemoIndex];
+      const content = demo[currentCEFRLevel];
+
+      // Calculate active days & percentage
+      const activeCount = currentDemoDays.filter(Boolean).length;
+      const percentage = Math.round((activeCount / 7) * 100);
+
+      // Detect matching Adverb based on percentage standard
+      let detectedAdv = 'NEVER';
+      let colorClass = 'bg-rose-500 text-white';
+      let barColor = 'bg-rose-500';
+
+      if (activeCount === 7) {
+        detectedAdv = 'ALWAYS';
+        colorClass = 'bg-emerald-500 text-slate-950';
+        barColor = 'bg-emerald-500';
+      } else if (activeCount >= 5) {
+        detectedAdv = 'USUALLY';
+        colorClass = 'bg-sky-500 text-slate-950';
+        barColor = 'bg-sky-500';
+      } else if (activeCount >= 2) {
+        detectedAdv = 'SOMETIMES';
+        colorClass = 'bg-amber-500 text-slate-950';
+        barColor = 'bg-amber-500';
+      } else if (activeCount === 1) {
+        detectedAdv = 'RARELY';
+        colorClass = 'bg-orange-500 text-slate-950';
+        barColor = 'bg-orange-500';
+      }
+
+      // Update Gauge
+      document.getElementById('demoActiveDayCount').innerText = activeCount;
+      document.getElementById('demoPercentageText').innerText = `${percentage}%`;
+      const gaugeFill = document.getElementById('demoGaugeFill');
+      gaugeFill.style.width = `${percentage}%`;
+      gaugeFill.className = `h-full rounded-full transition-all duration-300 ${barColor}`;
+
+      // Update Adverb Badge
+      const badge = document.getElementById('demoAdverbBadge');
+      badge.innerText = detectedAdv;
+      badge.className = `px-4 py-1.5 rounded-xl font-black text-sm tracking-wide shadow-md transition-all ${colorClass}`;
+
+      // Render Sentence Chips (Grammar Highlighter)
+      const curStudent = students[currentStudentIndex] || students[0];
+      const sentenceDisplay = document.getElementById('demoSentenceDisplay');
+
+      // Substitute student name or subject
+      const subjectText = content.subj.includes(demoDatabase[0].A1.subj) ? curStudent.name : content.subj;
+
+      sentenceDisplay.innerHTML = `
+        <span class="px-2.5 py-1 rounded-xl bg-slate-900 border border-slate-700 text-slate-300 font-bold">${subjectText}</span>
+        <span class="px-3 py-1 rounded-xl ${colorClass} font-black shadow-md glow-${detectedAdv.toLowerCase()}">${detectedAdv}</span>
+        <span class="px-2.5 py-1 rounded-xl bg-slate-900 border border-slate-700 text-slate-100 font-semibold">${content.verb}</span>
+      `;
+
+      // Plain text for speech synthesizer
+      document.getElementById('demoSentenceText').innerText = `${subjectText} ${detectedAdv.toLowerCase()} ${content.verb}`;
+
+      // Render 7 Day Tiles
+      const daysGrid = document.getElementById('demoDaysGrid');
+      daysGrid.innerHTML = '';
+      const dayLabels = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+
+      dayLabels.forEach((day, idx) => {
+        const isActive = currentDemoDays[idx];
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.onclick = () => toggleDemoDay(idx);
+        btn.className = `day-tile p-2.5 rounded-2xl border flex flex-col items-center justify-center gap-1 transition ${
+          isActive 
+            ? 'bg-slate-800 border-emerald-500/80 text-emerald-400 shadow-md scale-105' 
+            : 'bg-slate-950 border-slate-800 text-slate-600 opacity-60'
+        }`;
+        btn.innerHTML = `
+          <span class="text-xs font-bold uppercase tracking-wider">${day}</span>
+          <span class="text-xl sm:text-2xl">${isActive ? demo.icon : '⚪'}</span>
+          <span class="text-[10px] font-extrabold uppercase">${isActive ? 'ON' : 'OFF'}</span>
+        `;
+        daysGrid.appendChild(btn);
+      });
+    }
+
+    function toggleDemoDay(dayIdx) {
+      if (isDemoAnimating) return;
+      playSound('click');
+      currentDemoDays[dayIdx] = !currentDemoDays[dayIdx];
+      updateDemoVisuals();
+    }
+
+    function resetDemoDays() {
+      playSound('click');
+      const demo = demoDatabase[currentDemoIndex];
+      currentDemoDays = getArrayForDayCount(demo.defaultDays);
+      updateDemoVisuals();
+    }
+
+    function playDemoWeekAnimation() {
+      if (isDemoAnimating) return;
+      isDemoAnimating = true;
+      playSound('click');
+
+      // Clear all days first
+      currentDemoDays = [false, false, false, false, false, false, false];
+      updateDemoVisuals();
+
+      const demo = demoDatabase[currentDemoIndex];
+      const targetCount = demo.defaultDays;
+
+      let step = 0;
+      const interval = setInterval(() => {
+        if (step < targetCount) {
+          currentDemoDays[step] = true;
+          playSound('tick');
+          updateDemoVisuals();
+          step++;
+        } else {
+          clearInterval(interval);
+          isDemoAnimating = false;
+          playSound('correct');
+        }
+      }, 250);
+    }
+
+    function rotateSpotlightStudent() {
+      playSound('click');
+      currentStudentIndex = (currentStudentIndex + 1) % students.length;
+      renderDemoCard();
+      renderStudentTurnPills();
+    }
+
+    function prevDemo() {
+      playSound('click');
+      if (currentDemoIndex > 0) {
+        currentDemoIndex--;
+        renderDemoCard();
+      }
+    }
+
+    function nextDemo() {
+      playSound('click');
+      if (currentDemoIndex < demoDatabase.length - 1) {
+        currentDemoIndex++;
+        renderDemoCard();
+      } else {
+        switchView('quiz');
+      }
+    }
+
+    function jumpToDemo(index) {
+      playSound('click');
+      currentDemoIndex = index;
+      renderDemoCard();
+    }
+
+    /* ==========================================================================
+       6. PART 2: QUIZ ENGINE (24 INTERACTIVE QUIZ SCREENS)
+       ========================================================================== */
+
+    function initQuizDropdown() {
+      const select = document.getElementById('quizSelectDropdown');
+      select.innerHTML = '';
+      quizDatabase.forEach((quiz, i) => {
+        const opt = document.createElement('option');
+        opt.value = i;
+        opt.innerText = `Q${i + 1}. [${quiz.targetAdverb}] ${quiz.styleName}`;
+        select.appendChild(opt);
+      });
+    }
+
+    function renderStudentTurnPills() {
+      const container = document.getElementById('studentTurnPills');
+      container.innerHTML = '';
+
+      students.forEach((student, index) => {
+        const isTurn = index === currentStudentIndex;
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.onclick = () => selectStudentTurn(index);
+        btn.className = `px-3 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 border ${
+          isTurn 
+            ? 'bg-sky-500 text-slate-950 border-sky-400 shadow-md ring-2 ring-sky-400/50' 
+            : 'bg-slate-800 text-slate-300 border-slate-700 hover:bg-slate-700'
+        }`;
+        btn.innerHTML = `<span>${student.avatar}</span> <span>${student.name}</span>`;
+        container.appendChild(btn);
+      });
+    }
+
+    function selectStudentTurn(index) {
+      playSound('click');
+      currentStudentIndex = index;
+      renderStudentTurnPills();
+    }
+
+    function renderQuizCard() {
+      const quiz = quizDatabase[currentQuizIndex];
+      const content = quiz[currentCEFRLevel];
+
+      document.getElementById('quizNumber').innerText = currentQuizIndex + 1;
+      document.getElementById('quizChallengeTypeTag').innerText = quiz.styleName;
+      document.getElementById('quizSelectDropdown').value = currentQuizIndex;
+      document.getElementById('quizStyleBadge').innerText = `CHALLENGE STYLE ${quiz.style === 'VISUAL' ? '1: WEEK DECODER' : quiz.style === 'LOGIC' ? '2: LOGIC DETECTIVE' : '3: GRAMMAR FIXER'}`;
+
+      document.getElementById('quizPromptText').innerText = content.prompt;
+
+      // Hide feedback box on new question
+      document.getElementById('quizFeedbackBox').classList.add('hidden');
+
+      // Render Visual Container based on quiz style
+      const visualContainer = document.getElementById('quizVisualContainer');
+      visualContainer.innerHTML = '';
+
+      if (quiz.style === 'VISUAL') {
+        const dayLabels = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+        let gridHtml = `<div class="grid grid-cols-7 gap-1.5 sm:gap-2">`;
+        quiz.days.forEach((active, idx) => {
+          gridHtml += `
+            <div class="p-2 rounded-xl border text-center ${active ? 'bg-sky-950/80 border-sky-500 text-sky-300' : 'bg-slate-950 border-slate-800 text-slate-600 opacity-50'}">
+              <div class="text-[10px] font-bold uppercase">${dayLabels[idx]}</div>
+              <div class="text-lg sm:text-2xl my-1">${active ? quiz.icon : '⚪'}</div>
+              <div class="text-[9px] font-black">${active ? '✓' : '✗'}</div>
+            </div>
+          `;
+        });
+        gridHtml += `</div>`;
+        visualContainer.innerHTML = gridHtml;
+      } else if (quiz.style === 'LOGIC') {
+        visualContainer.innerHTML = `
+          <div class="flex items-center gap-4 bg-slate-900 p-4 rounded-xl border border-slate-800">
+            <span class="text-3xl sm:text-4xl">🔎</span>
+            <div>
+              <div class="text-[10px] uppercase font-bold text-amber-400">Detective Clue</div>
+              <div class="text-sm sm:text-base font-semibold text-slate-200">${quiz.clue}</div>
+            </div>
+          </div>
+        `;
+      } else if (quiz.style === 'FIXER') {
+        visualContainer.innerHTML = `
+          <div class="flex items-center gap-3 bg-slate-900 p-4 rounded-xl border border-slate-800">
+            <span class="text-3xl">📐</span>
+            <div>
+              <div class="text-[10px] uppercase font-bold text-indigo-400">Grammar Focus Rule</div>
+              <div class="text-xs sm:text-sm font-semibold text-slate-300">
+                Pay attention to whether the sentence uses a main verb or the BE-verb (am/is/are).
+              </div>
+            </div>
+          </div>
+        `;
+      }
+
+      // Fill-in sentence preview
+      const sentenceDisplay = document.getElementById('quizSentenceDisplay');
+      sentenceDisplay.innerHTML = `
+        "${content.sentenceBefore} <span class="inline-block px-4 py-1 border-2 border-dashed border-sky-400 text-sky-400 rounded-xl bg-slate-900 font-mono">[ ? ]</span> ${content.sentenceAfter}"
+      `;
+
+      // Render Options (5 Frequency Adverbs or Options list for Fixer)
+      const optionsContainer = document.getElementById('quizOptionsContainer');
+      optionsContainer.innerHTML = '';
+
+      if (quiz.style === 'FIXER') {
+        optionsContainer.className = 'grid grid-cols-1 sm:grid-cols-2 gap-3';
+        content.options.forEach((optText, optIdx) => {
+          const btn = document.createElement('button');
+          btn.type = 'button';
+          btn.onclick = () => submitQuizAnswer(optIdx, optText);
+          btn.className = 'w-full py-3.5 px-4 rounded-2xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-white font-bold text-sm sm:text-base transition transform hover:-translate-y-0.5 text-center shadow-md';
+          btn.innerText = optText;
+          optionsContainer.appendChild(btn);
+        });
+      } else {
+        optionsContainer.className = 'grid grid-cols-1 sm:grid-cols-5 gap-2.5';
+        const mainAdverbs = [
+          { name: 'ALWAYS', color: 'bg-emerald-500 hover:bg-emerald-400 text-slate-950' },
+          { name: 'USUALLY', color: 'bg-sky-500 hover:bg-sky-400 text-slate-950' },
+          { name: 'SOMETIMES', color: 'bg-amber-500 hover:bg-amber-400 text-slate-950' },
+          { name: 'RARELY', color: 'bg-orange-500 hover:bg-orange-400 text-slate-950' },
+          { name: 'NEVER', color: 'bg-rose-500 hover:bg-rose-400 text-white' }
+        ];
+
+        mainAdverbs.forEach(adv => {
+          const btn = document.createElement('button');
+          btn.type = 'button';
+          btn.onclick = () => submitQuizAnswer(adv.name, adv.name);
+          btn.className = `w-full py-4 rounded-2xl font-black text-sm tracking-wider shadow-md transition transform hover:-translate-y-0.5 ${adv.color}`;
+          btn.innerText = adv.name;
+          optionsContainer.appendChild(btn);
+        });
+      }
+    }
+
+    function submitQuizAnswer(chosenValue, chosenDisplay) {
+      const quiz = quizDatabase[currentQuizIndex];
+      const content = quiz[currentCEFRLevel];
+      const curStudent = students[currentStudentIndex] || students[0];
+
+      let isCorrect = false;
+      if (quiz.style === 'FIXER') {
+        isCorrect = chosenValue === content.correctOptionIndex;
+      } else {
+        isCorrect = chosenValue === quiz.targetAdverb;
+      }
+
+      // Record in Tracking Matrix if enabled
+      if (trackingEnabled) {
+        if (!trackingData[curStudent.id]) trackingData[curStudent.id] = {};
+        trackingData[curStudent.id][quiz.id] = {
+          attempted: true,
+          correct: isCorrect,
+          chosen: chosenDisplay,
+          target: quiz.targetAdverb,
+          level: currentCEFRLevel
+        };
+        renderMatrixTables();
+      }
+
+      // Play Feedback Sound
+      if (isCorrect) {
+        playSound('correct');
+        triggerConfetti();
+      } else {
+        playSound('wrong');
+      }
+
+      // Reveal Feedback Box
+      const feedbackBox = document.getElementById('quizFeedbackBox');
+      feedbackBox.classList.remove('hidden');
+
+      if (isCorrect) {
+        feedbackBox.className = 'p-5 rounded-2xl border transition-all space-y-3 bg-emerald-950/60 border-emerald-500/60 text-emerald-100';
+        document.getElementById('quizFeedbackIcon').innerText = '🎉';
+        document.getElementById('quizFeedbackTitle').innerText = `Great Job, ${curStudent.name}!`;
+      } else {
+        feedbackBox.className = 'p-5 rounded-2xl border transition-all space-y-3 bg-slate-950 border-amber-500/60 text-amber-100';
+        document.getElementById('quizFeedbackIcon').innerText = '💡';
+        document.getElementById('quizFeedbackTitle').innerText = `Nice try, ${curStudent.name}! Let's review the logic:`;
+      }
+
+      // Build complete sentence string
+      let correctAdvText = quiz.targetAdverb;
+      if (quiz.style === 'FIXER') {
+        correctAdvText = content.options[content.correctOptionIndex];
+      }
+      const fullSentence = `"${content.sentenceBefore} ${correctAdvText} ${content.sentenceAfter}"`;
+      document.getElementById('quizFullSentenceResult').innerText = fullSentence;
+      document.getElementById('quizExplanationText').innerText = content.explanation;
+
+      // Update Fill-in Display with chosen answer
+      const sentenceDisplay = document.getElementById('quizSentenceDisplay');
+      sentenceDisplay.innerHTML = `
+        "${content.sentenceBefore} <span class="inline-block px-4 py-1 rounded-xl font-black text-white ${isCorrect ? 'bg-emerald-600' : 'bg-rose-600'}">${chosenDisplay}</span> ${content.sentenceAfter}"
+      `;
+
+      // Auto-rotate turn to next student for next question
+      currentStudentIndex = (currentStudentIndex + 1) % students.length;
+      renderStudentTurnPills();
+    }
+
+    function prevQuiz() {
+      playSound('click');
+      if (currentQuizIndex > 0) {
+        currentQuizIndex--;
+        renderQuizCard();
+      }
+    }
+
+    function nextQuiz() {
+      playSound('click');
+      if (currentQuizIndex < quizDatabase.length - 1) {
+        currentQuizIndex++;
+        renderQuizCard();
+      } else {
+        switchView('summary');
+      }
+    }
+
+    function jumpToQuiz(index) {
+      playSound('click');
+      currentQuizIndex = index;
+      renderQuizCard();
+    }
+
+    function restartQuiz() {
+      currentQuizIndex = 0;
+      switchView('quiz');
+    }
+
+    /* ==========================================================================
+       7. END-OF-QUIZ CELEBRATION SUMMARY SCREEN
+       ========================================================================== */
+
+    function renderSummaryScreen() {
+      playSound('fanfare');
+      triggerConfetti();
+
+      const grid = document.getElementById('summaryRosterGrid');
+      grid.innerHTML = '';
+
+      students.forEach(student => {
+        const sData = trackingData[student.id] || {};
+        let totalAnswered = 0;
+        let correctCount = 0;
+
+        Object.keys(sData).forEach(qId => {
+          totalAnswered++;
+          if (sData[qId].correct) correctCount++;
+        });
+
+        const pct = totalAnswered > 0 ? Math.round((correctCount / totalAnswered) * 100) : 100;
+
+        const card = document.createElement('div');
+        card.className = 'bg-slate-950 p-4 rounded-2xl border border-slate-800 text-center space-y-2';
+        card.innerHTML = `
+          <div class="text-3xl">${student.avatar}</div>
+          <div class="font-bold text-sm text-white">${student.name}</div>
+          <div class="text-xs font-semibold text-emerald-400">${correctCount} / ${totalAnswered || 24} Correct</div>
+          <div class="text-lg font-black text-sky-300">${pct}%</div>
+        `;
+        grid.appendChild(card);
+      });
+    }
+
+    /* ==========================================================================
+       8. TEACHER TOOLS & RESPONSE MATRIX (HIDDEN BY DEFAULT)
+       ========================================================================== */
+
+    function toggleTeacherDrawer() {
+      playSound('click');
+      const modal = document.getElementById('teacherModal');
+      modal.classList.toggle('hidden');
+      if (!modal.classList.contains('hidden')) {
+        renderMatrixTables();
+      }
+    }
+
+    // Global key listener for Shift + M
+    document.addEventListener('keydown', (e) => {
+      if (e.shiftKey && (e.key === 'M' || e.key === 'm')) {
+        toggleTeacherDrawer();
+      }
+    });
+
+    function toggleTracking(enabled) {
+      playSound('click');
+      trackingEnabled = enabled;
+      document.getElementById('trackingStatusLabel').innerText = enabled ? 'ON' : 'OFF';
+      renderMatrixTables();
+    }
+
+    function renderMatrixTables() {
+      // 1. Mastery Breakdown Table
+      const summaryTbody = document.getElementById('matrixSummaryTbody');
+      summaryTbody.innerHTML = '';
+
+      const targetAdverbs = ['ALWAYS', 'USUALLY', 'SOMETIMES', 'RARELY', 'NEVER'];
+
+      students.forEach(student => {
+        const sData = trackingData[student.id] || {};
+        let adverbStats = { ALWAYS: { c: 0, t: 0 }, USUALLY: { c: 0, t: 0 }, SOMETIMES: { c: 0, t: 0 }, RARELY: { c: 0, t: 0 }, NEVER: { c: 0, t: 0 } };
+        let overallCorrect = 0;
+        let overallTotal = 0;
+
+        quizDatabase.forEach(quiz => {
+          const attempt = sData[quiz.id];
+          if (attempt) {
+            overallTotal++;
+            if (adverbStats[quiz.targetAdverb]) {
+              adverbStats[quiz.targetAdverb].t++;
+              if (attempt.correct) adverbStats[quiz.targetAdverb].c++;
+            }
+            if (attempt.correct) overallCorrect++;
+          }
+        });
+
+        const tr = document.createElement('tr');
+        let tds = `<td class="p-3 font-bold text-white flex items-center gap-2"><span>${student.avatar}</span> <span>${student.name}</span></td>`;
+
+        targetAdverbs.forEach(adv => {
+          const stat = adverbStats[adv];
+          const advPct = stat.t > 0 ? Math.round((stat.c / stat.t) * 100) + '%' : '·';
+          tds += `<td class="p-3 font-semibold">${advPct}</td>`;
+        });
+
+        const overallPct = overallTotal > 0 ? Math.round((overallCorrect / overallTotal) * 100) + '%' : '0%';
+        tds += `<td class="p-3 text-right font-black text-sky-400">${overallPct}</td>`;
+
+        tr.innerHTML = tds;
+        summaryTbody.appendChild(tr);
+      });
+
+      // 2. Q1 - Q24 Grid Table
+      const gridTbody = document.getElementById('matrixGridTbody');
+      gridTbody.innerHTML = '';
+
+      students.forEach(student => {
+        const sData = trackingData[student.id] || {};
+        const tr = document.createElement('tr');
+
+        let tds = `<td class="p-2 text-left font-bold text-white sticky left-0 bg-slate-900 border-r border-slate-800 flex items-center gap-1.5 min-w-[120px]">
+          <span>${student.avatar}</span> <span>${student.name}</span>
+        </td>`;
+
+        for (let i = 1; i <= 24; i++) {
+          const attempt = sData[i];
+          if (!attempt) {
+            tds += `<td class="p-2 border-r border-slate-800 text-slate-600 font-mono">·</td>`;
+          } else if (attempt.correct) {
+            tds += `<td class="p-2 border-r border-slate-800 bg-emerald-950/40 text-emerald-400 font-bold" title="Correct! Chosen: ${attempt.chosen}">✓</td>`;
+          } else {
+            tds += `<td class="p-2 border-r border-slate-800 bg-rose-950/40 text-rose-400 font-bold" title="Incorrect. Chosen: ${attempt.chosen} (Target: ${attempt.target})">✗</td>`;
+          }
+        }
+
+        tr.innerHTML = tds;
+        gridTbody.appendChild(tr);
+      });
+    }
+
+    function resetTrackingData() {
+      playSound('click');
+      trackingData = {};
+      renderMatrixTables();
+    }
+
+    function exportCSV() {
+      playSound('click');
+      let csvContent = "data:text/csv;charset=utf-8,Student Name,Question ID,Target Adverb,Selected Answer,Result,Level\n";
+
+      students.forEach(student => {
+        const sData = trackingData[student.id] || {};
+        quizDatabase.forEach(quiz => {
+          const attempt = sData[quiz.id];
+          if (attempt) {
+            const row = `"${student.name}",Q${quiz.id},"${quiz.targetAdverb}","${attempt.chosen}","${attempt.correct ? 'Correct' : 'Incorrect'}","${attempt.level}"`;
+            csvContent += row + "\n";
+          }
+        });
+      });
+
+      const encodedUri = encodeURI(csvContent);
+      const link = document.createElement("a");
+      link.setAttribute("href", encodedUri);
+      link.setAttribute("download", "Frequency_Master_Student_Responses.csv");
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
+
+    /* ==========================================================================
+       9. INITIALIZATION ON WINDOW LOAD
+       ========================================================================== */
+    window.onload = function () {
+      renderSetupRoster();
+      initDemoDropdown();
+      initQuizDropdown();
+      renderStudentTurnPills();
+    };
+  </script>
+</body>
+</html>
