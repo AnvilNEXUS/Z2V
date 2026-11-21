@@ -1,0 +1,1528 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Frequency & Routine Heatmap - EFL Classroom Application</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'system-ui', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'sans-serif'],
+            serif: ['Georgia', 'Cambria', 'Times New Roman', 'serif']
+          },
+          colors: {
+            parchment: {
+              bg: '#F7F4EE',
+              card: '#FFFDF9',
+              border: '#E5DEC9',
+              ink: '#1E293B',
+              muted: '#78716C'
+            },
+            freq: {
+              always: '#0F766E',   /* Deep Teal */
+              sometimes: '#B45309',/* Warm Amber */
+              rarely: '#C25E3A',   /* Muted Terracotta */
+              never: '#9F1239'     /* Deep Crimson */
+            }
+          },
+          animation: {
+            'pop-in': 'popIn 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275)',
+            'pulse-subtle': 'pulseSubtle 2s infinite'
+          },
+          keyframes: {
+            popIn: {
+              '0%': { opacity: '0', transform: 'scale(0.92)' },
+              '100%': { opacity: '1', transform: 'scale(1)' }
+            },
+            pulseSubtle: {
+              '0%, 100%': { opacity: '1' },
+              '50%': { opacity: '0.7' }
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    /* Custom scrollbars */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: rgba(156, 163, 175, 0.4);
+      border-radius: 9999px;
+    }
+    .dark ::-webkit-scrollbar-thumb {
+      background: rgba(75, 85, 99, 0.5);
+    }
+    
+    /* Parchment Theme Specific overrides */
+    html:not(.dark) {
+      background-color: #F7F4EE;
+      color: #1E293B;
+    }
+    html:not(.dark) .parchment-card {
+      background-color: #FFFDF9;
+      border-color: #E5DEC9;
+    }
+    html:not(.dark) .parchment-header {
+      background-color: rgba(255, 253, 249, 0.92);
+      border-color: #E5DEC9;
+    }
+  </style>
+</head>
+<body class="bg-slate-900 text-slate-100 min-h-screen font-sans antialiased transition-colors duration-200 flex flex-col justify-between overflow-x-hidden selection:bg-amber-700 selection:text-white">
+
+  <!-- ================= TOP HEADER BAR ================= -->
+  <header class="sticky top-0 z-30 bg-slate-800/90 dark:bg-slate-800/90 parchment-header border-b border-slate-700/80 px-4 py-3 shadow-md backdrop-blur-md">
+    <div class="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-3">
+      
+      <!-- Title & Active Deck Indicator -->
+      <div class="flex items-center gap-3">
+        <div class="bg-slate-700 dark:bg-slate-700 text-amber-400 p-2.5 rounded-xl border border-slate-600 shadow-sm flex items-center justify-center shrink-0">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+        </div>
+        <div>
+          <h1 class="text-lg sm:text-xl font-extrabold tracking-tight text-slate-100 dark:text-slate-100 dark:group-hover:text-amber-400">
+            FREQUENCY & ROUTINE HEATMAP
+          </h1>
+          <p class="text-xs font-medium text-slate-400 dark:text-slate-400 flex items-center gap-2">
+            <span>Ask: <strong class="text-amber-400 dark:text-amber-400 font-bold font-serif italic">"How often do you...?"</strong></span>
+            <span class="inline-block w-1.5 h-1.5 rounded-full bg-teal-500"></span>
+            <span id="activeDeckBadge" class="uppercase text-xs font-semibold px-2 py-0.5 rounded bg-slate-700 text-slate-200 border border-slate-600">
+              Daily Routines
+            </span>
+          </p>
+        </div>
+      </div>
+
+      <!-- Header Action Controls -->
+      <div class="flex items-center flex-wrap gap-2">
+        
+        <!-- Gear Button (Deck Settings & Augmentation) -->
+        <button onclick="openDeckModal()" title="Wheel Decks & Routine Settings" class="px-3 py-2 rounded-xl text-sm font-semibold border border-slate-600 bg-slate-700/80 hover:bg-slate-600 text-slate-200 transition active:scale-95 flex items-center gap-1.5 shadow-sm">
+          <svg class="w-4 h-4 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
+          <span class="hidden sm:inline">Decks & Routines</span>
+        </button>
+
+        <!-- Students Button -->
+        <button onclick="openStudentsModal()" title="Manage Class Roster" class="px-3 py-2 rounded-xl text-sm font-semibold border border-slate-600 bg-slate-700/80 hover:bg-slate-600 text-slate-200 transition active:scale-95 flex items-center gap-1.5 shadow-sm">
+          <svg class="w-4 h-4 text-teal-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" /></svg>
+          <span class="hidden sm:inline">Students</span>
+        </button>
+
+        <!-- Audio Mute Toggle -->
+        <button id="audioToggleBtn" onclick="toggleAudio()" title="Toggle Web Audio SFX" class="p-2.5 rounded-xl border border-slate-600 bg-slate-700/80 text-slate-200 hover:bg-slate-600 transition active:scale-95">
+          <svg id="soundOnIcon" class="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" /></svg>
+          <svg id="soundOffIcon" class="w-4 h-4 text-slate-400 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15zM17 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2" /></svg>
+        </button>
+
+        <!-- Light/Dark Theme Toggle -->
+        <button id="themeToggleBtn" onclick="toggleTheme()" title="Toggle Parchment / Dark Slate Palette" class="p-2.5 rounded-xl border border-slate-600 bg-slate-700/80 text-amber-400 hover:bg-slate-600 transition active:scale-95">
+          <svg id="sunIcon" class="w-4 h-4 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" /></svg>
+          <svg id="moonIcon" class="w-4 h-4 text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" /></svg>
+        </button>
+
+        <!-- Summary Mode Toggle -->
+        <button id="modeToggleBtn" onclick="toggleSummaryMode()" class="px-3.5 py-2 rounded-xl text-sm font-extrabold bg-amber-600 hover:bg-amber-500 text-white shadow-md transition active:scale-95 flex items-center gap-1.5">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
+          <span id="modeBtnText">Summary Heatmap</span>
+        </button>
+
+      </div>
+    </div>
+  </header>
+
+  <!-- ================= MAIN CONTAINER ================= -->
+  <main class="flex-1 max-w-7xl w-full mx-auto p-3 sm:p-5 flex flex-col justify-start gap-5">
+    
+    <!-- STANDARD GAME VIEW (SPLIT 60 / 40 DESKTOP LAYOUT) -->
+    <div id="spinnerGameView" class="w-full grid grid-cols-1 lg:grid-cols-12 gap-5 items-start">
+      
+      <!-- LEFT 60%: SPINNER STAGE -->
+      <section class="lg:col-span-7 flex flex-col items-center bg-slate-800 parchment-card rounded-2xl p-4 sm:p-6 shadow-xl border border-slate-700/80 relative min-h-[520px] justify-between">
+        
+        <!-- Wheel Top Status & Pointer -->
+        <div class="w-full flex flex-col items-center relative">
+          
+          <div class="flex items-center justify-between w-full mb-2 text-xs text-slate-400">
+            <span class="font-bold uppercase tracking-wider px-3 py-1 bg-slate-700/60 rounded-lg text-slate-300 border border-slate-600/50">
+              🎯 Routine Wheel
+            </span>
+            <span class="font-medium hidden sm:inline">Press <kbd class="px-1.5 py-0.5 bg-slate-700 border border-slate-600 rounded text-slate-200">Space</kbd> to spin</span>
+          </div>
+
+          <!-- Refined Wheel Pointer (12 o'clock) -->
+          <div class="relative z-20 -mb-5">
+            <div id="wheelNeedle" class="w-9 h-11 text-amber-500 drop-shadow-md transition-transform duration-75 origin-top">
+              <svg viewBox="0 0 40 50" fill="currentColor">
+                <polygon points="20,50 0,0 40,0" />
+                <polygon points="20,40 8,8 32,8" fill="#F59E0B" />
+              </svg>
+            </div>
+          </div>
+
+          <!-- Spinner Canvas Container -->
+          <div class="relative flex items-center justify-center p-2">
+            <canvas id="wheelCanvas" width="460" height="460" class="w-full max-w-[400px] sm:max-w-[430px] h-auto drop-shadow-xl cursor-pointer transition-transform duration-200 hover:scale-[1.005]"></canvas>
+            
+            <!-- Center Spin Button -->
+            <button onclick="spinWheel()" id="centerSpinBtn" class="absolute z-10 w-20 h-20 sm:w-22 sm:h-22 rounded-full bg-gradient-to-br from-amber-600 to-amber-700 text-white font-extrabold text-xl shadow-2xl border-4 border-slate-800 hover:border-amber-400 flex flex-col items-center justify-center hover:scale-105 active:scale-95 transition tracking-wider">
+              <span>SPIN</span>
+            </button>
+          </div>
+
+        </div>
+
+        <!-- WINNING CARD BANNER -->
+        <div id="winningCard" class="w-full mt-4 bg-slate-900/90 border border-amber-500/40 rounded-xl p-4 shadow-xl animate-pop-in hidden relative">
+          
+          <div class="flex flex-col sm:flex-row items-center justify-between gap-4">
+            
+            <!-- Selected Routine Prompt -->
+            <div class="flex items-center gap-3 text-center sm:text-left">
+              <div id="winEmoji" class="text-3xl sm:text-4xl p-3 bg-slate-800 border border-slate-700 rounded-xl shadow shrink-0 w-14 h-14 sm:w-16 sm:h-16 flex items-center justify-center">
+                ☕
+              </div>
+              <div>
+                <span class="text-[11px] font-bold uppercase text-amber-400 tracking-wider block">TARGET ROUTINE</span>
+                <h2 id="winRoutineText" class="text-xl sm:text-2xl font-extrabold text-white capitalize leading-tight">
+                  drink coffee or tea
+                </h2>
+                <p class="text-xs text-slate-300 font-serif italic mt-0.5">
+                  Ask: <span id="winQuestionCue" class="text-amber-300 font-bold font-sans not-italic">"How often do you drink coffee or tea?"</span>
+                </p>
+              </div>
+            </div>
+
+            <!-- Pair Randomizer Widget -->
+            <div class="bg-slate-800 border border-slate-700 p-2.5 rounded-xl flex items-center gap-2.5 shadow-inner shrink-0">
+              <button onclick="pickRandomPair()" title="Pick random student pair" class="px-3 py-2 bg-amber-600 hover:bg-amber-500 text-white rounded-lg font-bold text-xs flex items-center gap-1.5 transition active:scale-95">
+                <span>🎲 Pick Pair</span>
+              </button>
+              <div id="pairDisplay" class="font-bold text-slate-200 text-xs sm:text-sm px-1">
+                <span class="text-amber-400">Lan</span> <span class="text-slate-400 text-[11px] font-normal">asks</span> <span class="text-teal-400">Nam</span>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- Dismiss Card -->
+          <div class="mt-2 flex justify-end">
+            <button onclick="dismissWinningCard()" class="text-[11px] font-bold text-slate-400 hover:text-slate-200 transition underline">
+              Dismiss Card ✕
+            </button>
+          </div>
+
+        </div>
+
+      </section>
+
+      <!-- RIGHT 40%: LIVE FREQUENCY HEATMAP MATRIX -->
+      <section class="lg:col-span-5 bg-slate-800 parchment-card rounded-2xl p-4 sm:p-5 shadow-xl border border-slate-700/80 flex flex-col justify-between min-h-[520px]">
+        
+        <div>
+          <!-- Matrix Title & Header Info -->
+          <div class="flex items-center justify-between mb-3 border-b border-slate-700/70 pb-3">
+            <div>
+              <h2 class="text-base sm:text-lg font-extrabold text-slate-100 flex items-center gap-2">
+                <span>📊 Live Frequency Heatmap</span>
+              </h2>
+              <p class="text-xs text-slate-400">Click cell to cycle adverbs of frequency</p>
+            </div>
+            <button onclick="openDeckModal()" class="text-xs font-bold bg-slate-700 hover:bg-slate-600 text-slate-200 px-2.5 py-1.5 rounded-lg border border-slate-600 transition">
+              + Routine
+            </button>
+          </div>
+
+          <!-- 5-State Color Legend Bar -->
+          <div class="grid grid-cols-5 gap-1 text-[11px] font-bold mb-3 p-1.5 bg-slate-900/60 rounded-xl border border-slate-700/60 text-center">
+            <div class="flex items-center justify-center gap-1 text-slate-400">
+              <span class="w-2.5 h-2.5 rounded-full bg-slate-600 border border-slate-500"></span>
+              <span>• None</span>
+            </div>
+            <div class="flex items-center justify-center gap-1 text-teal-400">
+              <span class="w-3 h-3 rounded bg-teal-700 text-white flex items-center justify-center text-[9px]">A</span>
+              <span>Always</span>
+            </div>
+            <div class="flex items-center justify-center gap-1 text-amber-400">
+              <span class="w-3 h-3 rounded bg-amber-700 text-white flex items-center justify-center text-[9px]">S</span>
+              <span>Sometimes</span>
+            </div>
+            <div class="flex items-center justify-center gap-1 text-orange-400">
+              <span class="w-3 h-3 rounded bg-orange-700 text-white flex items-center justify-center text-[9px]">R</span>
+              <span>Rarely</span>
+            </div>
+            <div class="flex items-center justify-center gap-1 text-rose-400">
+              <span class="w-3 h-3 rounded bg-rose-800 text-white flex items-center justify-center text-[9px]">N</span>
+              <span>Never</span>
+            </div>
+          </div>
+
+          <!-- Matrix Table Scrollable Container -->
+          <div class="overflow-x-auto max-h-[410px]">
+            <table class="w-full border-collapse text-left">
+              <thead>
+                <tr class="border-b border-slate-700">
+                  <th class="p-2 sm:p-2.5 text-xs font-bold text-slate-400 uppercase tracking-wider sticky left-0 bg-slate-800 parchment-card z-10 min-w-[95px]">
+                    Student
+                  </th>
+                  <th id="skillsHeaderContainer" class="p-0">
+                    <div id="skillsHeaderRow" class="flex items-center gap-1.5"></div>
+                  </th>
+                </tr>
+              </thead>
+              <tbody id="matrixTableBody" class="divide-y divide-slate-700/50">
+                <!-- Dynamic Student Rows -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Matrix Footer Reset & Progress -->
+        <div class="mt-4 pt-3 border-t border-slate-700/70 flex items-center justify-between text-xs text-slate-400">
+          <div class="flex items-center gap-1.5">
+            <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+            <span>Target: 2+ logged answers</span>
+          </div>
+          <button onclick="resetMatrixData()" class="text-rose-400 hover:text-rose-300 font-semibold underline">
+            Reset Heatmap
+          </button>
+        </div>
+
+      </section>
+
+    </div>
+
+    <!-- SUMMARY MODE FULL-SCREEN VIEW -->
+    <div id="summaryModeView" class="w-full flex-col gap-5 hidden">
+      
+      <!-- Speaking Frame Banner -->
+      <section class="w-full bg-slate-800 parchment-card rounded-2xl p-5 shadow-xl border border-slate-700 text-slate-100 relative overflow-hidden">
+        
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div>
+            <span class="px-2.5 py-1 bg-amber-500/20 text-amber-400 border border-amber-500/30 rounded-md text-xs font-bold uppercase tracking-wider">
+              🗣️ Reporting & Summary Frame
+            </span>
+            <h2 class="text-xl sm:text-3xl font-extrabold tracking-tight mt-1 text-slate-100">
+              Classroom Frequency Summary
+            </h2>
+            <p class="text-xs sm:text-sm text-slate-300 mt-1">
+              Structure 3rd-person contrast sentences:
+              <span class="font-serif italic text-amber-300 font-bold block sm:inline mt-1 sm:mt-0">
+                "[Name] <span class="text-teal-400 font-sans font-bold">always / sometimes</span> [routine], whereas [Name] <span class="text-rose-400 font-sans font-bold">rarely / never</span> [routine]."
+              </span>
+            </p>
+          </div>
+          
+          <div class="flex items-center flex-wrap gap-2.5 shrink-0">
+            <!-- Pick Speaker Tool -->
+            <button onclick="pickRandomSpeaker()" class="px-3.5 py-2.5 bg-amber-600 hover:bg-amber-500 text-white font-extrabold rounded-xl shadow transition active:scale-95 flex items-center gap-1.5 text-xs sm:text-sm">
+              <span>🎲 Pick Speaker</span>
+            </button>
+
+            <!-- Contrast Challenge Tool -->
+            <button onclick="generateContrastChallenge()" class="px-3.5 py-2.5 bg-teal-700 hover:bg-teal-600 text-white font-extrabold rounded-xl shadow transition active:scale-95 flex items-center gap-1.5 text-xs sm:text-sm">
+              <span>⚡ Contrast Challenge</span>
+            </button>
+
+            <!-- Export Markdown Button -->
+            <button onclick="exportMatrixToMarkdown()" class="px-3.5 py-2.5 bg-slate-700 hover:bg-slate-600 text-slate-200 border border-slate-600 font-extrabold rounded-xl transition active:scale-95 flex items-center gap-1.5 text-xs sm:text-sm">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>
+              <span>Export .md</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Speaker Highlight Display Box -->
+        <div id="speakerHighlightBox" class="mt-4 bg-slate-900/80 border border-amber-500/40 p-3.5 rounded-xl flex items-center justify-between gap-4 hidden">
+          <div class="flex items-center gap-3">
+            <span class="text-2xl">🎙️</span>
+            <div>
+              <span class="text-[11px] font-bold uppercase text-amber-400">Designated Speaker</span>
+              <div id="speakerNameText" class="text-lg sm:text-xl font-extrabold text-white">
+                Lan
+              </div>
+            </div>
+          </div>
+          <span class="text-xs text-slate-400 hidden sm:inline">Click any student row to highlight custom selection</span>
+        </div>
+
+        <!-- Contrast Challenge Display Box -->
+        <div id="challengeBox" class="mt-4 bg-slate-900/90 border border-teal-500/50 p-4 rounded-xl hidden">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-800 pb-2 mb-2">
+            <span class="text-xs font-extrabold uppercase text-teal-400 tracking-wider flex items-center gap-1">
+              <span>⚡ Contrast Prompt</span>
+            </span>
+            <button onclick="toggleModelAnswer()" class="text-xs font-bold text-amber-400 hover:underline">
+              <span id="modelAnsBtnText">Show Model Sentence 👁️</span>
+            </button>
+          </div>
+          <div id="challengePromptText" class="text-sm sm:text-base font-extrabold text-white">
+            <!-- Dynamic comparison prompt populated here -->
+          </div>
+          <div id="modelAnswerText" class="mt-2 text-xs sm:text-sm font-serif italic text-amber-200 bg-slate-800 p-2.5 rounded-lg border border-slate-700 hidden">
+            <!-- Model Answer string -->
+          </div>
+        </div>
+
+      </section>
+
+      <!-- LIVE DISTRIBUTION PILL COUNTERS -->
+      <section class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+        <div class="bg-slate-800 parchment-card border border-teal-600/40 p-3 rounded-xl flex items-center justify-between">
+          <div>
+            <span class="text-[11px] font-bold uppercase text-teal-400 block">ALWAYS (A)</span>
+            <span id="countAlways" class="text-2xl font-black text-white">0</span>
+          </div>
+          <span class="w-8 h-8 rounded-lg bg-teal-700 text-white font-extrabold flex items-center justify-center text-sm">A</span>
+        </div>
+        <div class="bg-slate-800 parchment-card border border-amber-600/40 p-3 rounded-xl flex items-center justify-between">
+          <div>
+            <span class="text-[11px] font-bold uppercase text-amber-400 block">SOMETIMES (S)</span>
+            <span id="countSometimes" class="text-2xl font-black text-white">0</span>
+          </div>
+          <span class="w-8 h-8 rounded-lg bg-amber-700 text-white font-extrabold flex items-center justify-center text-sm">S</span>
+        </div>
+        <div class="bg-slate-800 parchment-card border border-orange-600/40 p-3 rounded-xl flex items-center justify-between">
+          <div>
+            <span class="text-[11px] font-bold uppercase text-orange-400 block">RARELY (R)</span>
+            <span id="countRarely" class="text-2xl font-black text-white">0</span>
+          </div>
+          <span class="w-8 h-8 rounded-lg bg-orange-700 text-white font-extrabold flex items-center justify-center text-sm">R</span>
+        </div>
+        <div class="bg-slate-800 parchment-card border border-rose-600/40 p-3 rounded-xl flex items-center justify-between">
+          <div>
+            <span class="text-[11px] font-bold uppercase text-rose-400 block">NEVER (N)</span>
+            <span id="countNever" class="text-2xl font-black text-white">0</span>
+          </div>
+          <span class="w-8 h-8 rounded-lg bg-rose-800 text-white font-extrabold flex items-center justify-center text-sm">N</span>
+        </div>
+      </section>
+
+      <!-- EXPANDED FULL-WIDTH HEATMAP MATRIX TABLE -->
+      <section class="w-full bg-slate-800 parchment-card rounded-2xl p-5 shadow-xl border border-slate-700 overflow-x-auto">
+        <div class="flex items-center justify-between mb-4">
+          <h3 class="text-lg font-extrabold text-slate-100 flex items-center gap-2">
+            <span>📋 Full Class Frequency Heatmap</span>
+          </h3>
+          <span class="text-xs text-slate-400">Click any cell to edit frequency values live</span>
+        </div>
+        <table class="w-full border-collapse text-left">
+          <thead>
+            <tr class="border-b border-slate-700">
+              <th class="p-3 text-sm font-extrabold text-slate-300 uppercase min-w-[130px]">
+                Student
+              </th>
+              <th id="summaryHeaderContainer" class="p-0">
+                <div id="summaryHeaderRow" class="flex items-center gap-2"></div>
+              </th>
+            </tr>
+          </thead>
+          <tbody id="summaryTableBody" class="divide-y divide-slate-700">
+            <!-- Dynamic Summary Rows -->
+          </tbody>
+        </table>
+      </section>
+
+    </div>
+
+  </main>
+
+  <!-- ================= MODAL 1: GEAR ICON (DECKS & AUGMENTATION) ================= -->
+  <div id="deckModal" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4 hidden">
+    <div class="bg-slate-800 parchment-card rounded-2xl p-5 sm:p-7 max-w-2xl w-full shadow-2xl border border-slate-700 max-h-[90vh] flex flex-col justify-between animate-pop-in">
+      
+      <div>
+        <div class="flex items-center justify-between mb-4 border-b border-slate-700 pb-3">
+          <h2 class="text-xl font-extrabold text-slate-100 flex items-center gap-2">
+            <span>⚙️ Select & Augment Routine Decks</span>
+          </h2>
+          <button onclick="closeDeckModal()" class="text-slate-400 hover:text-slate-200 text-lg font-bold">✕</button>
+        </div>
+
+        <!-- 4 Selectable Deck Tabs -->
+        <label class="block text-xs font-bold uppercase text-slate-400 tracking-wider mb-2">
+          1. Choose Active Routine Deck
+        </label>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 mb-5" id="deckSelectorCards">
+          <!-- Populated dynamically (Daily Routines, Work & Tech, Food & Social, Wellbeing) -->
+        </div>
+
+        <!-- Active Deck Augmentation Section -->
+        <div class="border-t border-slate-700 pt-4">
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-xs font-extrabold uppercase text-amber-400">
+              2. Augment Active Deck Slices (<span id="deckCountBadge">8</span>)
+            </span>
+            <button onclick="resetCurrentDeckDefaults()" class="text-xs text-slate-400 hover:text-amber-400 font-semibold underline">
+              Reset This Deck
+            </button>
+          </div>
+
+          <!-- Add Custom Routine Form -->
+          <form onsubmit="handleAddNewRoutine(event)" class="mb-3 bg-slate-900/70 p-3 rounded-xl border border-slate-700">
+            <div class="flex items-center gap-2 mb-2">
+              <input type="text" id="newEmojiInput" maxlength="3" value="⭐" class="w-12 p-2 text-center text-lg font-bold rounded-lg border border-slate-600 bg-slate-800 text-white focus:outline-none focus:ring-2 focus:ring-amber-500" />
+              <input type="text" id="newVerbInput" placeholder="e.g. drink green tea, study grammar" required class="flex-1 p-2 text-sm font-semibold rounded-lg border border-slate-600 bg-slate-800 text-white focus:outline-none focus:ring-2 focus:ring-amber-500" />
+              <button type="submit" class="px-3.5 py-2 bg-amber-600 hover:bg-amber-500 text-white font-bold rounded-lg text-xs transition">
+                + Add
+              </button>
+            </div>
+
+            <!-- Quick Emoji Picker Chips -->
+            <div class="flex flex-wrap items-center gap-1">
+              <span class="text-[11px] text-slate-400 mr-1">Quick:</span>
+              <button type="button" onclick="setNewEmoji('☕')" class="p-1 hover:bg-slate-700 rounded text-sm">☕</button>
+              <button type="button" onclick="setNewEmoji('🏃')" class="p-1 hover:bg-slate-700 rounded text-sm">🏃</button>
+              <button type="button" onclick="setNewEmoji('📖')" class="p-1 hover:bg-slate-700 rounded text-sm">📖</button>
+              <button type="button" onclick="setNewEmoji('🎧')" class="p-1 hover:bg-slate-700 rounded text-sm">🎧</button>
+              <button type="button" onclick="setNewEmoji('🍜')" class="p-1 hover:bg-slate-700 rounded text-sm">🍜</button>
+              <button type="button" onclick="setNewEmoji('💻')" class="p-1 hover:bg-slate-700 rounded text-sm">💻</button>
+              <button type="button" onclick="setNewEmoji('🧹')" class="p-1 hover:bg-slate-700 rounded text-sm">🧹</button>
+              <button type="button" onclick="setNewEmoji('🚲')" class="p-1 hover:bg-slate-700 rounded text-sm">🚲</button>
+            </div>
+          </form>
+
+          <!-- Active Deck Slices List -->
+          <div id="activeDeckSlicesList" class="max-h-36 overflow-y-auto space-y-1.5 pr-1">
+            <!-- Dynamic slice list with removal -->
+          </div>
+        </div>
+      </div>
+
+      <div class="flex justify-end pt-4 border-t border-slate-700 mt-3">
+        <button onclick="closeDeckModal()" class="px-5 py-2 bg-slate-700 hover:bg-slate-600 text-slate-200 font-bold rounded-xl text-xs transition">
+          Done & Update Wheel
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ================= MODAL 2: STUDENTS SETUP ================= -->
+  <div id="studentsModal" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4 hidden">
+    <div class="bg-slate-800 parchment-card rounded-2xl p-5 sm:p-7 max-w-md w-full shadow-2xl border border-slate-700 animate-pop-in">
+      
+      <div class="flex items-center justify-between mb-4 border-b border-slate-700 pb-3">
+        <h2 class="text-xl font-extrabold text-slate-100 flex items-center gap-2">
+          <span>👥 Student Roster</span>
+        </h2>
+        <button onclick="closeStudentsModal()" class="text-slate-400 hover:text-slate-200 text-lg font-bold">✕</button>
+      </div>
+
+      <!-- Selector for Student Count -->
+      <div class="mb-4">
+        <label class="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-2">
+          Number of Active Students (2 to 8)
+        </label>
+        <div class="grid grid-cols-7 gap-1.5" id="numStudentsSelector">
+          <!-- 2 to 8 buttons -->
+        </div>
+      </div>
+
+      <!-- Student Name Inputs -->
+      <div class="mb-5">
+        <label class="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-2">
+          Student Names
+        </label>
+        <div id="studentInputsContainer" class="grid grid-cols-2 gap-2 max-h-48 overflow-y-auto p-1">
+          <!-- Dynamic name fields -->
+        </div>
+      </div>
+
+      <button onclick="applyStudentsChanges()" class="w-full py-3 bg-amber-600 hover:bg-amber-500 text-white font-extrabold text-sm rounded-xl shadow transition active:scale-95">
+        Save Roster
+      </button>
+
+    </div>
+  </div>
+
+  <!-- Footer Info -->
+  <footer class="py-2 px-4 text-center text-[11px] font-medium text-slate-400">
+    Frequency & Routine Heatmap • Designed for EFL Classroom Displays & Pair Practice
+  </footer>
+
+
+  <!-- ================= JAVASCRIPT ENGINE ================= -->
+  <script>
+    /* ================= 1. PRESET DECKS & PALETTE CONFIGURATION ================= */
+    
+    // Professional architectural jewel palette for wheel slices
+    const WHEEL_PALETTE = [
+      '#2B4C7E', '#1F6E6C', '#9E4738', '#A6782E', '#3A6B4C', '#5E4474',
+      '#3B5284', '#855338', '#255C69', '#7D3B50', '#4A5D4E', '#6E4F3A'
+    ];
+
+    // 4 Selectable Wheel Decks (Independently Augmentable)
+    const PRESET_DECKS = {
+      daily: {
+        id: 'daily',
+        name: 'Daily Routines',
+        level: 'A1–A2',
+        routines: [
+          { id: 'd1', verb: 'drink coffee or tea', emoji: '☕' },
+          { id: 'd2', verb: 'cook dinner at home', emoji: '🍳' },
+          { id: 'd3', verb: 'wake up before 7 AM', emoji: '⏰' },
+          { id: 'd4', verb: 'skip breakfast', emoji: '🥐' },
+          { id: 'd5', verb: 'take an afternoon nap', emoji: '😴' },
+          { id: 'd6', verb: 'walk for exercise', emoji: '🚶' },
+          { id: 'd7', verb: 'listen to music', emoji: '🎧' },
+          { id: 'd8', verb: 'stay up past midnight', emoji: '🌙' }
+        ]
+      },
+      work: {
+        id: 'work',
+        name: 'Work, Study & Tech',
+        level: 'A2–B1',
+        routines: [
+          { id: 'w1', verb: 'check messages at night', emoji: '📧' },
+          { id: 'w2', verb: 'work or study at a café', emoji: '💻' },
+          { id: 'w3', verb: 'use AI tools', emoji: '🤖' },
+          { id: 'w4', verb: 'take handwritten notes', emoji: '📝' },
+          { id: 'w5', verb: 'procrastinate on tasks', emoji: '⏳' },
+          { id: 'w6', verb: 'mute phone notifications', emoji: '🔕' },
+          { id: 'w7', verb: 'read the news', emoji: '📰' },
+          { id: 'w8', verb: 'plan the week ahead', emoji: '📅' }
+        ]
+      },
+      social: {
+        id: 'social',
+        name: 'Food & Social Life',
+        level: 'A1–B1',
+        routines: [
+          { id: 's1', verb: 'eat street food', emoji: '🍜' },
+          { id: 's2', verb: 'order food delivery', emoji: '🛵' },
+          { id: 's3', verb: 'cook for friends', emoji: '🍲' },
+          { id: 's4', verb: 'try a new café', emoji: '🧋' },
+          { id: 's5', verb: 'eat a meal alone', emoji: '🍽️' },
+          { id: 's6', verb: 'go to the cinema', emoji: '🎬' },
+          { id: 's7', verb: 'invite guests over', emoji: '🏠' },
+          { id: 's8', verb: 'sing karaoke', emoji: '🎤' }
+        ]
+      },
+      wellbeing: {
+        id: 'wellbeing',
+        name: 'Wellbeing & Weekends',
+        level: 'A2–B1',
+        routines: [
+          { id: 'wb1', verb: 'exercise outdoors', emoji: '🏃' },
+          { id: 'wb2', verb: 'read a physical book', emoji: '📖' },
+          { id: 'wb3', verb: 'travel out of town', emoji: '🚆' },
+          { id: 'wb4', verb: 'unplug from screens', emoji: '📵' },
+          { id: 'wb5', verb: 'sleep in on Sundays', emoji: '🛏️' },
+          { id: 'wb6', verb: 'call family members', emoji: '📞' },
+          { id: 'wb7', verb: 'tidy your workspace', emoji: '🧹' },
+          { id: 'wb8', verb: 'practice a hobby', emoji: '🎨' }
+        ]
+      }
+    };
+
+    const DEFAULT_STUDENTS = ['Lan', 'Nam', 'Mai', 'Minh', 'Linh', 'Khoa', 'Vy', 'Huy'];
+
+    // App Global State
+    let appState = {
+      activeDeckKey: 'daily',
+      decks: JSON.parse(JSON.stringify(PRESET_DECKS)), // Clone decks for session edits
+      students: ['Lan', 'Nam', 'Mai', 'Minh'],
+      revealedRoutineIds: [], // routines spun/logged
+      matrix: {}, // key: `${studentIndex}_${routineId}` -> 'A' | 'S' | 'R' | 'N' | undefined
+      activeColumnId: null,
+      activePair: { studentA: null, studentB: null },
+      activeSpeakerIndex: null,
+      summaryMode: false,
+      isAudioMuted: false,
+      isSpinning: false,
+      wheelAngle: 0,
+      tempNumStudents: 4,
+      highlightedCells: [] // for contrast challenge
+    };
+
+    /* ================= 2. WEB AUDIO SYNTHESIZER ================= */
+    let audioCtx = null;
+
+    function getAudioContext() {
+      if (!audioCtx) {
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      }
+      if (audioCtx.state === 'suspended') {
+        audioCtx.resume();
+      }
+      return audioCtx;
+    }
+
+    function playTickSFX() {
+      if (appState.isAudioMuted) return;
+      try {
+        const ctx = getAudioContext();
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(480, ctx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(120, ctx.currentTime + 0.03);
+        gain.gain.setValueAtTime(0.12, ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.03);
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start();
+        osc.stop(ctx.currentTime + 0.03);
+      } catch (e) {}
+    }
+
+    function playWinSFX() {
+      if (appState.isAudioMuted) return;
+      try {
+        const ctx = getAudioContext();
+        const notes = [440, 554.37, 659.25, 880]; // A4, C#5, E5, A5
+        notes.forEach((freq, idx) => {
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.type = 'sine';
+          osc.frequency.value = freq;
+          gain.gain.setValueAtTime(0.15, ctx.currentTime + idx * 0.07);
+          gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + idx * 0.07 + 0.22);
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          osc.start(ctx.currentTime + idx * 0.07);
+          osc.stop(ctx.currentTime + idx * 0.07 + 0.22);
+        });
+      } catch (e) {}
+    }
+
+    // 5-State Frequency SFX Tones (Always -> Never descending)
+    function playFreqStateSFX(stateVal) {
+      if (appState.isAudioMuted) return;
+      try {
+        const ctx = getAudioContext();
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = 'sine';
+
+        let freq = 440;
+        if (stateVal === 'A') freq = 659.25;      // E5 (Always)
+        else if (stateVal === 'S') freq = 523.25; // C5 (Sometimes)
+        else if (stateVal === 'R') freq = 392.00; // G4 (Rarely)
+        else if (stateVal === 'N') freq = 293.66; // D4 (Never)
+        else freq = 220;                         // Reset / Empty
+
+        osc.frequency.setValueAtTime(freq, ctx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(freq * 1.05, ctx.currentTime + 0.06);
+        gain.gain.setValueAtTime(0.18, ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.08);
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start();
+        osc.stop(ctx.currentTime + 0.08);
+      } catch (e) {}
+    }
+
+    /* ================= 3. CANVAS SPINNER WHEEL ================= */
+    let lastSliceIdx = -1;
+
+    function getActiveRoutines() {
+      return appState.decks[appState.activeDeckKey].routines;
+    }
+
+    function drawWheel() {
+      const canvas = document.getElementById('wheelCanvas');
+      if (!canvas) return;
+      const ctx = canvas.getContext('2d');
+      const width = canvas.width;
+      const height = canvas.height;
+      const centerX = width / 2;
+      const centerY = height / 2;
+      const radius = width / 2 - 12;
+
+      ctx.clearRect(0, 0, width, height);
+
+      const routines = getActiveRoutines();
+      const numSlices = routines.length;
+      if (numSlices === 0) return;
+      const sliceAngle = (2 * Math.PI) / numSlices;
+
+      ctx.save();
+      ctx.translate(centerX, centerY);
+      ctx.rotate(appState.wheelAngle);
+
+      for (let i = 0; i < numSlices; i++) {
+        const startAngle = i * sliceAngle;
+        const endAngle = startAngle + sliceAngle;
+
+        // Draw Wedge Slice
+        ctx.beginPath();
+        ctx.moveTo(0, 0);
+        ctx.arc(0, 0, radius, startAngle, endAngle);
+        ctx.closePath();
+        ctx.fillStyle = WHEEL_PALETTE[i % WHEEL_PALETTE.length];
+        ctx.fill();
+        ctx.lineWidth = 2.5;
+        ctx.strokeStyle = '#FFFFFF';
+        ctx.stroke();
+
+        // Draw Text & Emoji
+        ctx.save();
+        ctx.rotate(startAngle + sliceAngle / 2);
+        ctx.textAlign = 'right';
+        ctx.textBaseline = 'middle';
+        ctx.fillStyle = '#FFFFFF';
+
+        const item = routines[i];
+        const fontSize = numSlices > 10 ? 12 : 14;
+        ctx.font = `600 ${fontSize}px Inter, sans-serif`;
+        
+        ctx.fillText(item.verb, radius - 42, 0);
+        ctx.font = '20px sans-serif';
+        ctx.fillText(item.emoji, radius - 14, 0);
+
+        ctx.restore();
+      }
+
+      ctx.restore();
+
+      // Outer Metallic Rim Border
+      ctx.beginPath();
+      ctx.arc(centerX, centerY, radius, 0, 2 * Math.PI);
+      ctx.lineWidth = 6;
+      ctx.strokeStyle = 'rgba(255, 255, 255, 0.35)';
+      ctx.stroke();
+    }
+
+    function spinWheel() {
+      if (appState.isSpinning) return;
+      const routines = getActiveRoutines();
+      if (routines.length === 0) return;
+      getAudioContext();
+
+      appState.isSpinning = true;
+      document.getElementById('centerSpinBtn').disabled = true;
+      dismissWinningCard();
+
+      const numSlices = routines.length;
+      const sliceAngle = (2 * Math.PI) / numSlices;
+      
+      const extraSpins = 4.5 + Math.random() * 2.5;
+      const targetRotation = appState.wheelAngle + (extraSpins * 2 * Math.PI) + (Math.random() * 2 * Math.PI);
+      
+      const startAngle = appState.wheelAngle;
+      const startTime = performance.now();
+      const duration = 4200; // 4.2 seconds crisp deceleration
+
+      lastSliceIdx = -1;
+
+      function animateSpin(currentTime) {
+        const elapsed = currentTime - startTime;
+        const progress = Math.min(elapsed / duration, 1);
+        
+        // Cubic ease-out curve
+        const easeOut = 1 - Math.pow(1 - progress, 3);
+        appState.wheelAngle = startAngle + (targetRotation - startAngle) * easeOut;
+
+        // Top pointer tick check
+        const currentNormAngle = (2 * Math.PI - (appState.wheelAngle % (2 * Math.PI)) - Math.PI / 2 + 4 * Math.PI) % (2 * Math.PI);
+        const currentSliceIdx = Math.floor(currentNormAngle / sliceAngle) % numSlices;
+
+        if (currentSliceIdx !== lastSliceIdx) {
+          lastSliceIdx = currentSliceIdx;
+          playTickSFX();
+          
+          const needle = document.getElementById('wheelNeedle');
+          if (needle) {
+            needle.style.transform = 'rotate(-14deg)';
+            setTimeout(() => { needle.style.transform = 'rotate(0deg)'; }, 50);
+          }
+        }
+
+        drawWheel();
+
+        if (progress < 1) {
+          requestAnimationFrame(animateSpin);
+        } else {
+          appState.isSpinning = false;
+          document.getElementById('centerSpinBtn').disabled = false;
+          onSpinComplete(currentSliceIdx);
+        }
+      }
+
+      requestAnimationFrame(animateSpin);
+    }
+
+    function onSpinComplete(winningIdx) {
+      const routines = getActiveRoutines();
+      const routine = routines[winningIdx];
+      if (!routine) return;
+
+      playWinSFX();
+
+      if (!appState.revealedRoutineIds.includes(routine.id)) {
+        appState.revealedRoutineIds.push(routine.id);
+      }
+      appState.activeColumnId = routine.id;
+
+      // Update Winning Card Banner
+      document.getElementById('winEmoji').textContent = routine.emoji;
+      document.getElementById('winRoutineText').textContent = routine.verb;
+      document.getElementById('winQuestionCue').textContent = `"How often do you ${routine.verb}?"`;
+
+      pickRandomPair();
+      document.getElementById('winningCard').classList.remove('hidden');
+
+      renderMatrix();
+    }
+
+    function dismissWinningCard() {
+      document.getElementById('winningCard').classList.add('hidden');
+    }
+
+    function pickRandomPair() {
+      if (appState.students.length < 2) return;
+      const idxA = Math.floor(Math.random() * appState.students.length);
+      let idxB = Math.floor(Math.random() * appState.students.length);
+      while (idxB === idxA) {
+        idxB = Math.floor(Math.random() * appState.students.length);
+      }
+      appState.activePair = { studentA: idxA, studentB: idxB };
+
+      const studentA = appState.students[idxA];
+      const studentB = appState.students[idxB];
+      document.getElementById('pairDisplay').innerHTML = `
+        <span class="text-amber-400 font-extrabold">${escapeHTML(studentA)}</span> <span class="text-slate-400 text-[11px] font-normal">asks</span> <span class="text-teal-400 font-extrabold">${escapeHTML(studentB)}</span>
+      `;
+      renderMatrix();
+    }
+
+    /* ================= 4. 5-STATE FREQUENCY HEATMAP MATRIX ================= */
+
+    function renderMatrix() {
+      renderMatrixHeaders('skillsHeaderRow', 'normal');
+      renderMatrixBody('matrixTableBody', 'normal');
+
+      renderMatrixHeaders('summaryHeaderRow', 'summary');
+      renderMatrixBody('summaryTableBody', 'summary');
+
+      updateDistributionCounters();
+    }
+
+    function renderMatrixHeaders(containerId, mode) {
+      const container = document.getElementById(containerId);
+      if (!container) return;
+      container.innerHTML = '';
+
+      if (appState.revealedRoutineIds.length === 0) {
+        container.innerHTML = `<span class="text-xs text-slate-400 italic p-2">Spin the wheel to reveal routine columns!</span>`;
+        return;
+      }
+
+      const routines = getActiveRoutines();
+
+      appState.revealedRoutineIds.forEach(routineId => {
+        const routine = routines.find(r => r.id === routineId) || { verb: 'routine', emoji: '⭐' };
+        const isHighlighted = (routineId === appState.activeColumnId);
+
+        const headerChip = document.createElement('div');
+        headerChip.className = `flex flex-col items-center justify-center p-1.5 rounded-lg transition min-w-[75px] sm:min-w-[90px] text-center ${
+          isHighlighted 
+            ? 'bg-amber-600 text-white shadow-md ring-2 ring-amber-400' 
+            : 'bg-slate-700/60 text-slate-200 border border-slate-600/70'
+        }`;
+        
+        headerChip.innerHTML = `
+          <span class="${mode === 'summary' ? 'text-xl' : 'text-lg'}">${routine.emoji}</span>
+          <span class="text-[11px] font-bold capitalize leading-tight mt-0.5 line-clamp-1">${escapeHTML(routine.verb)}</span>
+        `;
+
+        container.appendChild(headerChip);
+      });
+    }
+
+    function renderMatrixBody(tbodyId, mode) {
+      const tbody = document.getElementById(tbodyId);
+      if (!tbody) return;
+      tbody.innerHTML = '';
+
+      appState.students.forEach((student, sIdx) => {
+        const isPairA = (appState.activePair.studentA === sIdx);
+        const isPairB = (appState.activePair.studentB === sIdx);
+        const isSpeaker = (appState.activeSpeakerIndex === sIdx);
+
+        const tr = document.createElement('tr');
+        
+        let rowBg = 'hover:bg-slate-700/30';
+        if (mode === 'normal' && (isPairA || isPairB)) {
+          rowBg = isPairA ? 'bg-amber-500/10 border-l-4 border-amber-500' : 'bg-teal-500/10 border-l-4 border-teal-500';
+        } else if (mode === 'summary' && isSpeaker) {
+          rowBg = 'bg-amber-500/15 border-l-4 border-amber-400 font-bold';
+        }
+
+        tr.className = `transition ${rowBg}`;
+        tr.onclick = () => {
+          if (mode === 'summary') {
+            appState.activeSpeakerIndex = sIdx;
+            document.getElementById('speakerHighlightBox').classList.remove('hidden');
+            document.getElementById('speakerNameText').textContent = student;
+            renderMatrix();
+          }
+        };
+
+        // Response counter per student
+        let studentAnswered = 0;
+        appState.revealedRoutineIds.forEach(routineId => {
+          if (appState.matrix[`${sIdx}_${routineId}`]) studentAnswered++;
+        });
+
+        // Student Name Cell
+        const nameTd = document.createElement('td');
+        nameTd.className = `p-2 sm:p-2.5 font-bold text-slate-100 sticky left-0 bg-slate-800 parchment-card z-10 cursor-pointer text-xs sm:text-sm`;
+        nameTd.innerHTML = `
+          <div class="flex items-center justify-between gap-1">
+            <span>${escapeHTML(student)} ${isPairA ? '💬' : isPairB ? '👂' : ''}</span>
+            <span class="text-[10px] font-extrabold px-1.5 py-0.2 rounded-full ${studentAnswered >= 2 ? 'bg-emerald-900/80 text-emerald-300 border border-emerald-700' : 'bg-slate-700 text-slate-400'}">
+              ${studentAnswered}
+            </span>
+          </div>
+        `;
+        tr.appendChild(nameTd);
+
+        // Cells Container
+        const cellsTd = document.createElement('td');
+        cellsTd.className = 'p-0';
+        const cellsRow = document.createElement('div');
+        cellsRow.className = 'flex items-center gap-1.5 p-1';
+
+        appState.revealedRoutineIds.forEach(routineId => {
+          const key = `${sIdx}_${routineId}`;
+          const val = appState.matrix[key]; // 'A' | 'S' | 'R' | 'N' | undefined
+          const isColumnHighlighted = (routineId === appState.activeColumnId);
+          const isCellHighlighted = appState.highlightedCells.includes(key);
+
+          const cellBtn = document.createElement('button');
+          cellBtn.setAttribute('id', `cell_${mode}_${key}`);
+          cellBtn.onclick = (e) => {
+            e.stopPropagation();
+            cycleCellState(sIdx, routineId);
+          };
+          
+          let stateStyle = 'bg-slate-700/40 text-slate-500 border border-dashed border-slate-600 hover:border-amber-400';
+          let label = '•';
+
+          if (val === 'A') {
+            stateStyle = 'bg-teal-700 text-white font-black shadow border border-teal-500';
+            label = 'A';
+          } else if (val === 'S') {
+            stateStyle = 'bg-amber-700 text-white font-black shadow border border-amber-500';
+            label = 'S';
+          } else if (val === 'R') {
+            stateStyle = 'bg-orange-700 text-white font-black shadow border border-orange-500';
+            label = 'R';
+          } else if (val === 'N') {
+            stateStyle = 'bg-rose-800 text-white font-black shadow border border-rose-600';
+            label = 'N';
+          }
+
+          const cellSizeClass = mode === 'summary' 
+            ? 'w-14 h-11 text-base rounded-lg' 
+            : 'w-12 h-9 sm:w-14 sm:h-10 text-sm sm:text-base rounded-lg';
+
+          let highlightRing = '';
+          if (isCellHighlighted) {
+            highlightRing = 'ring-4 ring-amber-400 scale-105 z-20';
+          } else if (isColumnHighlighted) {
+            highlightRing = 'ring-2 ring-amber-500/70';
+          }
+
+          cellBtn.className = `${cellSizeClass} font-extrabold flex items-center justify-center transition-all transform active:scale-90 ${stateStyle} ${highlightRing}`;
+          cellBtn.innerHTML = `<span>${label}</span>`;
+
+          cellsRow.appendChild(cellBtn);
+        });
+
+        cellsTd.appendChild(cellsRow);
+        tr.appendChild(cellsTd);
+        tbody.appendChild(tr);
+      });
+    }
+
+    // Cycle through 5 states: Empty -> A -> S -> R -> N -> Empty
+    function cycleCellState(sIdx, routineId) {
+      const key = `${sIdx}_${routineId}`;
+      const current = appState.matrix[key];
+
+      let next = 'A';
+      if (!current) next = 'A';
+      else if (current === 'A') next = 'S';
+      else if (current === 'S') next = 'R';
+      else if (current === 'R') next = 'N';
+      else if (current === 'N') next = null;
+
+      if (next) {
+        appState.matrix[key] = next;
+      } else {
+        delete appState.matrix[key];
+      }
+
+      playFreqStateSFX(next);
+      renderMatrix();
+    }
+
+    function resetMatrixData() {
+      if (confirm('Are you sure you want to reset all logged frequency answers?')) {
+        appState.matrix = {};
+        appState.highlightedCells = [];
+        document.getElementById('challengeBox').classList.add('hidden');
+        renderMatrix();
+      }
+    }
+
+    function updateDistributionCounters() {
+      let countA = 0, countS = 0, countR = 0, countN = 0;
+      Object.values(appState.matrix).forEach(val => {
+        if (val === 'A') countA++;
+        if (val === 'S') countS++;
+        if (val === 'R') countR++;
+        if (val === 'N') countN++;
+      });
+
+      const elA = document.getElementById('countAlways');
+      const elS = document.getElementById('countSometimes');
+      const elR = document.getElementById('countRarely');
+      const elN = document.getElementById('countNever');
+
+      if (elA) elA.textContent = countA;
+      if (elS) elS.textContent = countS;
+      if (elR) elR.textContent = countR;
+      if (elN) elN.textContent = countN;
+    }
+
+    /* ================= 5. SUMMARY MODE & INTERACTIVE TOOLS ================= */
+
+    function toggleSummaryMode() {
+      appState.summaryMode = !appState.summaryMode;
+      const gameView = document.getElementById('spinnerGameView');
+      const summaryView = document.getElementById('summaryModeView');
+      const btnText = document.getElementById('modeBtnText');
+
+      if (appState.summaryMode) {
+        gameView.classList.add('hidden');
+        summaryView.classList.remove('hidden');
+        summaryView.classList.add('flex');
+        btnText.textContent = 'Back to Wheel';
+      } else {
+        summaryView.classList.add('hidden');
+        summaryView.classList.remove('flex');
+        gameView.classList.remove('hidden');
+        btnText.textContent = 'Summary Heatmap';
+      }
+
+      renderMatrix();
+    }
+
+    function pickRandomSpeaker() {
+      if (appState.students.length === 0) return;
+      getAudioContext();
+      const randomIdx = Math.floor(Math.random() * appState.students.length);
+      appState.activeSpeakerIndex = randomIdx;
+
+      document.getElementById('speakerHighlightBox').classList.remove('hidden');
+      document.getElementById('speakerNameText').textContent = appState.students[randomIdx];
+      playWinSFX();
+
+      renderMatrix();
+    }
+
+    function generateContrastChallenge() {
+      getAudioContext();
+      
+      const entries = [];
+      appState.students.forEach((student, sIdx) => {
+        appState.revealedRoutineIds.forEach(routineId => {
+          const val = appState.matrix[`${sIdx}_${routineId}`];
+          if (val) {
+            const routines = getActiveRoutines();
+            const routine = routines.find(r => r.id === routineId);
+            entries.push({ key: `${sIdx}_${routineId}`, sIdx, student, routineId, routine, val });
+          }
+        });
+      });
+
+      const challengeBox = document.getElementById('challengeBox');
+      const promptText = document.getElementById('challengePromptText');
+      const modelAns = document.getElementById('modelAnswerText');
+      
+      appState.highlightedCells = [];
+
+      if (entries.length < 2) {
+        challengeBox.classList.remove('hidden');
+        promptText.innerHTML = `<span class="text-rose-400">Need at least two logged frequency cells in the heatmap!</span>`;
+        modelAns.classList.add('hidden');
+        return;
+      }
+
+      // Find two entries with different frequency values
+      let item1 = entries[Math.floor(Math.random() * entries.length)];
+      let item2 = entries[Math.floor(Math.random() * entries.length)];
+      let attempts = 0;
+      while (item1.val === item2.val && attempts < 25) {
+        item2 = entries[Math.floor(Math.random() * entries.length)];
+        attempts++;
+      }
+
+      appState.highlightedCells = [item1.key, item2.key];
+
+      const freqMap = {
+        'A': { label: 'always', color: 'text-teal-400' },
+        'S': { label: 'sometimes', color: 'text-amber-400' },
+        'R': { label: 'rarely', color: 'text-orange-400' },
+        'N': { label: 'never', color: 'text-rose-400' }
+      };
+
+      const f1 = freqMap[item1.val];
+      const f2 = freqMap[item2.val];
+
+      promptText.innerHTML = `
+        <span class="text-slate-100 font-extrabold">${escapeHTML(item1.student)}</span> 
+        <span class="${f1.color} font-black">(${f1.label})</span> ${item1.routine.emoji} ${item1.routine.verb}
+        <span class="mx-2 text-slate-400 font-serif italic">vs</span>
+        <span class="text-slate-100 font-extrabold">${escapeHTML(item2.student)}</span> 
+        <span class="${f2.color} font-black">(${f2.label})</span> ${item2.routine.emoji} ${item2.routine.verb}
+      `;
+
+      modelAns.textContent = `"${item1.student} ${f1.label} ${item1.routine.verb}, whereas ${item2.student} ${f2.label} ${item2.routine.verb}."`;
+
+      modelAns.classList.add('hidden');
+      document.getElementById('modelAnsBtnText').textContent = 'Show Model Sentence 👁️';
+      challengeBox.classList.remove('hidden');
+      playWinSFX();
+
+      renderMatrix();
+    }
+
+    function toggleModelAnswer() {
+      const modelAns = document.getElementById('modelAnswerText');
+      const btnText = document.getElementById('modelAnsBtnText');
+      if (modelAns.classList.contains('hidden')) {
+        modelAns.classList.remove('hidden');
+        btnText.textContent = 'Hide Model Sentence 🙈';
+      } else {
+        modelAns.classList.add('hidden');
+        btnText.textContent = 'Show Model Sentence 👁️';
+      }
+    }
+
+    /* Export Heatmap to Markdown File */
+    function exportMatrixToMarkdown() {
+      const routines = getActiveRoutines();
+      const revealed = appState.revealedRoutineIds.map(id => routines.find(r => r.id === id)).filter(Boolean);
+
+      if (revealed.length === 0) {
+        alert('No logged routines to export!');
+        return;
+      }
+
+      let md = `# Frequency & Routine Heatmap Summary\n`;
+      md += `**Deck:** ${appState.decks[appState.activeDeckKey].name}\n`;
+      md += `**Date:** ${new Date().toLocaleDateString()}\n\n`;
+
+      // Header row
+      md += `| Student | ` + revealed.map(r => `${r.emoji} ${r.verb}`).join(' | ') + ` |\n`;
+      md += `| --- | ` + revealed.map(() => `---`).join(' | ') + ` |\n`;
+
+      // Body rows
+      appState.students.forEach((student, sIdx) => {
+        const row = [student];
+        revealed.forEach(r => {
+          const val = appState.matrix[`${sIdx}_${r.id}`] || '-';
+          row.push(val);
+        });
+        md += `| ` + row.join(' | ') + ` |\n`;
+      });
+
+      md += `\n*Legend: A = Always | S = Sometimes | R = Rarely | N = Never*\n`;
+
+      // Download trigger
+      const blob = new Blob([md], { type: 'text/markdown' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `Frequency_Heatmap_${appState.activeDeckKey}.md`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    }
+
+    /* ================= 6. GEAR MODAL (DECKS & AUGMENTATION) ================= */
+
+    function openDeckModal() {
+      renderDeckSelectorCards();
+      renderActiveDeckSlicesList();
+      document.getElementById('deckModal').classList.remove('hidden');
+    }
+
+    function closeDeckModal() {
+      document.getElementById('deckModal').classList.add('hidden');
+      drawWheel();
+      renderMatrix();
+    }
+
+    function selectDeck(deckKey) {
+      if (appState.activeDeckKey === deckKey) return;
+      appState.activeDeckKey = deckKey;
+      
+      const activeDeck = appState.decks[deckKey];
+      document.getElementById('activeDeckBadge').textContent = activeDeck.name;
+      
+      // Filter revealed routines to those in current deck
+      appState.revealedRoutineIds = [];
+      appState.activeColumnId = null;
+
+      renderDeckSelectorCards();
+      renderActiveDeckSlicesList();
+      drawWheel();
+      renderMatrix();
+    }
+
+    function renderDeckSelectorCards() {
+      const container = document.getElementById('deckSelectorCards');
+      if (!container) return;
+      container.innerHTML = '';
+
+      Object.keys(appState.decks).forEach(key => {
+        const deck = appState.decks[key];
+        const isSelected = (key === appState.activeDeckKey);
+
+        const card = document.createElement('button');
+        card.type = 'button';
+        card.onclick = () => selectDeck(key);
+        card.className = `p-3 rounded-xl border text-left transition flex items-center justify-between ${
+          isSelected 
+            ? 'bg-amber-600/20 border-amber-500 text-white shadow' 
+            : 'bg-slate-900/60 border-slate-700 text-slate-300 hover:bg-slate-700/50'
+        }`;
+
+        card.innerHTML = `
+          <div>
+            <div class="font-bold text-sm text-slate-100">${escapeHTML(deck.name)}</div>
+            <div class="text-[11px] text-slate-400 font-medium">${deck.level} • ${deck.routines.length} slices</div>
+          </div>
+          ${isSelected ? '<span class="text-amber-400 font-extrabold text-sm">✓</span>' : ''}
+        `;
+
+        container.appendChild(card);
+      });
+    }
+
+    function renderActiveDeckSlicesList() {
+      const container = document.getElementById('activeDeckSlicesList');
+      const badge = document.getElementById('deckCountBadge');
+      if (!container) return;
+
+      const routines = getActiveRoutines();
+      badge.textContent = routines.length;
+      container.innerHTML = '';
+
+      routines.forEach(item => {
+        const row = document.createElement('div');
+        row.className = 'flex items-center justify-between p-2 rounded-lg bg-slate-900/60 border border-slate-700/70 text-xs font-semibold';
+        row.innerHTML = `
+          <div class="flex items-center gap-2">
+            <span class="text-base">${item.emoji}</span>
+            <span class="capitalize text-slate-200">${escapeHTML(item.verb)}</span>
+          </div>
+          <button onclick="removeRoutineSlice('${item.id}')" class="text-rose-400 hover:text-rose-300 text-[11px] px-2 py-0.5 rounded">
+            ✕ Remove
+          </button>
+        `;
+        container.appendChild(row);
+      });
+    }
+
+    function setNewEmoji(emoji) {
+      document.getElementById('newEmojiInput').value = emoji;
+    }
+
+    function handleAddNewRoutine(e) {
+      e.preventDefault();
+      const emoji = document.getElementById('newEmojiInput').value.trim() || '⭐';
+      const verb = document.getElementById('newVerbInput').value.trim();
+      if (!verb) return;
+
+      const newRoutine = {
+        id: `custom_${Date.now()}`,
+        verb: verb.toLowerCase(),
+        emoji: emoji
+      };
+
+      appState.decks[appState.activeDeckKey].routines.push(newRoutine);
+      document.getElementById('newVerbInput').value = '';
+
+      renderDeckSelectorCards();
+      renderActiveDeckSlicesList();
+      drawWheel();
+    }
+
+    function removeRoutineSlice(routineId) {
+      const routines = getActiveRoutines();
+      if (routines.length <= 4) {
+        alert('Minimum 4 routine slices required per wheel deck!');
+        return;
+      }
+
+      appState.decks[appState.activeDeckKey].routines = routines.filter(r => r.id !== routineId);
+      appState.revealedRoutineIds = appState.revealedRoutineIds.filter(id => id !== routineId);
+
+      renderDeckSelectorCards();
+      renderActiveDeckSlicesList();
+      drawWheel();
+      renderMatrix();
+    }
+
+    function resetCurrentDeckDefaults() {
+      if (confirm('Reset this deck to its original default slices?')) {
+        const original = PRESET_DECKS[appState.activeDeckKey];
+        appState.decks[appState.activeDeckKey] = JSON.parse(JSON.stringify(original));
+        appState.revealedRoutineIds = [];
+        renderDeckSelectorCards();
+        renderActiveDeckSlicesList();
+        drawWheel();
+        renderMatrix();
+      }
+    }
+
+    /* ================= 7. STUDENTS MODAL ================= */
+
+    function openStudentsModal() {
+      appState.tempNumStudents = appState.students.length;
+      renderNumStudentsSelector();
+      renderStudentInputs();
+      document.getElementById('studentsModal').classList.remove('hidden');
+    }
+
+    function closeStudentsModal() {
+      document.getElementById('studentsModal').classList.add('hidden');
+    }
+
+    function renderNumStudentsSelector() {
+      const container = document.getElementById('numStudentsSelector');
+      if (!container) return;
+      container.innerHTML = '';
+
+      for (let i = 2; i <= 8; i++) {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.onclick = () => {
+          appState.tempNumStudents = i;
+          renderNumStudentsSelector();
+          renderStudentInputs();
+        };
+        const isActive = (i === appState.tempNumStudents);
+        btn.className = `p-2 rounded-lg font-extrabold text-xs transition ${
+          isActive 
+            ? 'bg-amber-600 text-white shadow' 
+            : 'bg-slate-700 text-slate-300 hover:bg-slate-600'
+        }`;
+        btn.textContent = i;
+        container.appendChild(btn);
+      }
+    }
+
+    function renderStudentInputs() {
+      const container = document.getElementById('studentInputsContainer');
+      if (!container) return;
+      container.innerHTML = '';
+
+      for (let i = 0; i < appState.tempNumStudents; i++) {
+        const val = appState.students[i] || DEFAULT_STUDENTS[i] || `Student ${i+1}`;
+        const input = document.createElement('input');
+        input.type = 'text';
+        input.id = `studentInput_${i}`;
+        input.value = val;
+        input.className = 'p-2 text-xs font-semibold rounded-lg border border-slate-600 bg-slate-900 text-white focus:outline-none focus:ring-2 focus:ring-amber-500';
+        container.appendChild(input);
+      }
+    }
+
+    function applyStudentsChanges() {
+      const newNames = [];
+      for (let i = 0; i < appState.tempNumStudents; i++) {
+        const inp = document.getElementById(`studentInput_${i}`);
+        const name = inp ? inp.value.trim() : '';
+        newNames.push(name || `Student ${i+1}`);
+      }
+
+      appState.students = newNames;
+      renderMatrix();
+      closeStudentsModal();
+    }
+
+    /* ================= 8. THEME & AUDIO TOGGLES ================= */
+
+    function toggleTheme() {
+      const html = document.documentElement;
+      const sunIcon = document.getElementById('sunIcon');
+      const moonIcon = document.getElementById('moonIcon');
+
+      if (html.classList.contains('dark')) {
+        html.classList.remove('dark');
+        sunIcon.classList.remove('hidden');
+        moonIcon.classList.add('hidden');
+      } else {
+        html.classList.add('dark');
+        sunIcon.classList.add('hidden');
+        moonIcon.classList.remove('hidden');
+      }
+      drawWheel();
+    }
+
+    function toggleAudio() {
+      appState.isAudioMuted = !appState.isAudioMuted;
+      const soundOn = document.getElementById('soundOnIcon');
+      const soundOff = document.getElementById('soundOffIcon');
+
+      if (appState.isAudioMuted) {
+        soundOn.classList.add('hidden');
+        soundOff.classList.remove('hidden');
+      } else {
+        soundOn.classList.remove('hidden');
+        soundOff.classList.add('hidden');
+      }
+    }
+
+    function escapeHTML(str) {
+      return str.replace(/[&<>'"]/g, 
+        tag => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[tag] || tag)
+      );
+    }
+
+    /* Keyboard Shortcuts & Resize Events */
+    window.addEventListener('keydown', (e) => {
+      if (e.code === 'Space' && !appState.isSpinning && !appState.summaryMode) {
+        if (['INPUT', 'TEXTAREA'].includes(document.activeElement.tagName)) return;
+        e.preventDefault();
+        spinWheel();
+      }
+    });
+
+    window.addEventListener('resize', () => {
+      drawWheel();
+    });
+
+    /* Initialize Application on Launch */
+    window.onload = function() {
+      drawWheel();
+      renderMatrix();
+    };
+
+  </script>
+</body>
+</html>
