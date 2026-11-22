@@ -1,0 +1,661 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Wh- & How Question Prompt Cards — 96 Classroom Prompts</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['-apple-system', 'BlinkMacSystemFont', '"Segoe UI"', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'sans-serif'],
+          },
+          colors: {
+            parchment: {
+              bg: '#FAF6EE',
+              card: '#FFFFFF',
+              text: '#1C232B',
+              border: '#E5DCC8',
+              muted: '#766E62',
+            },
+            slate: {
+              bg: '#0E1218',
+              card: '#171D27',
+              text: '#F3F6FA',
+              border: '#293242',
+              muted: '#8B9BB4',
+            }
+          }
+        }
+      }
+    };
+  </script>
+  <style>
+    :root {
+      --text-scale: 1;
+    }
+
+    /* Custom Parchment & Dark Theme Palette Variables */
+    body.light-theme {
+      background-color: #FAF6EE;
+      color: #1C232B;
+    }
+    body.dark-theme {
+      background-color: #0E1218;
+      color: #F3F6FA;
+    }
+
+    .card-theme {
+      transition: background-color 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
+    }
+    body.light-theme .card-theme {
+      background-color: #FFFFFF;
+      border-color: #E5DCC8;
+      box-shadow: 0 10px 25px -5px rgba(28, 35, 43, 0.05), 0 8px 10px -6px rgba(28, 35, 43, 0.03);
+    }
+    body.dark-theme .card-theme {
+      background-color: #171D27;
+      border-color: #293242;
+      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.4), 0 8px 10px -6px rgba(0, 0, 0, 0.3);
+    }
+
+    .border-theme {
+      transition: border-color 0.25s ease;
+    }
+    body.light-theme .border-theme {
+      border-color: #E5DCC8;
+    }
+    body.dark-theme .border-theme {
+      border-color: #293242;
+    }
+
+    .muted-text {
+      transition: color 0.25s ease;
+    }
+    body.light-theme .muted-text {
+      color: #766E62;
+    }
+    body.dark-theme .muted-text {
+      color: #8B9BB4;
+    }
+
+    /* Scaling typography for projector legibility */
+    .statement-text {
+      font-size: calc(clamp(1.75rem, 3.8vw, 3.4rem) * var(--text-scale));
+      line-height: 1.25;
+    }
+
+    .question-text {
+      font-size: calc(clamp(1.75rem, 3.8vw, 3.4rem) * var(--text-scale));
+      line-height: 1.25;
+    }
+
+    /* Clue highlight style */
+    mark.clue-highlight {
+      background-color: rgba(251, 191, 36, 0.35);
+      color: inherit;
+      border-bottom: 3px solid #f59e0b;
+      border-radius: 0.25rem;
+      padding: 0.05em 0.25em;
+      transition: all 0.2s ease;
+    }
+    body.dark-theme mark.clue-highlight {
+      background-color: rgba(245, 158, 11, 0.25);
+      color: #fef08a;
+      border-bottom-color: #fbbf24;
+    }
+
+    /* Wh-word specific colors */
+    .badge-WHO { background-color: rgba(37, 99, 235, 0.12); color: #1d4ed8; border-color: rgba(37, 99, 235, 0.3); }
+    body.dark-theme .badge-WHO { background-color: rgba(37, 99, 235, 0.25); color: #93c5fd; border-color: rgba(96, 165, 250, 0.4); }
+
+    .badge-WHAT { background-color: rgba(16, 185, 129, 0.12); color: #047857; border-color: rgba(16, 185, 129, 0.3); }
+    body.dark-theme .badge-WHAT { background-color: rgba(16, 185, 129, 0.25); color: #6ee7b7; border-color: rgba(52, 211, 153, 0.4); }
+
+    .badge-WHERE { background-color: rgba(245, 158, 11, 0.14); color: #b45309; border-color: rgba(245, 158, 11, 0.35); }
+    body.dark-theme .badge-WHERE { background-color: rgba(245, 158, 11, 0.25); color: #fde047; border-color: rgba(251, 191, 36, 0.4); }
+
+    .badge-WHEN { background-color: rgba(147, 51, 234, 0.12); color: #7e22ce; border-color: rgba(147, 51, 234, 0.3); }
+    body.dark-theme .badge-WHEN { background-color: rgba(147, 51, 234, 0.25); color: #d8b4fe; border-color: rgba(192, 132, 252, 0.4); }
+
+    .badge-WHY { background-color: rgba(225, 29, 72, 0.12); color: #be123c; border-color: rgba(225, 29, 72, 0.3); }
+    body.dark-theme .badge-WHY { background-color: rgba(225, 29, 72, 0.25); color: #fda4af; border-color: rgba(251, 113, 133, 0.4); }
+
+    .badge-HOW { background-color: rgba(13, 148, 136, 0.12); color: #0f766e; border-color: rgba(13, 148, 136, 0.3); }
+    body.dark-theme .badge-HOW { background-color: rgba(13, 148, 136, 0.25); color: #5eead4; border-color: rgba(45, 212, 191, 0.4); }
+
+    /* Button styles */
+    .ctrl-btn {
+      transition: all 0.15s ease;
+      user-select: none;
+    }
+    body.light-theme .ctrl-btn {
+      background-color: #FFFFFF;
+      border-color: #E5DCC8;
+      color: #1C232B;
+    }
+    body.light-theme .ctrl-btn:hover {
+      background-color: #F4EFE6;
+    }
+    body.dark-theme .ctrl-btn {
+      background-color: #171D27;
+      border-color: #293242;
+      color: #F3F6FA;
+    }
+    body.dark-theme .ctrl-btn:hover {
+      background-color: #202836;
+    }
+
+    .ctrl-btn.active {
+      background-color: #2563EB !important;
+      color: #FFFFFF !important;
+      border-color: #2563EB !important;
+    }
+    body.dark-theme .ctrl-btn.active {
+      background-color: #3B82F6 !important;
+      color: #FFFFFF !important;
+      border-color: #3B82F6 !important;
+    }
+
+    /* Prevent text selection on clickables */
+    .no-select {
+      user-select: none;
+    }
+  </style>
+</head>
+<body class="light-theme h-full flex flex-col font-sans transition-colors duration-300 overflow-hidden">
+
+  <!-- TOP BAR (Ultra Minimal Controls) -->
+  <header class="w-full px-4 py-3 flex items-center justify-between border-b border-theme z-10 shrink-0">
+    <!-- Left: Tense Filter & Counter -->
+    <div class="flex items-center space-x-3">
+      <select id="tenseSelect" class="ctrl-btn border rounded-lg px-3 py-1.5 text-sm font-semibold focus:outline-none cursor-pointer">
+        <option value="ALL">All 96 Prompts</option>
+        <option value="Present Simple">Present Simple</option>
+        <option value="Present Continuous">Present Continuous</option>
+        <option value="Past Simple">Past Simple</option>
+        <option value="Future">Future</option>
+      </select>
+
+      <span id="cardCounter" class="text-sm font-bold tracking-wide muted-text min-w-[65px]">
+        1 / 96
+      </span>
+    </div>
+
+    <!-- Right: Utility Controls -->
+    <div class="flex items-center space-x-2">
+      <!-- Shuffle Toggle -->
+      <button id="btnShuffle" title="Toggle Shuffle Mode" class="ctrl-btn border rounded-lg px-3 py-1.5 text-xs font-bold tracking-wider uppercase flex items-center gap-1.5">
+        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"/></svg>
+        <span>Shuffle</span>
+      </button>
+
+      <!-- Clue Toggle -->
+      <button id="btnClue" title="Toggle Target Clue Highlight (Hotkey: C)" class="ctrl-btn border rounded-lg px-3 py-1.5 text-xs font-bold tracking-wider uppercase flex items-center gap-1.5">
+        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+        <span>Clue</span>
+      </button>
+
+      <div class="h-4 w-px bg-gray-300 dark:bg-gray-700 mx-1"></div>
+
+      <!-- Font Size A- / A+ -->
+      <div class="flex items-center border border-theme rounded-lg overflow-hidden">
+        <button id="btnFontDown" title="Decrease Font Size" class="ctrl-btn border-none px-2.5 py-1.5 text-xs font-bold hover:bg-black/5 dark:hover:bg-white/5">A-</button>
+        <button id="btnFontUp" title="Increase Font Size" class="ctrl-btn border-none px-2.5 py-1.5 text-xs font-bold border-l border-theme hover:bg-black/5 dark:hover:bg-white/5">A+</button>
+      </div>
+
+      <!-- Theme Toggle -->
+      <button id="btnTheme" title="Toggle Light/Dark Theme (Hotkey: D)" class="ctrl-btn border rounded-lg p-1.5 flex items-center justify-center">
+        <!-- Sun Icon -->
+        <svg id="iconSun" class="w-4 h-4 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
+        <!-- Moon Icon -->
+        <svg id="iconMoon" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/></svg>
+      </button>
+    </div>
+  </header>
+
+  <!-- MAIN STAGE (Centered Distraction-Free Layout) -->
+  <main class="flex-1 max-w-5xl w-full mx-auto p-4 md:p-6 flex flex-col justify-center gap-4 min-h-0">
+    
+    <!-- TOP CARD: STATEMENT -->
+    <div class="card-theme border rounded-2xl p-6 md:p-8 flex-1 flex flex-col justify-center relative min-h-[160px] transition-all">
+      <!-- Muted Tense Tag -->
+      <div class="absolute top-4 left-6 flex items-center gap-2">
+        <span id="tenseBadge" class="text-xs font-black tracking-widest uppercase muted-text">
+          PRESENT SIMPLE
+        </span>
+        <span id="promptIdTag" class="text-[10px] font-bold px-1.5 py-0.5 rounded bg-black/5 dark:bg-white/10 muted-text">
+          #1
+        </span>
+      </div>
+
+      <!-- Statement Content -->
+      <div class="w-full text-center my-auto pt-3">
+        <p id="statementDisplay" class="statement-text font-bold tracking-tight">
+          Loading statement...
+        </p>
+      </div>
+    </div>
+
+    <!-- BOTTOM CARD: CONCEALED / REVEALED QUESTION CARD -->
+    <div id="questionCard" class="card-theme border rounded-2xl p-6 md:p-8 flex-1 flex flex-col justify-center items-center cursor-pointer no-select min-h-[160px] relative transition-all group" title="Click or Press Space to Reveal Question">
+      
+      <!-- Wh-word Badge (Top Left Corner of Card) -->
+      <div class="absolute top-4 left-6">
+        <span id="whBadge" class="px-3.5 py-1 rounded-full text-sm font-extrabold tracking-wider border shadow-sm transition-all uppercase">
+          WHO
+        </span>
+      </div>
+
+      <!-- Concealed State Placeholder -->
+      <div id="concealedState" class="w-full flex flex-col items-center justify-center gap-2 my-auto pt-3">
+        <div class="flex items-center gap-2 muted-text opacity-75 group-hover:opacity-100 transition-opacity">
+          <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+          </svg>
+          <span class="text-base font-semibold tracking-wide">Tap or press Space to reveal question</span>
+        </div>
+      </div>
+
+      <!-- Revealed State Content -->
+      <div id="revealedState" class="w-full text-center my-auto pt-3 hidden">
+        <p id="questionDisplay" class="question-text font-extrabold tracking-tight">
+          Loading question...
+        </p>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- SLIM BOTTOM NAV BAR -->
+  <footer class="w-full px-4 py-3 flex items-center justify-center border-t border-theme shrink-0">
+    <div class="flex items-center gap-4 max-w-md w-full">
+      <button id="btnPrev" class="ctrl-btn border rounded-xl py-3 px-6 text-base font-bold flex-1 flex items-center justify-center gap-2 shadow-sm active:scale-95 transition-transform">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7"/></svg>
+        <span>Previous</span>
+      </button>
+
+      <button id="btnNext" class="ctrl-btn border rounded-xl py-3 px-6 text-base font-bold flex-1 flex items-center justify-center gap-2 shadow-sm active:scale-95 transition-transform">
+        <span>Next</span>
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"/></svg>
+      </button>
+    </div>
+  </footer>
+
+  <!-- JAVASCRIPT DATA & INTERACTION LOGIC -->
+  <script>
+    // -------------------------------------------------------------
+    // DATASET: ALL 96 PROMPTS VERBATIM
+    // -------------------------------------------------------------
+    const ALL_PROMPTS = [
+      // Present Simple (Set A, 1-12)
+      { id: 1, tense: "Present Simple", wh: "WHO", statement: "My best friend Minh sits next to me in class.", clue: "My best friend Minh", question: "WHO sits next to you in class?" },
+      { id: 2, tense: "Present Simple", wh: "WHO", statement: "I usually play soccer with my older brother.", clue: "my older brother", question: "WHO do you usually play soccer with?" },
+      { id: 3, tense: "Present Simple", wh: "WHAT", statement: "My favorite school subject is Science.", clue: "Science", question: "WHAT is your favorite school subject?" },
+      { id: 4, tense: "Present Simple", wh: "WHAT", statement: "I eat noodles for breakfast every morning.", clue: "noodles", question: "WHAT do you eat for breakfast every morning?" },
+      { id: 5, tense: "Present Simple", wh: "WHERE", statement: "My grandparents live in a small village.", clue: "in a small village", question: "WHERE do your grandparents live?" },
+      { id: 6, tense: "Present Simple", wh: "WHERE", statement: "We buy our comic books at the corner bookstore.", clue: "at the corner bookstore", question: "WHERE do you buy your comic books?" },
+      { id: 7, tense: "Present Simple", wh: "WHEN", statement: "Our English class starts at 5:30 PM.", clue: "at 5:30 PM", question: "WHEN does your English class start?" },
+      { id: 8, tense: "Present Simple", wh: "WHEN", statement: "I play video games on Saturday afternoons.", clue: "on Saturday afternoons", question: "WHEN do you play video games?" },
+      { id: 9, tense: "Present Simple", wh: "WHY", statement: "I love summer because we have no homework.", clue: "because we have no homework", question: "WHY do you love summer?" },
+      { id: 10, tense: "Present Simple", wh: "WHY", statement: "My dog barks because it wants food.", clue: "because it wants food", question: "WHY does your dog bark?" },
+      { id: 11, tense: "Present Simple", wh: "HOW", statement: "I go to school by bicycle every day.", clue: "by bicycle", question: "HOW do you go to school every day?" },
+      { id: 12, tense: "Present Simple", wh: "HOW", statement: "I spell my name K-E-V-I-N.", clue: "K-E-V-I-N", question: "HOW do you spell your name?" },
+
+      // Present Continuous (Set A, 13-24)
+      { id: 13, tense: "Present Continuous", wh: "WHO", statement: "My little brother is playing with the cat right now.", clue: "My little brother", question: "WHO is playing with the cat right now?" },
+      { id: 14, tense: "Present Continuous", wh: "WHO", statement: "I am talking to my teammate on the phone.", clue: "my teammate", question: "WHO are you talking to on the phone?" },
+      { id: 15, tense: "Present Continuous", wh: "WHAT", statement: "I am drawing a comic book superhero.", clue: "a comic book superhero", question: "WHAT are you drawing?" },
+      { id: 16, tense: "Present Continuous", wh: "WHAT", statement: "My mom is cooking fried rice in the kitchen.", clue: "fried rice", question: "WHAT is your mom cooking in the kitchen?" },
+      { id: 17, tense: "Present Continuous", wh: "WHERE", statement: "I am sitting at the front desk.", clue: "at the front desk", question: "WHERE are you sitting?" },
+      { id: 18, tense: "Present Continuous", wh: "WHERE", statement: "My friends are waiting at the school gate.", clue: "at the school gate", question: "WHERE are your friends waiting?" },
+      { id: 19, tense: "Present Continuous", wh: "WHEN", statement: "Our team is practicing this afternoon.", clue: "this afternoon", question: "WHEN is your team practicing?" },
+      { id: 20, tense: "Present Continuous", wh: "WHEN", statement: "My family is visiting the zoo this Sunday.", clue: "this Sunday", question: "WHEN is your family visiting the zoo?" },
+      { id: 21, tense: "Present Continuous", wh: "WHY", statement: "I am wearing a big jacket because the room is cold.", clue: "because the room is cold", question: "WHY are you wearing a big jacket?" },
+      { id: 22, tense: "Present Continuous", wh: "WHY", statement: "She is running because she is late for the bus.", clue: "because she is late for the bus", question: "WHY is she running?" },
+      { id: 23, tense: "Present Continuous", wh: "HOW", statement: "I am getting to the park on foot today.", clue: "on foot", question: "HOW are you getting to the park today?" },
+      { id: 24, tense: "Present Continuous", wh: "HOW", statement: "I am feeling really happy today!", clue: "really happy", question: "HOW are you feeling today?" },
+
+      // Past Simple (Set A, 25-36)
+      { id: 25, tense: "Past Simple", wh: "WHO", statement: "My uncle taught me how to swim last summer.", clue: "My uncle", question: "WHO taught you how to swim last summer?" },
+      { id: 26, tense: "Past Simple", wh: "WHO", statement: "I met my old classmate at the mall yesterday.", clue: "my old classmate", question: "WHO did you meet at the mall yesterday?" },
+      { id: 27, tense: "Past Simple", wh: "WHAT", statement: "I bought a new backpack last weekend.", clue: "a new backpack", question: "WHAT did you buy last weekend?" },
+      { id: 28, tense: "Past Simple", wh: "WHAT", statement: "We watched an action movie on Friday night.", clue: "an action movie", question: "WHAT did you watch on Friday night?" },
+      { id: 29, tense: "Past Simple", wh: "WHERE", statement: "I left my water bottle on the basketball court.", clue: "on the basketball court", question: "WHERE did you leave your water bottle?" },
+      { id: 30, tense: "Past Simple", wh: "WHERE", statement: "My family went to the beach during the holiday.", clue: "to the beach", question: "WHERE did your family go during the holiday?" },
+      { id: 31, tense: "Past Simple", wh: "WHEN", statement: "I finished my homework at 8:00 PM.", clue: "at 8:00 PM", question: "WHEN did you finish your homework?" },
+      { id: 32, tense: "Past Simple", wh: "WHEN", statement: "We moved to this house three years ago.", clue: "three years ago", question: "WHEN did you move to this house?" },
+      { id: 33, tense: "Past Simple", wh: "WHY", statement: "I stayed home yesterday because I had a cold.", clue: "because I had a cold", question: "WHY did you stay home yesterday?" },
+      { id: 34, tense: "Past Simple", wh: "WHY", statement: "He laughed because the joke was funny.", clue: "because the joke was funny", question: "WHY did he laugh?" },
+      { id: 35, tense: "Past Simple", wh: "HOW", statement: "We traveled to the mountains by bus.", clue: "by bus", question: "HOW did you travel to the mountains?" },
+      { id: 36, tense: "Past Simple", wh: "HOW", statement: "The pizza tasted amazing!", clue: "amazing", question: "HOW did the pizza taste?" },
+
+      // Future (Set A, 37-48)
+      { id: 37, tense: "Future", wh: "WHO", statement: "My dad is going to pick me up after class.", clue: "My dad", question: "WHO is going to pick you up after class?" },
+      { id: 38, tense: "Future", wh: "WHO", statement: "I will invite all my classmates to my birthday party.", clue: "all my classmates", question: "WHO will you invite to your birthday party?" },
+      { id: 39, tense: "Future", wh: "WHAT", statement: "I am going to make a chocolate cake tomorrow.", clue: "a chocolate cake", question: "WHAT are you going to make tomorrow?" },
+      { id: 40, tense: "Future", wh: "WHAT", statement: "I will play badminton after school.", clue: "badminton", question: "WHAT will you play after school?" },
+      { id: 41, tense: "Future", wh: "WHERE", statement: "We are going to eat dinner at a pizza restaurant.", clue: "at a pizza restaurant", question: "WHERE are you going to eat dinner?" },
+      { id: 42, tense: "Future", wh: "WHERE", statement: "My family will travel to Singapore next summer.", clue: "to Singapore", question: "WHERE will your family travel next summer?" },
+      { id: 43, tense: "Future", wh: "WHEN", statement: "I am going to clean my room tonight.", clue: "tonight", question: "WHEN are you going to clean your room?" },
+      { id: 44, tense: "Future", wh: "WHEN", statement: "The new movie will come out next Friday.", clue: "next Friday", question: "WHEN will the new movie come out?" },
+      { id: 45, tense: "Future", wh: "WHY", statement: "I am going to study hard because I want a good score.", clue: "because I want a good score", question: "WHY are you going to study hard?" },
+      { id: 46, tense: "Future", wh: "WHY", statement: "She will bring an umbrella because it looks cloudy.", clue: "because it looks cloudy", question: "WHY will she bring an umbrella?" },
+      { id: 47, tense: "Future", wh: "HOW", statement: "We are going to get to the stadium by taxi.", clue: "by taxi", question: "HOW are you going to get to the stadium?" },
+      { id: 48, tense: "Future", wh: "HOW", statement: "I will learn the new song by practicing every day.", clue: "by practicing every day", question: "HOW will you learn the new song?" },
+
+      // Present Simple (Set B, 49-60)
+      { id: 49, tense: "Present Simple", wh: "WHO", statement: "Our teacher Mr. Lee checks our homework every morning.", clue: "Our teacher Mr. Lee", question: "WHO checks your homework every morning?" },
+      { id: 50, tense: "Present Simple", wh: "WHO", statement: "I practice piano with my music teacher.", clue: "my music teacher", question: "WHO do you practice piano with?" },
+      { id: 51, tense: "Present Simple", wh: "WHAT", statement: "My sister drinks orange juice every morning.", clue: "orange juice", question: "WHAT does your sister drink every morning?" },
+      { id: 52, tense: "Present Simple", wh: "WHAT", statement: "I collect anime stickers in my notebook.", clue: "anime stickers", question: "WHAT do you collect in your notebook?" },
+      { id: 53, tense: "Present Simple", wh: "WHERE", statement: "We play basketball in the school gymnasium.", clue: "in the school gymnasium", question: "WHERE do you play basketball?" },
+      { id: 54, tense: "Present Simple", wh: "WHERE", statement: "My aunt works at a hospital downtown.", clue: "at a hospital downtown", question: "WHERE does your aunt work?" },
+      { id: 55, tense: "Present Simple", wh: "WHEN", statement: "The supermarket opens at 7:00 AM.", clue: "at 7:00 AM", question: "WHEN does the supermarket open?" },
+      { id: 56, tense: "Present Simple", wh: "WHEN", statement: "We have lunch at 12:30 PM.", clue: "at 12:30 PM", question: "WHEN do you have lunch?" },
+      { id: 57, tense: "Present Simple", wh: "WHY", statement: "He wears glasses because he cannot see far away.", clue: "because he cannot see far away", question: "WHY does he wear glasses?" },
+      { id: 58, tense: "Present Simple", wh: "WHY", statement: "I walk fast because I do not want to be late.", clue: "because I do not want to be late", question: "WHY do you walk fast?" },
+      { id: 59, tense: "Present Simple", wh: "HOW", statement: "My father cooks rice using an electric cooker.", clue: "using an electric cooker", question: "HOW does your father cook rice?" },
+      { id: 60, tense: "Present Simple", wh: "HOW", statement: "They get to school by school bus.", clue: "by school bus", question: "HOW do they get to school?" },
+
+      // Present Continuous (Set B, 61-72)
+      { id: 61, tense: "Present Continuous", wh: "WHO", statement: "The new student is giving a presentation right now.", clue: "The new student", question: "WHO is giving a presentation right now?" },
+      { id: 62, tense: "Present Continuous", wh: "WHO", statement: "We are waiting for our coach at the field.", clue: "our coach", question: "WHO are you waiting for at the field?" },
+      { id: 63, tense: "Present Continuous", wh: "WHAT", statement: "She is writing an email to her pen pal.", clue: "an email", question: "WHAT is she writing?" },
+      { id: 64, tense: "Present Continuous", wh: "WHAT", statement: "They are eating ice cream by the fountain.", clue: "ice cream", question: "WHAT are they eating by the fountain?" },
+      { id: 65, tense: "Present Continuous", wh: "WHERE", statement: "The children are playing in the backyard.", clue: "in the backyard", question: "WHERE are the children playing?" },
+      { id: 66, tense: "Present Continuous", wh: "WHERE", statement: "My dad is fixing his car in the garage.", clue: "in the garage", question: "WHERE is your dad fixing his car?" },
+      { id: 67, tense: "Present Continuous", wh: "WHEN", statement: "I am taking my computer test next Tuesday.", clue: "next Tuesday", question: "WHEN are you taking your computer test?" },
+      { id: 68, tense: "Present Continuous", wh: "WHEN", statement: "We are watching the match this evening.", clue: "this evening", question: "WHEN are you watching the match?" },
+      { id: 69, tense: "Present Continuous", wh: "WHY", statement: "They are studying in the library because it is quiet.", clue: "because it is quiet", question: "WHY are they studying in the library?" },
+      { id: 70, tense: "Present Continuous", wh: "WHY", statement: "He is laughing because his friend told a funny story.", clue: "because his friend told a funny story", question: "WHY is he laughing?" },
+      { id: 71, tense: "Present Continuous", wh: "HOW", statement: "She is carrying the boxes with a trolley.", clue: "with a trolley", question: "HOW is she carrying the boxes?" },
+      { id: 72, tense: "Present Continuous", wh: "HOW", statement: "The machine is working very smoothly.", clue: "very smoothly", question: "HOW is the machine working?" },
+
+      // Past Simple (Set B, 73-84)
+      { id: 73, tense: "Past Simple", wh: "WHO", statement: "My grandmother baked these delicious cookies yesterday.", clue: "My grandmother", question: "WHO baked these delicious cookies yesterday?" },
+      { id: 74, tense: "Past Simple", wh: "WHO", statement: "I called my cousin Alex last night.", clue: "my cousin Alex", question: "WHO did you call last night?" },
+      { id: 75, tense: "Past Simple", wh: "WHAT", statement: "My brother broke his pencil case during break time.", clue: "his pencil case", question: "WHAT did your brother break during break time?" },
+      { id: 76, tense: "Past Simple", wh: "WHAT", statement: "We ordered a large pepperoni pizza last night.", clue: "a large pepperoni pizza", question: "WHAT did you order last night?" },
+      { id: 77, tense: "Past Simple", wh: "WHERE", statement: "She found her lost keys under the couch.", clue: "under the couch", question: "WHERE did she find her lost keys?" },
+      { id: 78, tense: "Past Simple", wh: "WHERE", statement: "We camped near the lake last weekend.", clue: "near the lake", question: "WHERE did you camp last weekend?" },
+      { id: 79, tense: "Past Simple", wh: "WHEN", statement: "The rain stopped an hour ago.", clue: "an hour ago", question: "WHEN did the rain stop?" },
+      { id: 80, tense: "Past Simple", wh: "WHEN", statement: "They arrived at the station at 9:15 AM.", clue: "at 9:15 AM", question: "WHEN did they arrive at the station?" },
+      { id: 81, tense: "Past Simple", wh: "WHY", statement: "She opened the window because the room was warm.", clue: "because the room was warm", question: "WHY did she open the window?" },
+      { id: 82, tense: "Past Simple", wh: "WHY", statement: "I bought this sweater because it was on sale.", clue: "because it was on sale", question: "WHY did you buy this sweater?" },
+      { id: 83, tense: "Past Simple", wh: "HOW", statement: "He solved the math puzzle very quickly.", clue: "very quickly", question: "HOW did he solve the math puzzle?" },
+      { id: 84, tense: "Past Simple", wh: "HOW", statement: "They traveled across the city by subway.", clue: "by subway", question: "HOW did they travel across the city?" },
+
+      // Future (Set B, 85-96)
+      { id: 85, tense: "Future", wh: "WHO", statement: "Our principal is going to speak at the assembly.", clue: "Our principal", question: "WHO is going to speak at the assembly?" },
+      { id: 86, tense: "Future", wh: "WHO", statement: "I will visit my aunt and uncle this weekend.", clue: "my aunt and uncle", question: "WHO will you visit this weekend?" },
+      { id: 87, tense: "Future", wh: "WHAT", statement: "They are going to build a new playground next month.", clue: "a new playground", question: "WHAT are they going to build next month?" },
+      { id: 88, tense: "Future", wh: "WHAT", statement: "I will wear my blue jacket tomorrow.", clue: "my blue jacket", question: "WHAT will you wear tomorrow?" },
+      { id: 89, tense: "Future", wh: "WHERE", statement: "We are going to stay at a hotel near the sea.", clue: "at a hotel near the sea", question: "WHERE are you going to stay?" },
+      { id: 90, tense: "Future", wh: "WHERE", statement: "She will put the poster on the bedroom wall.", clue: "on the bedroom wall", question: "WHERE will she put the poster?" },
+      { id: 91, tense: "Future", wh: "WHEN", statement: "The museum will open at 9:00 AM tomorrow.", clue: "at 9:00 AM tomorrow", question: "WHEN will the museum open tomorrow?" },
+      { id: 92, tense: "Future", wh: "WHEN", statement: "I am going to return this book on Friday.", clue: "on Friday", question: "WHEN are you going to return this book?" },
+      { id: 93, tense: "Future", wh: "WHY", statement: "He is going to practice every day because he wants to win.", clue: "because he wants to win", question: "WHY is he going to practice every day?" },
+      { id: 94, tense: "Future", wh: "WHY", statement: "We will leave early because traffic is heavy.", clue: "because traffic is heavy", question: "WHY will you leave early?" },
+      { id: 95, tense: "Future", wh: "HOW", statement: "She is going to learn guitar by watching video tutorials.", clue: "by watching video tutorials", question: "HOW is she going to learn guitar?" },
+      { id: 96, tense: "Future", wh: "HOW", statement: "We will travel to the island by ferry.", clue: "by ferry", question: "HOW will you travel to the island?" }
+    ];
+
+    // -------------------------------------------------------------
+    // STATE MANAGEMENT
+    // -------------------------------------------------------------
+    let currentDeck = [...ALL_PROMPTS];
+    let currentIndex = 0;
+    let isRevealed = false;
+    let isClueEnabled = false;
+    let isShuffleEnabled = false;
+    let isDarkMode = false;
+    let textScale = 1.0;
+
+    // Elements
+    const tenseSelect = document.getElementById('tenseSelect');
+    const cardCounter = document.getElementById('cardCounter');
+    const btnShuffle = document.getElementById('btnShuffle');
+    const btnClue = document.getElementById('btnClue');
+    const btnFontDown = document.getElementById('btnFontDown');
+    const btnFontUp = document.getElementById('btnFontUp');
+    const btnTheme = document.getElementById('btnTheme');
+    const iconSun = document.getElementById('iconSun');
+    const iconMoon = document.getElementById('iconMoon');
+
+    const tenseBadge = document.getElementById('tenseBadge');
+    const promptIdTag = document.getElementById('promptIdTag');
+    const statementDisplay = document.getElementById('statementDisplay');
+
+    const questionCard = document.getElementById('questionCard');
+    const whBadge = document.getElementById('whBadge');
+    const concealedState = document.getElementById('concealedState');
+    const revealedState = document.getElementById('revealedState');
+    const questionDisplay = document.getElementById('questionDisplay');
+
+    const btnPrev = document.getElementById('btnPrev');
+    const btnNext = document.getElementById('btnNext');
+
+    // Helper: HTML Escaping
+    function escapeHTML(str) {
+      return str
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+    }
+
+    // Helper: Fisher-Yates Shuffle
+    function shuffleArray(arr) {
+      const array = [...arr];
+      for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+      }
+      return array;
+    }
+
+    // Initialize Theme
+    function initTheme() {
+      const savedTheme = localStorage.getItem('wh_deck_theme');
+      if (savedTheme === 'dark') {
+        isDarkMode = true;
+      } else {
+        isDarkMode = false;
+      }
+      applyTheme();
+    }
+
+    function applyTheme() {
+      if (isDarkMode) {
+        document.body.classList.remove('light-theme');
+        document.body.classList.add('dark-theme');
+        document.documentElement.classList.add('dark');
+        iconSun.classList.remove('hidden');
+        iconMoon.classList.add('hidden');
+      } else {
+        document.body.classList.remove('dark-theme');
+        document.body.classList.add('light-theme');
+        document.documentElement.classList.remove('dark');
+        iconSun.classList.add('hidden');
+        iconMoon.classList.remove('hidden');
+      }
+    }
+
+    function toggleTheme() {
+      isDarkMode = !isDarkMode;
+      try {
+        localStorage.setItem('wh_deck_theme', isDarkMode ? 'dark' : 'light');
+      } catch (e) {}
+      applyTheme();
+    }
+
+    // Update Filter & Active Deck
+    function updateDeckFilter() {
+      const selectedTense = tenseSelect.value;
+      let filtered = selectedTense === "ALL" 
+        ? [...ALL_PROMPTS] 
+        : ALL_PROMPTS.filter(item => item.tense === selectedTense);
+
+      if (isShuffleEnabled) {
+        filtered = shuffleArray(filtered);
+      }
+
+      currentDeck = filtered;
+      currentIndex = 0;
+      isRevealed = false;
+      renderCard();
+    }
+
+    // Render Current Card
+    function renderCard() {
+      if (!currentDeck || currentDeck.length === 0) return;
+
+      const item = currentDeck[currentIndex];
+
+      // Update Tense & ID
+      tenseBadge.textContent = item.tense.toUpperCase();
+      promptIdTag.textContent = `#${item.id}`;
+
+      // Update Statement (with Clue Highlighting if enabled)
+      if (isClueEnabled && item.clue) {
+        statementDisplay.innerHTML = getHighlightedStatement(item.statement, item.clue);
+      } else {
+        statementDisplay.textContent = item.statement;
+      }
+
+      // Update Wh-word Badge
+      whBadge.textContent = item.wh;
+      // Reset Badge Classes
+      whBadge.className = `px-3.5 py-1 rounded-full text-sm font-extrabold tracking-wider border shadow-sm transition-all uppercase badge-${item.wh}`;
+
+      // Update Question Display (Highlight the leading Wh-word)
+      const formattedQuestion = formatQuestionText(item.question, item.wh);
+      questionDisplay.innerHTML = formattedQuestion;
+
+      // Update Concealed / Revealed state UI
+      if (isRevealed) {
+        concealedState.classList.add('hidden');
+        revealedState.classList.remove('hidden');
+      } else {
+        concealedState.classList.remove('hidden');
+        revealedState.classList.add('hidden');
+      }
+
+      // Update Counter
+      cardCounter.textContent = `${currentIndex + 1} / ${currentDeck.length}`;
+    }
+
+    // Format Clue Highlighting inside Statement
+    function getHighlightedStatement(statement, clue) {
+      const lowerStmt = statement.toLowerCase();
+      const lowerClue = clue.toLowerCase();
+      const idx = lowerStmt.indexOf(lowerClue);
+
+      if (idx === -1) return escapeHTML(statement);
+
+      const originalSub = statement.substring(idx, idx + clue.length);
+      const before = escapeHTML(statement.substring(0, idx));
+      const match = escapeHTML(originalSub);
+      const after = escapeHTML(statement.substring(idx + clue.length));
+
+      return `${before}<mark class="clue-highlight">${match}</mark>${after}`;
+    }
+
+    // Format Question Text
+    function formatQuestionText(question, wh) {
+      const safeQ = escapeHTML(question);
+      if (safeQ.startsWith(wh)) {
+        return `<span class="font-black text-blue-600 dark:text-blue-400">${wh}</span>${safeQ.slice(wh.length)}`;
+      }
+      return safeQ;
+    }
+
+    // Toggle Conceal / Reveal State
+    function toggleReveal() {
+      isRevealed = !isRevealed;
+      renderCard();
+    }
+
+    // Navigation Controls
+    function nextCard() {
+      if (currentDeck.length === 0) return;
+      currentIndex = (currentIndex + 1) % currentDeck.length;
+      isRevealed = false;
+      renderCard();
+    }
+
+    function prevCard() {
+      if (currentDeck.length === 0) return;
+      currentIndex = (currentIndex - 1 + currentDeck.length) % currentDeck.length;
+      isRevealed = false;
+      renderCard();
+    }
+
+    // Font Scale Controls
+    function setFontScale(newScale) {
+      textScale = Math.min(Math.max(newScale, 0.8), 1.45);
+      document.documentElement.style.setProperty('--text-scale', textScale);
+    }
+
+    // -------------------------------------------------------------
+    // EVENT LISTENERS & SHORTCUTS
+    // -------------------------------------------------------------
+    tenseSelect.addEventListener('change', updateDeckFilter);
+
+    btnShuffle.addEventListener('click', () => {
+      isShuffleEnabled = !isShuffleEnabled;
+      btnShuffle.classList.toggle('active', isShuffleEnabled);
+      updateDeckFilter();
+    });
+
+    btnClue.addEventListener('click', () => {
+      isClueEnabled = !isClueEnabled;
+      btnClue.classList.toggle('active', isClueEnabled);
+      renderCard();
+    });
+
+    btnFontDown.addEventListener('click', () => setFontScale(textScale - 0.1));
+    btnFontUp.addEventListener('click', () => setFontScale(textScale + 0.1));
+    btnTheme.addEventListener('click', toggleTheme);
+
+    questionCard.addEventListener('click', toggleReveal);
+    btnNext.addEventListener('click', nextCard);
+    btnPrev.addEventListener('click', prevCard);
+
+    // Keyboard Navigation
+    window.addEventListener('keydown', (e) => {
+      // Ignore key events when interacting with select dropdown
+      if (document.activeElement === tenseSelect && (e.key === ' ' || e.key === 'Enter')) {
+        return;
+      }
+
+      if (e.key === 'ArrowRight') {
+        nextCard();
+      } else if (e.key === 'ArrowLeft') {
+        prevCard();
+      } else if (e.key === ' ' || e.key === 'Enter') {
+        e.preventDefault();
+        toggleReveal();
+      } else if (e.key === 'c' || e.key === 'C') {
+        isClueEnabled = !isClueEnabled;
+        btnClue.classList.toggle('active', isClueEnabled);
+        renderCard();
+      } else if (e.key === 'd' || e.key === 'D') {
+        toggleTheme();
+      }
+    });
+
+    // Initial Load
+    window.onload = function() {
+      initTheme();
+      updateDeckFilter();
+    };
+  </script>
+</body>
+</html>
