@@ -1,0 +1,614 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Vocabulary Explorer</title>
+    <style>
+        :root {
+            --bg-color: #f8fafc;
+            --text-color: #0f172a;
+            --nav-bg: #ffffff;
+            --card-bg: #ffffff;
+            --border-color: #e2e8f0;
+            --shadow-color: rgba(0, 0, 0, 0.1);
+            --primary: #3b82f6;
+            --primary-hover: #2563eb;
+            --success: #22c55e;
+            --danger: #ef4444;
+            --glow: rgba(255, 255, 255, 0.8);
+            --badge-bg: #1e293b;
+            --badge-text: #ffffff;
+        }
+
+        body.dark {
+            --bg-color: #0f172a;
+            --text-color: #f8fafc;
+            --nav-bg: #1e293b;
+            --card-bg: #1e293b;
+            --border-color: #334155;
+            --shadow-color: rgba(0, 0, 0, 0.4);
+            --glow: rgba(59, 130, 246, 0.5);
+            --badge-bg: #f8fafc;
+            --badge-text: #0f172a;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Navigation */
+        .navbar {
+            background-color: var(--nav-bg);
+            border-bottom: 1px solid var(--border-color);
+            padding: 1rem;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 2px 4px var(--shadow-color);
+            z-index: 10;
+        }
+
+        .nav-btn {
+            background: transparent;
+            border: 1px solid var(--border-color);
+            color: var(--text-color);
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        .nav-btn:hover {
+            background: var(--border-color);
+        }
+
+        .nav-btn.active {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+
+        .theme-toggle {
+            margin-left: auto;
+            background: transparent;
+            border: none;
+            font-size: 1.2rem;
+            cursor: pointer;
+            padding: 0.5rem;
+        }
+
+        /* Dashboard */
+        .dashboard {
+            padding: 1rem;
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            align-items: flex-start;
+            flex-wrap: wrap;
+            min-height: 100px;
+        }
+
+        .card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 1rem 2rem;
+            box-shadow: 0 4px 6px var(--shadow-color);
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .prompt-card {
+            min-width: 300px;
+            min-height: 100px;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .prompt-text {
+            font-size: clamp(1.8rem, 3.6vw, 2.8rem);
+            font-weight: 800;
+            line-height: 1.2;
+            word-break: break-word;
+        }
+
+        .prompt-btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 0.5rem;
+        }
+        
+        .prompt-btn:hover { background: var(--primary-hover); }
+
+        .en-btn {
+            background: var(--badge-bg);
+            color: var(--badge-text);
+            border: none;
+            padding: 0.4rem 1rem;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 0.75rem;
+            position: absolute;
+            bottom: 0.5rem;
+            right: 0.5rem;
+        }
+
+        .progress-card {
+            font-size: clamp(1.15rem, 1.8vw, 1.45rem);
+            font-weight: 700;
+        }
+
+        .progress-card.complete {
+            background: var(--success);
+            color: white;
+            border-color: var(--success);
+            transform: scale(1.05);
+        }
+
+        .timer-card {
+            font-size: clamp(1.15rem, 1.8vw, 1.45rem);
+            font-weight: 700;
+            color: var(--danger);
+        }
+
+        /* Image & Hotspots */
+        .workspace {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 1rem;
+            overflow: hidden;
+        }
+
+        .image-container {
+            position: relative;
+            max-width: 1200px;
+            width: 100%;
+            border-radius: 12px;
+            box-shadow: 0 8px 24px var(--shadow-color);
+            background: #fff;
+        }
+
+        .image-container img {
+            display: block;
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            border-radius: 12px;
+            pointer-events: none;
+        }
+
+        .hotspot {
+            position: absolute;
+            border-radius: 8px;
+            cursor: pointer;
+            z-index: 5;
+            transition: background 0.2s, box-shadow 0.2s;
+            border: 2px solid transparent;
+        }
+
+        .hotspot:hover {
+            box-shadow: 0 0 15px var(--glow), inset 0 0 15px var(--glow);
+            background: rgba(255, 255, 255, 0.15);
+            border-color: rgba(255, 255, 255, 0.4);
+        }
+
+        .badge {
+            position: absolute;
+            top: -6px;
+            right: -6px;
+            background: var(--badge-bg);
+            color: var(--badge-text);
+            width: clamp(24px, 2.5vw, 32px);
+            height: clamp(24px, 2.5vw, 32px);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: clamp(13px, 1.35vw, 19px);
+            font-weight: 800;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .show-badges .badge {
+            opacity: 1;
+        }
+
+        .badge.hidden {
+            display: none !important;
+        }
+
+        .feedback {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: clamp(2rem, 4vw, 4rem);
+            font-weight: bold;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.2s, transform 0.2s;
+        }
+
+        .feedback.success {
+            color: var(--success);
+            text-shadow: 0 0 10px #fff;
+            opacity: 1;
+            transform: translate(-50%, -50%) scale(1.2);
+        }
+
+        .feedback.fail {
+            color: var(--danger);
+            text-shadow: 0 0 10px #fff;
+            opacity: 1;
+            transform: translate(-50%, -50%) scale(1.2);
+        }
+
+        [style*="display: none"] { display: none !important; }
+    </style>
+</head>
+<body>
+
+    <nav class="navbar">
+        <button class="nav-btn active" data-mode="0">Explore</button>
+        <button class="nav-btn" data-mode="1">1. Find It (EN)</button>
+        <button class="nav-btn" data-mode="2">2. Translation (VI)</button>
+        <button class="nav-btn" data-mode="3">3. Time Attack</button>
+        <button class="theme-toggle" id="themeToggle" title="Toggle Light/Dark Mode">🌙</button>
+    </nav>
+
+    <div class="dashboard">
+        <div class="card prompt-card" id="promptCard" style="display: none;">
+            <div id="promptContent"></div>
+        </div>
+        <div class="card progress-card" id="progressCard">
+            <span id="progressText">Explored: 0 / 15</span>
+        </div>
+        <div class="card timer-card" id="timerCard" style="display: none;">
+            ⏱ <span id="timeText">60</span>s
+        </div>
+    </div>
+
+    <div class="workspace">
+        <div class="image-container" id="imageContainer">
+            <img src="EVERYDAY-ACTIONS-VERT-V03.png" id="mainImage" alt="Everyday Actions">
+            <div id="hotspots"></div>
+        </div>
+    </div>
+
+    <script>
+        const vocabs = [
+            // Row 1 (Top right subset)
+            { id: 1, en: "WRING", vi: "Vắt", box: {x: 17, y: 4, w: 16, h: 28} },
+            { id: 2, en: "PULL", vi: "Kéo", box: {x: 33.5, y: 4, w: 16, h: 28} },
+            { id: 3, en: "CRUSH", vi: "Bóp bẹp", box: {x: 50, y: 4, w: 16, h: 28} },
+            { id: 4, en: "STIR", vi: "Khuấy", box: {x: 66.5, y: 4, w: 16, h: 28} },
+            { id: 5, en: "SQUEEZE", vi: "Vắt", box: {x: 83, y: 4, w: 16, h: 28} },
+            
+            // Row 2 (Middle)
+            { id: 6, en: "SQUASH", vi: "Bóp nát", box: {x: 1, y: 36, w: 18.5, h: 28} },
+            { id: 7, en: "CRUMBLE", vi: "Bóp vụn", box: {x: 21, y: 36, w: 18.5, h: 28} },
+            { id: 8, en: "SPRINKLE", vi: "Rắc", box: {x: 41, y: 36, w: 18.5, h: 28} },
+            { id: 9, en: "SPILL", vi: "Làm đổ", box: {x: 61, y: 36, w: 18.5, h: 28} },
+            { id: 10, en: "POUR", vi: "Rót", box: {x: 81, y: 36, w: 18.5, h: 28} },
+            
+            // Row 3 (Bottom)
+            { id: 11, en: "WIPE", vi: "Lau", box: {x: 1, y: 69, w: 18.5, h: 28} },
+            { id: 12, en: "FILL", vi: "Rót đầy", box: {x: 21, y: 69, w: 18.5, h: 28} },
+            { id: 13, en: "PRESS", vi: "Nhấn", box: {x: 41, y: 69, w: 18.5, h: 28} },
+            { id: 14, en: "TWIST", vi: "Vặn", box: {x: 61, y: 69, w: 18.5, h: 28} },
+            { id: 15, en: "CUT", vi: "Cắt", box: {x: 81, y: 69, w: 18.5, h: 28} }
+        ];
+
+        // Core State
+        let mode = 0;
+        let claimed = new Set();
+        let explored = new Set();
+        let currentTarget = null;
+        let exploreCardState = null; // null, 'EN', 'VI'
+        let currentExploreVocab = null;
+        let timer = 60;
+        let timerInterval = null;
+        let isPlaying = false;
+        
+        // DOM Elements
+        const imageContainer = document.getElementById('imageContainer');
+        const mainImage = document.getElementById('mainImage');
+        const hotspotsContainer = document.getElementById('hotspots');
+        const promptCard = document.getElementById('promptCard');
+        const promptContent = document.getElementById('promptContent');
+        const progressCard = document.getElementById('progressCard');
+        const progressText = document.getElementById('progressText');
+        const timerCard = document.getElementById('timerCard');
+        const timeText = document.getElementById('timeText');
+        const themeToggle = document.getElementById('themeToggle');
+
+        // Audio Context (Web Audio API)
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        
+        function playTone(freq, type, duration, vol=0.1, startTime=audioCtx.currentTime) {
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.type = type;
+            osc.frequency.setValueAtTime(freq, startTime);
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            gain.gain.setValueAtTime(vol, startTime);
+            gain.gain.exponentialRampToValueAtTime(0.01, startTime + duration);
+            osc.start(startTime);
+            osc.stop(startTime + duration);
+        }
+
+        function playChime() {
+            if(audioCtx.state === 'suspended') audioCtx.resume();
+            playTone(523.25, 'sine', 0.1); 
+            playTone(659.25, 'sine', 0.3, 0.1, audioCtx.currentTime + 0.1); 
+        }
+
+        function playBuzz() {
+            if(audioCtx.state === 'suspended') audioCtx.resume();
+            playTone(150, 'sawtooth', 0.3);
+        }
+
+        function playVictory() {
+            if(audioCtx.state === 'suspended') audioCtx.resume();
+            const now = audioCtx.currentTime;
+            playTone(261.63, 'sine', 0.1, 0.1, now);
+            playTone(329.63, 'sine', 0.1, 0.1, now + 0.1);
+            playTone(392.00, 'sine', 0.1, 0.1, now + 0.2);
+            playTone(523.25, 'sine', 0.4, 0.1, now + 0.3);
+        }
+
+        // Initialize Image Aspect Ratio
+        mainImage.onload = () => {
+            imageContainer.style.aspectRatio = mainImage.naturalWidth / mainImage.naturalHeight;
+        };
+        if (mainImage.complete) {
+            imageContainer.style.aspectRatio = mainImage.naturalWidth / mainImage.naturalHeight;
+        }
+
+        // Setup Hotspots
+        function initHotspots() {
+            hotspotsContainer.innerHTML = '';
+            vocabs.forEach((v, index) => {
+                const spot = document.createElement('div');
+                spot.className = 'hotspot';
+                spot.style.left = v.box.x + '%';
+                spot.style.top = v.box.y + '%';
+                spot.style.width = v.box.w + '%';
+                spot.style.height = v.box.h + '%';
+                spot.dataset.id = v.id;
+
+                const badge = document.createElement('div');
+                badge.className = 'badge';
+                badge.textContent = (index + 1).toString().padStart(2, '0');
+                spot.appendChild(badge);
+
+                const feedback = document.createElement('div');
+                feedback.className = 'feedback';
+                spot.appendChild(feedback);
+
+                spot.addEventListener('click', () => handleHotspotClick(v, spot, badge, feedback));
+                hotspotsContainer.appendChild(spot);
+            });
+        }
+
+        // Navigation
+        document.querySelectorAll('.nav-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+                e.target.classList.add('active');
+                setMode(parseInt(e.target.dataset.mode));
+            });
+        });
+
+        themeToggle.addEventListener('click', () => {
+            document.body.classList.toggle('dark');
+            themeToggle.textContent = document.body.classList.contains('dark') ? '☀️' : '🌙';
+        });
+
+        // Game Logic
+        function setMode(newMode) {
+            mode = newMode;
+            claimed.clear();
+            explored.clear();
+            currentTarget = null;
+            exploreCardState = null;
+            currentExploreVocab = null;
+            isPlaying = false;
+            clearInterval(timerInterval);
+            
+            promptCard.style.display = 'none';
+            timerCard.style.display = 'none';
+            progressCard.classList.remove('complete');
+            imageContainer.classList.remove('show-badges');
+
+            document.querySelectorAll('.badge').forEach(b => {
+                b.classList.remove('hidden');
+                b.innerHTML = b.parentElement.dataset.id.padStart(2, '0');
+            });
+            document.querySelectorAll('.feedback').forEach(f => {
+                f.className = 'feedback';
+                f.innerHTML = '';
+            });
+
+            if (mode === 0) {
+                progressText.textContent = `Explored: 0 / ${vocabs.length}`;
+            } else {
+                imageContainer.classList.add('show-badges');
+                progressText.textContent = `Claimed: 0 / ${vocabs.length}`;
+                promptCard.style.display = 'flex';
+                
+                if (mode === 1 || mode === 2) {
+                    promptContent.innerHTML = `<button class="prompt-btn" onclick="generateObject()">Generate Object</button>`;
+                } else if (mode === 3) {
+                    timerCard.style.display = 'block';
+                    timeText.textContent = '60';
+                    promptContent.innerHTML = `<button class="prompt-btn" onclick="startTimerGame()">Start 60s Challenge</button>`;
+                }
+            }
+        }
+
+        function updateProgress() {
+            const count = mode === 0 ? explored.size : claimed.size;
+            const prefix = mode === 0 ? 'Explored' : 'Claimed';
+            progressText.textContent = `${prefix}: ${count} / ${vocabs.length}`;
+            
+            if (count === vocabs.length) {
+                progressCard.classList.add('complete');
+                if (mode !== 0) {
+                    playVictory();
+                    promptContent.innerHTML = `<div class="prompt-text">Excellent!</div>`;
+                    isPlaying = false;
+                    clearInterval(timerInterval);
+                }
+            }
+        }
+
+        function generateObject() {
+            const remaining = vocabs.filter(v => !claimed.has(v.id));
+            if (remaining.length === 0) return;
+            
+            const randIndex = Math.floor(Math.random() * remaining.length);
+            currentTarget = remaining[randIndex];
+            
+            const displayText = mode === 1 || mode === 3 ? currentTarget.en : currentTarget.vi;
+            promptContent.innerHTML = `<div class="prompt-text">${displayText}</div>`;
+        }
+
+        function startTimerGame() {
+            timer = 60;
+            isPlaying = true;
+            timeText.textContent = timer;
+            generateObject();
+            
+            timerInterval = setInterval(() => {
+                timer--;
+                timeText.textContent = timer;
+                if (timer <= 0) {
+                    clearInterval(timerInterval);
+                    isPlaying = false;
+                    currentTarget = null;
+                    promptContent.innerHTML = `<div class="prompt-text">Time's Up! Score: ${claimed.size}</div>`;
+                }
+            }, 1000);
+        }
+
+        // Hotspot Interactions
+        function handleHotspotClick(vocab, spotEl, badgeEl, feedbackEl) {
+            if (mode === 0) {
+                handleExploreClick(vocab);
+                return;
+            }
+
+            if (!currentTarget || claimed.has(vocab.id) || (mode === 3 && !isPlaying)) return;
+
+            if (vocab.id === currentTarget.id) {
+                // Correct
+                claimed.add(vocab.id);
+                badgeEl.classList.add('hidden');
+                feedbackEl.innerHTML = '✓';
+                feedbackEl.className = 'feedback success';
+                playChime();
+                updateProgress();
+                
+                if (claimed.size < vocabs.length) {
+                    if (mode === 3) {
+                        generateObject();
+                    } else {
+                        currentTarget = null;
+                        promptContent.innerHTML = `<button class="prompt-btn" onclick="generateObject()">Generate Object</button>`;
+                    }
+                }
+            } else {
+                // Incorrect
+                feedbackEl.innerHTML = '✕';
+                feedbackEl.className = 'feedback fail';
+                playBuzz();
+                setTimeout(() => {
+                    if (!claimed.has(vocab.id)) {
+                        feedbackEl.className = 'feedback';
+                        feedbackEl.innerHTML = '';
+                    }
+                }, 800);
+            }
+        }
+
+        function handleExploreClick(vocab) {
+            explored.add(vocab.id);
+            updateProgress();
+            promptCard.style.display = 'flex';
+            exploreCardState = 'EN';
+            currentExploreVocab = vocab;
+            renderExploreCard();
+        }
+
+        function renderExploreCard() {
+            if (!currentExploreVocab) return;
+            
+            if (exploreCardState === 'EN') {
+                promptContent.innerHTML = `<div class="prompt-text">${currentExploreVocab.en}</div>`;
+            } else if (exploreCardState === 'VI') {
+                promptContent.innerHTML = `
+                    <div class="prompt-text">${currentExploreVocab.vi}</div>
+                    <button class="en-btn" id="exploreEnBtn">EN</button>
+                `;
+                document.getElementById('exploreEnBtn').addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    exploreCardState = 'EN';
+                    renderExploreCard();
+                });
+            }
+        }
+
+        promptCard.addEventListener('click', () => {
+            if (mode !== 0 || !currentExploreVocab) return;
+            
+            if (exploreCardState === 'EN') {
+                exploreCardState = 'VI';
+                renderExploreCard();
+            } else if (exploreCardState === 'VI') {
+                promptCard.style.display = 'none';
+                exploreCardState = null;
+                currentExploreVocab = null;
+            }
+        });
+
+        // Init
+        initHotspots();
+        setMode(0);
+
+    </script>
+</body>
+</html>
