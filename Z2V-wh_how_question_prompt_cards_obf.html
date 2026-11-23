@@ -1,0 +1,952 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Wh- & How Question Prompt Cards — 96 Adult A2 Prompts</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['-apple-system', 'BlinkMacSystemFont', '"Segoe UI"', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'sans-serif'],
+          },
+          colors: {
+            parchment: {
+              bg: '#FAF6EE',
+              card: '#FFFFFF',
+              text: '#1C232B',
+              border: '#E5DCC8',
+              muted: '#766E62',
+            },
+            slate: {
+              bg: '#0E1218',
+              card: '#171D27',
+              text: '#F3F6FA',
+              border: '#293242',
+              muted: '#8B9BB4',
+            }
+          }
+        }
+      }
+    };
+  </script>
+  <style>
+    :root {
+      --text-scale: 1;
+    }
+
+    /* Custom Parchment & Dark Theme Palette Variables */
+    body.light-theme {
+      background-color: #FAF6EE;
+      color: #1C232B;
+    }
+    body.dark-theme {
+      background-color: #0E1218;
+      color: #F3F6FA;
+    }
+
+    .card-theme {
+      transition: background-color 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
+    }
+    body.light-theme .card-theme {
+      background-color: #FFFFFF;
+      border-color: #E5DCC8;
+      box-shadow: 0 10px 25px -5px rgba(28, 35, 43, 0.05), 0 8px 10px -6px rgba(28, 35, 43, 0.03);
+    }
+    body.dark-theme .card-theme {
+      background-color: #171D27;
+      border-color: #293242;
+      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.4), 0 8px 10px -6px rgba(0, 0, 0, 0.3);
+    }
+
+    .border-theme {
+      transition: border-color 0.25s ease;
+    }
+    body.light-theme .border-theme {
+      border-color: #E5DCC8;
+    }
+    body.dark-theme .border-theme {
+      border-color: #293242;
+    }
+
+    .muted-text {
+      transition: color 0.25s ease;
+    }
+    body.light-theme .muted-text {
+      color: #766E62;
+    }
+    body.dark-theme .muted-text {
+      color: #8B9BB4;
+    }
+
+    /* Scaling typography for projector legibility */
+    .statement-text {
+      font-size: calc(clamp(1.75rem, 3.8vw, 3.4rem) * var(--text-scale));
+      line-height: 1.3;
+    }
+
+    .question-text {
+      font-size: calc(clamp(1.75rem, 3.8vw, 3.4rem) * var(--text-scale));
+      line-height: 1.25;
+    }
+
+    /* Clue highlight style */
+    mark.clue-highlight {
+      background-color: rgba(251, 191, 36, 0.35);
+      color: inherit;
+      border-bottom: 3px solid #f59e0b;
+      border-radius: 0.375rem;
+      padding: 0.05em 0.25em;
+      transition: all 0.25s ease;
+    }
+    body.dark-theme mark.clue-highlight {
+      background-color: rgba(245, 158, 11, 0.25);
+      color: #fef08a;
+      border-bottom-color: #fbbf24;
+    }
+
+    /* Wh-word specific colors */
+    .badge-WHO { background-color: rgba(37, 99, 235, 0.12); color: #1d4ed8; border-color: rgba(37, 99, 235, 0.3); }
+    body.dark-theme .badge-WHO { background-color: rgba(37, 99, 235, 0.25); color: #93c5fd; border-color: rgba(96, 165, 250, 0.4); }
+
+    .badge-WHAT { background-color: rgba(16, 185, 129, 0.12); color: #047857; border-color: rgba(16, 185, 129, 0.3); }
+    body.dark-theme .badge-WHAT { background-color: rgba(16, 185, 129, 0.25); color: #6ee7b7; border-color: rgba(52, 211, 153, 0.4); }
+
+    .badge-WHERE { background-color: rgba(245, 158, 11, 0.14); color: #b45309; border-color: rgba(245, 158, 11, 0.35); }
+    body.dark-theme .badge-WHERE { background-color: rgba(245, 158, 11, 0.25); color: #fde047; border-color: rgba(251, 191, 36, 0.4); }
+
+    .badge-WHEN { background-color: rgba(147, 51, 234, 0.12); color: #7e22ce; border-color: rgba(147, 51, 234, 0.3); }
+    body.dark-theme .badge-WHEN { background-color: rgba(147, 51, 234, 0.25); color: #d8b4fe; border-color: rgba(192, 132, 252, 0.4); }
+
+    .badge-WHY { background-color: rgba(225, 29, 72, 0.12); color: #be123c; border-color: rgba(225, 29, 72, 0.3); }
+    body.dark-theme .badge-WHY { background-color: rgba(225, 29, 72, 0.25); color: #fda4af; border-color: rgba(251, 113, 133, 0.4); }
+
+    .badge-HOW { background-color: rgba(13, 148, 136, 0.12); color: #0f766e; border-color: rgba(13, 148, 136, 0.3); }
+    body.dark-theme .badge-HOW { background-color: rgba(13, 148, 136, 0.25); color: #5eead4; border-color: rgba(45, 212, 191, 0.4); }
+
+    /* Button styles */
+    .ctrl-btn {
+      transition: all 0.15s ease;
+      user-select: none;
+    }
+    body.light-theme .ctrl-btn {
+      background-color: #FFFFFF;
+      border-color: #E5DCC8;
+      color: #1C232B;
+    }
+    body.light-theme .ctrl-btn:hover {
+      background-color: #F4EFE6;
+    }
+    body.dark-theme .ctrl-btn {
+      background-color: #171D27;
+      border-color: #293242;
+      color: #F3F6FA;
+    }
+    body.dark-theme .ctrl-btn:hover {
+      background-color: #202836;
+    }
+
+    .ctrl-btn.active {
+      background-color: #2563EB !important;
+      color: #FFFFFF !important;
+      border-color: #2563EB !important;
+    }
+    body.dark-theme .ctrl-btn.active {
+      background-color: #3B82F6 !important;
+      color: #FFFFFF !important;
+      border-color: #3B82F6 !important;
+    }
+
+    /* Prevent text selection on clickables */
+    .no-select {
+      user-select: none;
+    }
+
+    /* -------------------------------------------------------------
+       DRIFTING MIST / FROSTED LIVING VEIL OBFUSCATION STYLES
+       ------------------------------------------------------------- */
+    .obfuscated-span {
+      display: inline-block;
+      position: relative;
+      vertical-align: baseline;
+      cursor: pointer;
+      border-radius: 0.4rem;
+      padding: 0.05em 0.35em;
+      margin: 0 0.05em;
+      transition: transform 0.3s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.4s ease, border-color 0.4s ease;
+      outline: none;
+    }
+
+    .obfuscated-span:focus-visible {
+      ring: 2px solid #3B82F6;
+      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.4);
+    }
+
+    .obfuscated-text {
+      display: inline-block;
+      transition: filter 0.65s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.65s ease, color 0.4s ease;
+    }
+
+    /* Concealed / Veiled State */
+    .obfuscated-span.is-obfuscated {
+      border: 1px solid rgba(229, 220, 200, 0.85);
+    }
+    body.dark-theme .obfuscated-span.is-obfuscated {
+      border: 1px solid rgba(41, 50, 66, 0.85);
+    }
+
+    .obfuscated-span.is-obfuscated .obfuscated-text {
+      filter: blur(0.36em);
+      opacity: 0.28;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+    body.dark-theme .obfuscated-span.is-obfuscated .obfuscated-text {
+      opacity: 0.22;
+    }
+
+    /* Mist Veil Wrapper & Layers */
+    .mist-veil {
+      position: absolute;
+      inset: -1px;
+      border-radius: 0.375rem;
+      pointer-events: none;
+      overflow: hidden;
+      opacity: 0;
+      transition: opacity 0.65s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+    .obfuscated-span.is-obfuscated .mist-veil {
+      opacity: 1;
+    }
+
+    .mist-layer {
+      position: absolute;
+      inset: -50%;
+      width: 200%;
+      height: 200%;
+      pointer-events: none;
+    }
+
+    /* Light Theme Mist Layer */
+    body.light-theme .mist-layer.layer-1 {
+      background: linear-gradient(115deg, rgba(255, 255, 255, 0.92) 0%, rgba(245, 238, 224, 0.78) 35%, rgba(255, 255, 255, 0.95) 70%, rgba(235, 226, 208, 0.8) 100%);
+      animation: driftMist1 9s ease-in-out infinite alternate;
+    }
+    body.light-theme .mist-layer.layer-2 {
+      background: radial-gradient(circle at 50% 50%, rgba(255, 255, 255, 0.8) 0%, rgba(248, 242, 230, 0.4) 60%, transparent 100%);
+      animation: driftMist2 12s ease-in-out infinite alternate;
+    }
+
+    /* Dark Theme Mist Layer */
+    body.dark-theme .mist-layer.layer-1 {
+      background: linear-gradient(115deg, rgba(23, 29, 39, 0.94) 0%, rgba(35, 45, 62, 0.85) 35%, rgba(20, 26, 36, 0.96) 70%, rgba(30, 39, 54, 0.88) 100%);
+      animation: driftMist1 9s ease-in-out infinite alternate;
+    }
+    body.dark-theme .mist-layer.layer-2 {
+      background: radial-gradient(circle at 50% 50%, rgba(41, 50, 66, 0.75) 0%, rgba(15, 20, 28, 0.4) 60%, transparent 100%);
+      animation: driftMist2 12s ease-in-out infinite alternate;
+    }
+
+    /* Shimmer Breathing Overlay */
+    .mist-shimmer {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.25) 50%, transparent 100%);
+      animation: breatheShimmer 7s ease-in-out infinite;
+      pointer-events: none;
+    }
+    body.dark-theme .mist-shimmer {
+      background: linear-gradient(90deg, transparent 0%, rgba(147, 197, 253, 0.12) 50%, transparent 100%);
+    }
+
+    /* Wh-word Subtle Ambient Glow on Veiled Spans */
+    .obfuscated-span.is-obfuscated.badge-glow-WHO { box-shadow: 0 0 12px rgba(37, 99, 235, 0.15), inset 0 0 8px rgba(37, 99, 235, 0.08); }
+    .obfuscated-span.is-obfuscated.badge-glow-WHAT { box-shadow: 0 0 12px rgba(16, 185, 129, 0.15), inset 0 0 8px rgba(16, 185, 129, 0.08); }
+    .obfuscated-span.is-obfuscated.badge-glow-WHERE { box-shadow: 0 0 12px rgba(245, 158, 11, 0.18), inset 0 0 8px rgba(245, 158, 11, 0.08); }
+    .obfuscated-span.is-obfuscated.badge-glow-WHEN { box-shadow: 0 0 12px rgba(147, 51, 234, 0.15), inset 0 0 8px rgba(147, 51, 234, 0.08); }
+    .obfuscated-span.is-obfuscated.badge-glow-WHY { box-shadow: 0 0 12px rgba(225, 29, 72, 0.15), inset 0 0 8px rgba(225, 29, 72, 0.08); }
+    .obfuscated-span.is-obfuscated.badge-glow-HOW { box-shadow: 0 0 12px rgba(13, 148, 136, 0.15), inset 0 0 8px rgba(13, 148, 136, 0.08); }
+
+    /* Veiled Hover Lift */
+    .obfuscated-span.is-obfuscated:hover {
+      transform: translateY(-1px);
+    }
+    body.light-theme .obfuscated-span.is-obfuscated:hover {
+      border-color: rgba(180, 160, 130, 0.9);
+      box-shadow: 0 4px 14px rgba(28, 35, 43, 0.08);
+    }
+    body.dark-theme .obfuscated-span.is-obfuscated:hover {
+      border-color: rgba(90, 105, 130, 0.9);
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.5);
+    }
+
+    /* Revealed Un-veiled State */
+    .obfuscated-span.is-revealed {
+      border: 1px dashed rgba(37, 99, 235, 0.35);
+      background-color: rgba(37, 99, 235, 0.04);
+    }
+    body.dark-theme .obfuscated-span.is-revealed {
+      border: 1px dashed rgba(96, 165, 250, 0.35);
+      background-color: rgba(59, 130, 246, 0.08);
+    }
+
+    .obfuscated-span.is-revealed .obfuscated-text {
+      filter: blur(0px);
+      opacity: 1;
+      user-select: text;
+    }
+
+    /* Animations */
+    @keyframes driftMist1 {
+      0% { transform: translate3d(-6%, -4%, 0) scale(1.05); }
+      50% { transform: translate3d(5%, 4%, 0) scale(1.12); }
+      100% { transform: translate3d(-3%, 5%, 0) scale(1.03); }
+    }
+    @keyframes driftMist2 {
+      0% { transform: translate3d(4%, 6%, 0) scale(1.08); }
+      50% { transform: translate3d(-5%, -4%, 0) scale(1.02); }
+      100% { transform: translate3d(6%, -3%, 0) scale(1.06); }
+    }
+    @keyframes breatheShimmer {
+      0%, 100% { opacity: 0.35; }
+      50% { opacity: 0.75; }
+    }
+
+    /* Accessibility: Reduced Motion */
+    @media (prefers-reduced-motion: reduce) {
+      .mist-layer, .mist-shimmer {
+        animation: none !important;
+      }
+      .obfuscated-span, .obfuscated-text, .mist-veil {
+        transition: none !important;
+      }
+    }
+  </style>
+</head>
+<body class="light-theme h-full flex flex-col font-sans transition-colors duration-300 overflow-hidden">
+
+  <!-- TOP BAR (Minimal & Full Controls) -->
+  <header class="w-full px-4 py-3 flex items-center justify-between border-b border-theme z-10 shrink-0">
+    <!-- Left: Tense Filter & Counter -->
+    <div class="flex items-center space-x-3">
+      <select id="tenseSelect" class="ctrl-btn border rounded-lg px-3 py-1.5 text-sm font-semibold focus:outline-none cursor-pointer">
+        <option value="ALL">All 96 Prompts</option>
+        <option value="Present Simple">Present Simple</option>
+        <option value="Present Continuous">Present Continuous</option>
+        <option value="Past Simple">Past Simple</option>
+        <option value="Future">Future</option>
+      </select>
+
+      <span id="cardCounter" class="text-sm font-bold tracking-wide muted-text min-w-[65px]">
+        1 / 96
+      </span>
+    </div>
+
+    <!-- Right: Utility Controls -->
+    <div class="flex items-center space-x-2">
+      <!-- Shuffle Toggle -->
+      <button id="btnShuffle" title="Toggle Shuffle Mode" class="ctrl-btn border rounded-lg px-3 py-1.5 text-xs font-bold tracking-wider uppercase flex items-center gap-1.5">
+        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"/></svg>
+        <span>Shuffle</span>
+      </button>
+
+      <!-- Veil / Obfuscation Toggle -->
+      <button id="btnVeil" title="Toggle Obfuscation Veil (Hotkey: V)" class="ctrl-btn border rounded-lg px-3 py-1.5 text-xs font-bold tracking-wider uppercase flex items-center gap-1.5 active">
+        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858-5.908a9.979 9.979 0 014.122-.863c4.478 0 8.268 2.943 9.542 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21M3 3l18 18"/></svg>
+        <span>Veil</span>
+      </button>
+
+      <!-- Clue Toggle -->
+      <button id="btnClue" title="Toggle Target Clue Highlight (Hotkey: C)" class="ctrl-btn border rounded-lg px-3 py-1.5 text-xs font-bold tracking-wider uppercase flex items-center gap-1.5">
+        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+        <span>Clue</span>
+      </button>
+
+      <div class="h-4 w-px bg-gray-300 dark:bg-gray-700 mx-1"></div>
+
+      <!-- Font Size A- / A+ -->
+      <div class="flex items-center border border-theme rounded-lg overflow-hidden">
+        <button id="btnFontDown" title="Decrease Font Size" class="ctrl-btn border-none px-2.5 py-1.5 text-xs font-bold hover:bg-black/5 dark:hover:bg-white/5">A-</button>
+        <button id="btnFontUp" title="Increase Font Size" class="ctrl-btn border-none px-2.5 py-1.5 text-xs font-bold border-l border-theme hover:bg-black/5 dark:hover:bg-white/5">A+</button>
+      </div>
+
+      <!-- Theme Toggle -->
+      <button id="btnTheme" title="Toggle Light/Dark Theme (Hotkey: D)" class="ctrl-btn border rounded-lg p-1.5 flex items-center justify-center">
+        <!-- Sun Icon -->
+        <svg id="iconSun" class="w-4 h-4 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
+        <!-- Moon Icon -->
+        <svg id="iconMoon" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/></svg>
+      </button>
+    </div>
+  </header>
+
+  <!-- MAIN STAGE (Centered Distraction-Free Layout) -->
+  <main class="flex-1 max-w-5xl w-full mx-auto p-4 md:p-6 flex flex-col justify-center gap-4 min-h-0">
+    
+    <!-- TOP CARD: STATEMENT -->
+    <div class="card-theme border rounded-2xl p-6 md:p-8 flex-1 flex flex-col justify-center relative min-h-[160px] transition-all">
+      <!-- Muted Tense Tag -->
+      <div class="absolute top-4 left-6 flex items-center gap-2">
+        <span id="tenseBadge" class="text-xs font-black tracking-widest uppercase muted-text">
+          PRESENT SIMPLE
+        </span>
+        <span id="promptIdTag" class="text-[10px] font-bold px-1.5 py-0.5 rounded bg-black/5 dark:bg-white/10 muted-text">
+          #1
+        </span>
+      </div>
+
+      <!-- Statement Content -->
+      <div class="w-full text-center my-auto pt-3">
+        <p id="statementDisplay" class="statement-text font-bold tracking-tight">
+          Loading statement...
+        </p>
+      </div>
+
+      <!-- Micro-Hint for Obfuscation -->
+      <div id="obfuscationHint" class="absolute bottom-3 right-5 text-[11px] font-semibold tracking-wide muted-text opacity-70 flex items-center gap-1.5 pointer-events-none transition-opacity duration-300">
+        <svg class="w-3.5 h-3.5 opacity-80" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+        <span>Tap veiled words to reveal</span>
+      </div>
+    </div>
+
+    <!-- BOTTOM CARD: CONCEALED / REVEALED QUESTION CARD -->
+    <div id="questionCard" class="card-theme border rounded-2xl p-6 md:p-8 flex-1 flex flex-col justify-center items-center cursor-pointer no-select min-h-[160px] relative transition-all group" title="Click or Press Space to Reveal Question">
+      
+      <!-- Wh-word Badge (Top Left Corner of Card) -->
+      <div class="absolute top-4 left-6">
+        <span id="whBadge" class="px-3.5 py-1 rounded-full text-sm font-extrabold tracking-wider border shadow-sm transition-all uppercase">
+          WHO
+        </span>
+      </div>
+
+      <!-- Concealed State Placeholder -->
+      <div id="concealedState" class="w-full flex flex-col items-center justify-center gap-2 my-auto pt-3">
+        <div class="flex items-center gap-2 muted-text opacity-75 group-hover:opacity-100 transition-opacity">
+          <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+          </svg>
+          <span class="text-base font-semibold tracking-wide">Tap or press Space to reveal question</span>
+        </div>
+      </div>
+
+      <!-- Revealed State Content -->
+      <div id="revealedState" class="w-full text-center my-auto pt-3 hidden">
+        <p id="questionDisplay" class="question-text font-extrabold tracking-tight">
+          Loading question...
+        </p>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- SLIM BOTTOM NAV BAR -->
+  <footer class="w-full px-4 py-3 flex items-center justify-center border-t border-theme shrink-0">
+    <div class="flex items-center gap-4 max-w-md w-full">
+      <button id="btnPrev" class="ctrl-btn border rounded-xl py-3 px-6 text-base font-bold flex-1 flex items-center justify-center gap-2 shadow-sm active:scale-95 transition-transform">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7"/></svg>
+        <span>Previous</span>
+      </button>
+
+      <button id="btnNext" class="ctrl-btn border rounded-xl py-3 px-6 text-base font-bold flex-1 flex items-center justify-center gap-2 shadow-sm active:scale-95 transition-transform">
+        <span>Next</span>
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"/></svg>
+      </button>
+    </div>
+  </footer>
+
+  <!-- JAVASCRIPT DATA & INTERACTION LOGIC -->
+  <script>
+    // -------------------------------------------------------------
+    // DATASET: ALL 96 ADULT A2 PROMPTS VERBATIM
+    // -------------------------------------------------------------
+    const ALL_PROMPTS = [
+      // Present Simple (Set A, 1-12)
+      { id: 1, tense: "Present Simple", wh: "WHO", statement: "My colleague Linh sits next to me at the office.", clue: "My colleague Linh", question: "WHO sits next to you at the office?" },
+      { id: 2, tense: "Present Simple", wh: "WHO", statement: "I usually play tennis with my neighbor.", clue: "my neighbor", question: "WHO do you usually play tennis with?" },
+      { id: 3, tense: "Present Simple", wh: "WHAT", statement: "My favorite weekend activity is hiking.", clue: "hiking", question: "WHAT is your favorite weekend activity?" },
+      { id: 4, tense: "Present Simple", wh: "WHAT", statement: "I drink black coffee every morning before work.", clue: "black coffee", question: "WHAT do you drink every morning before work?" },
+      { id: 5, tense: "Present Simple", wh: "WHERE", statement: "My parents live near the coast.", clue: "near the coast", question: "WHERE do your parents live?" },
+      { id: 6, tense: "Present Simple", wh: "WHERE", statement: "We buy fresh vegetables at the local market.", clue: "at the local market", question: "WHERE do you buy fresh vegetables?" },
+      { id: 7, tense: "Present Simple", wh: "WHEN", statement: "Our team meeting starts at 9:00 AM.", clue: "at 9:00 AM", question: "WHEN does your team meeting start?" },
+      { id: 8, tense: "Present Simple", wh: "WHEN", statement: "I go to the gym on Tuesday evenings.", clue: "on Tuesday evenings", question: "WHEN do you go to the gym?" },
+      { id: 9, tense: "Present Simple", wh: "WHY", statement: "I love Fridays because I can relax after work.", clue: "because I can relax after work", question: "WHY do you love Fridays?" },
+      { id: 10, tense: "Present Simple", wh: "WHY", statement: "My neighbor wakes up early because she runs before work.", clue: "because she runs before work", question: "WHY does your neighbor wake up early?" },
+      { id: 11, tense: "Present Simple", wh: "HOW", statement: "I commute to work by train every day.", clue: "by train", question: "HOW do you commute to work every day?" },
+      { id: 12, tense: "Present Simple", wh: "HOW", statement: "I spell my last name N-G-U-Y-E-N.", clue: "N-G-U-Y-E-N", question: "HOW do you spell your last name?" },
+
+      // Present Continuous (Set A, 13-24)
+      { id: 13, tense: "Present Continuous", wh: "WHO", statement: "My husband is making dinner in the kitchen right now.", clue: "My husband", question: "WHO is making dinner in the kitchen right now?" },
+      { id: 14, tense: "Present Continuous", wh: "WHO", statement: "I am speaking to a new client on the phone.", clue: "a new client", question: "WHO are you speaking to on the phone?" },
+      { id: 15, tense: "Present Continuous", wh: "WHAT", statement: "I am writing a short report for my manager.", clue: "a short report", question: "WHAT are you writing for your manager?" },
+      { id: 16, tense: "Present Continuous", wh: "WHAT", statement: "My roommate is baking banana bread in the oven.", clue: "banana bread", question: "WHAT is your roommate baking in the oven?" },
+      { id: 17, tense: "Present Continuous", wh: "WHERE", statement: "I am working at a quiet café today.", clue: "at a quiet café", question: "WHERE are you working today?" },
+      { id: 18, tense: "Present Continuous", wh: "WHERE", statement: "My friends are waiting outside the restaurant.", clue: "outside the restaurant", question: "WHERE are your friends waiting?" },
+      { id: 19, tense: "Present Continuous", wh: "WHEN", statement: "Our department is holding a workshop this afternoon.", clue: "this afternoon", question: "WHEN is your department holding a workshop?" },
+      { id: 20, tense: "Present Continuous", wh: "WHEN", statement: "We are having dinner with our neighbors this Saturday.", clue: "this Saturday", question: "WHEN are you having dinner with your neighbors?" },
+      { id: 21, tense: "Present Continuous", wh: "WHY", statement: "I am wearing a sweater because the air conditioner is too cold.", clue: "because the air conditioner is too cold", question: "WHY are you wearing a sweater?" },
+      { id: 22, tense: "Present Continuous", wh: "WHY", statement: "She is hurrying because she has a meeting at ten.", clue: "because she has a meeting at ten", question: "WHY is she hurrying?" },
+      { id: 23, tense: "Present Continuous", wh: "HOW", statement: "I am going to the office on foot today.", clue: "on foot", question: "HOW are you going to the office today?" },
+      { id: 24, tense: "Present Continuous", wh: "HOW", statement: "I am feeling much better today!", clue: "much better", question: "HOW are you feeling today?" },
+
+      // Past Simple (Set A, 25-36)
+      { id: 25, tense: "Past Simple", wh: "WHO", statement: "My sister taught me how to cook Thai curry last year.", clue: "My sister", question: "WHO taught you how to cook Thai curry last year?" },
+      { id: 26, tense: "Past Simple", wh: "WHO", statement: "I met an old friend at the coffee shop yesterday.", clue: "an old friend", question: "WHO did you meet at the coffee shop yesterday?" },
+      { id: 27, tense: "Past Simple", wh: "WHAT", statement: "I bought a new coffee maker last weekend.", clue: "a new coffee maker", question: "WHAT did you buy last weekend?" },
+      { id: 28, tense: "Past Simple", wh: "WHAT", statement: "We watched a great documentary on Friday night.", clue: "a great documentary", question: "WHAT did you watch on Friday night?" },
+      { id: 29, tense: "Past Simple", wh: "WHERE", statement: "I left my laptop charger in the meeting room.", clue: "in the meeting room", question: "WHERE did you leave your laptop charger?" },
+      { id: 30, tense: "Past Simple", wh: "WHERE", statement: "We went to the mountains for our holiday.", clue: "to the mountains", question: "WHERE did you go for your holiday?" },
+      { id: 31, tense: "Past Simple", wh: "WHEN", statement: "I finished my work at 6:30 PM.", clue: "at 6:30 PM", question: "WHEN did you finish your work?" },
+      { id: 32, tense: "Past Simple", wh: "WHEN", statement: "We moved into this apartment two years ago.", clue: "two years ago", question: "WHEN did you move into this apartment?" },
+      { id: 33, tense: "Past Simple", wh: "WHY", statement: "I worked from home yesterday because I had a headache.", clue: "because I had a headache", question: "WHY did you work from home yesterday?" },
+      { id: 34, tense: "Past Simple", wh: "WHY", statement: "He smiled because he got good news from work.", clue: "because he got good news from work", question: "WHY did he smile?" },
+      { id: 35, tense: "Past Simple", wh: "HOW", statement: "We traveled to the coast by car.", clue: "by car", question: "HOW did you travel to the coast?" },
+      { id: 36, tense: "Past Simple", wh: "HOW", statement: "The dinner party went really well!", clue: "really well", question: "HOW did the dinner party go?" },
+
+      // Future (Set A, 37-48)
+      { id: 37, tense: "Future", wh: "WHO", statement: "My brother is going to pick me up from the airport.", clue: "My brother", question: "WHO is going to pick you up from the airport?" },
+      { id: 38, tense: "Future", wh: "WHO", statement: "I will invite my coworkers to my birthday dinner.", clue: "my coworkers", question: "WHO will you invite to your birthday dinner?" },
+      { id: 39, tense: "Future", wh: "WHAT", statement: "I am going to cook pasta for dinner tonight.", clue: "pasta", question: "WHAT are you going to cook for dinner tonight?" },
+      { id: 40, tense: "Future", wh: "WHAT", statement: "I will take a yoga class after work.", clue: "a yoga class", question: "WHAT will you take after work?" },
+      { id: 41, tense: "Future", wh: "WHERE", statement: "We are going to meet for lunch at a Japanese restaurant.", clue: "at a Japanese restaurant", question: "WHERE are you going to meet for lunch?" },
+      { id: 42, tense: "Future", wh: "WHERE", statement: "We will travel to Japan next autumn.", clue: "to Japan", question: "WHERE will you travel next autumn?" },
+      { id: 43, tense: "Future", wh: "WHEN", statement: "I am going to do the laundry tonight.", clue: "tonight", question: "WHEN are you going to do the laundry?" },
+      { id: 44, tense: "Future", wh: "WHEN", statement: "The new café will open next Monday.", clue: "next Monday", question: "WHEN will the new café open?" },
+      { id: 45, tense: "Future", wh: "WHY", statement: "I am going to save money because I want a new car.", clue: "because I want a new car", question: "WHY are you going to save money?" },
+      { id: 46, tense: "Future", wh: "WHY", statement: "She will take an umbrella because the weather looks rainy.", clue: "because the weather looks rainy", question: "WHY will she take an umbrella?" },
+      { id: 47, tense: "Future", wh: "HOW", statement: "We are going to get to the concert by taxi.", clue: "by taxi", question: "HOW are you going to get to the concert?" },
+      { id: 48, tense: "Future", wh: "HOW", statement: "I will improve my English by speaking with friends every week.", clue: "by speaking with friends every week", question: "HOW will you improve your English?" },
+
+      // Present Simple (Set B, 49-60)
+      { id: 49, tense: "Present Simple", wh: "WHO", statement: "Our manager Ms. Tran checks the schedule every Monday.", clue: "Our manager Ms. Tran", question: "WHO checks the schedule every Monday?" },
+      { id: 50, tense: "Present Simple", wh: "WHO", statement: "I go jogging with my coworker every morning.", clue: "my coworker", question: "WHO do you go jogging with every morning?" },
+      { id: 51, tense: "Present Simple", wh: "WHAT", statement: "My wife drinks green tea after dinner.", clue: "green tea", question: "WHAT does your wife drink after dinner?" },
+      { id: 52, tense: "Present Simple", wh: "WHAT", statement: "I listen to news podcasts during my commute.", clue: "news podcasts", question: "WHAT do you listen to during your commute?" },
+      { id: 53, tense: "Present Simple", wh: "WHERE", statement: "We play badminton at the community center.", clue: "at the community center", question: "WHERE do you play badminton?" },
+      { id: 54, tense: "Present Simple", wh: "WHERE", statement: "My brother works at a bank downtown.", clue: "at a bank downtown", question: "WHERE does your brother work?" },
+      { id: 55, tense: "Present Simple", wh: "WHEN", statement: "The pharmacy opens at 8:00 AM.", clue: "at 8:00 AM", question: "WHEN does the pharmacy open?" },
+      { id: 56, tense: "Present Simple", wh: "WHEN", statement: "We usually take our lunch break at 12:30 PM.", clue: "at 12:30 PM", question: "WHEN do you usually take your lunch break?" },
+      { id: 57, tense: "Present Simple", wh: "WHY", statement: "He wears glasses because he reads on a computer all day.", clue: "because he reads on a computer all day", question: "WHY does he wear glasses?" },
+      { id: 58, tense: "Present Simple", wh: "WHY", statement: "I leave home early because I hate heavy traffic.", clue: "because I hate heavy traffic", question: "WHY do you leave home early?" },
+      { id: 59, tense: "Present Simple", wh: "HOW", statement: "My husband makes coffee using a French press.", clue: "using a French press", question: "HOW does your husband make coffee?" },
+      { id: 60, tense: "Present Simple", wh: "HOW", statement: "They commute to the office by motorbike.", clue: "by motorbike", question: "HOW do they commute to the office?" },
+
+      // Present Continuous (Set B, 61-72)
+      { id: 61, tense: "Present Continuous", wh: "WHO", statement: "The new designer is giving a presentation right now.", clue: "The new designer", question: "WHO is giving a presentation right now?" },
+      { id: 62, tense: "Present Continuous", wh: "WHO", statement: "We are waiting for our friend at the café.", clue: "our friend", question: "WHO are you waiting for at the café?" },
+      { id: 63, tense: "Present Continuous", wh: "WHAT", statement: "She is sending an email to her boss.", clue: "an email", question: "WHAT is she sending to her boss?" },
+      { id: 64, tense: "Present Continuous", wh: "WHAT", statement: "They are sharing a pot of tea on the balcony.", clue: "a pot of tea", question: "WHAT are they sharing on the balcony?" },
+      { id: 65, tense: "Present Continuous", wh: "WHERE", statement: "My parents are relaxing in the garden.", clue: "in the garden", question: "WHERE are your parents relaxing?" },
+      { id: 66, tense: "Present Continuous", wh: "WHERE", statement: "My neighbor is washing his car in the driveway.", clue: "in the driveway", question: "WHERE is your neighbor washing his car?" },
+      { id: 67, tense: "Present Continuous", wh: "WHEN", statement: "I am attending a job interview next Tuesday.", clue: "next Tuesday", question: "WHEN are you attending a job interview?" },
+      { id: 68, tense: "Present Continuous", wh: "WHEN", statement: "We are watching the football match this evening.", clue: "this evening", question: "WHEN are you watching the football match?" },
+      { id: 69, tense: "Present Continuous", wh: "WHY", statement: "They are working in the lounge because the office is noisy.", clue: "because the office is noisy", question: "WHY are they working in the lounge?" },
+      { id: 70, tense: "Present Continuous", wh: "WHY", statement: "He is laughing because his colleague told a great story.", clue: "because his colleague told a great story", question: "WHY is he laughing?" },
+      { id: 71, tense: "Present Continuous", wh: "HOW", statement: "She is carrying the groceries with a small cart.", clue: "with a small cart", question: "HOW is she carrying the groceries?" },
+      { id: 72, tense: "Present Continuous", wh: "HOW", statement: "The new printer is working very smoothly.", clue: "very smoothly", question: "HOW is the new printer working?" },
+
+      // Past Simple (Set B, 73-84)
+      { id: 73, tense: "Past Simple", wh: "WHO", statement: "My neighbor baked this fresh bread yesterday.", clue: "My neighbor", question: "WHO baked this fresh bread yesterday?" },
+      { id: 74, tense: "Past Simple", wh: "WHO", statement: "I called my friend David last night.", clue: "my friend David", question: "WHO did you call last night?" },
+      { id: 75, tense: "Past Simple", wh: "WHAT", statement: "My roommate broke his favorite mug this morning.", clue: "his favorite mug", question: "WHAT did your roommate break this morning?" },
+      { id: 76, tense: "Past Simple", wh: "WHAT", statement: "We ordered spicy noodles for dinner last night.", clue: "spicy noodles", question: "WHAT did you order for dinner last night?" },
+      { id: 77, tense: "Past Simple", wh: "WHERE", statement: "She found her house keys under the sofa.", clue: "under the sofa", question: "WHERE did she find her house keys?" },
+      { id: 78, tense: "Past Simple", wh: "WHERE", statement: "We stayed near the river last weekend.", clue: "near the river", question: "WHERE did you stay last weekend?" },
+      { id: 79, tense: "Past Simple", wh: "WHEN", statement: "The rain stopped an hour ago.", clue: "an hour ago", question: "WHEN did the rain stop?" },
+      { id: 80, tense: "Past Simple", wh: "WHEN", statement: "They arrived at the airport at 9:15 AM.", clue: "at 9:15 AM", question: "WHEN did they arrive at the airport?" },
+      { id: 81, tense: "Past Simple", wh: "WHY", statement: "She opened the balcony door because the apartment was warm.", clue: "because the apartment was warm", question: "WHY did she open the balcony door?" },
+      { id: 82, tense: "Past Simple", wh: "WHY", statement: "I bought this jacket because it was half price.", clue: "because it was half price", question: "WHY did you buy this jacket?" },
+      { id: 83, tense: "Past Simple", wh: "HOW", statement: "He fixed the computer problem very quickly.", clue: "very quickly", question: "HOW did he fix the computer problem?" },
+      { id: 84, tense: "Past Simple", wh: "HOW", statement: "They traveled across town by subway.", clue: "by subway", question: "HOW did they travel across town?" },
+
+      // Future (Set B, 85-96)
+      { id: 85, tense: "Future", wh: "WHO", statement: "Our director is going to speak at the conference.", clue: "Our director", question: "WHO is going to speak at the conference?" },
+      { id: 86, tense: "Future", wh: "WHO", statement: "I will visit my parents this weekend.", clue: "my parents", question: "WHO will you visit this weekend?" },
+      { id: 87, tense: "Future", wh: "WHAT", statement: "They are going to open a new bakery next month.", clue: "a new bakery", question: "WHAT are they going to open next month?" },
+      { id: 88, tense: "Future", wh: "WHAT", statement: "I will wear my navy suit tomorrow.", clue: "my navy suit", question: "WHAT will you wear tomorrow?" },
+      { id: 89, tense: "Future", wh: "WHERE", statement: "We are going to stay at a small hotel near the beach.", clue: "at a small hotel near the beach", question: "WHERE are you going to stay?" },
+      { id: 90, tense: "Future", wh: "WHERE", statement: "She will hang the framed photo on the living room wall.", clue: "on the living room wall", question: "WHERE will she hang the framed photo?" },
+      { id: 91, tense: "Future", wh: "WHEN", statement: "The art gallery will open at 10:00 AM.", clue: "at 10:00 AM", question: "WHEN will the art gallery open?" },
+      { id: 92, tense: "Future", wh: "WHEN", statement: "I am going to pay the electricity bill on Friday.", clue: "on Friday", question: "WHEN are you going to pay the electricity bill?" },
+      { id: 93, tense: "Future", wh: "WHY", statement: "He is going to train every morning because he wants to run a marathon.", clue: "because he wants to run a marathon", question: "WHY is he going to train every morning?" },
+      { id: 94, tense: "Future", wh: "WHY", statement: "We will leave early because rush hour starts soon.", clue: "because rush hour starts soon", question: "WHY will you leave early?" },
+      { id: 95, tense: "Future", wh: "HOW", statement: "She is going to learn Italian by taking an evening class.", clue: "by taking an evening class", question: "HOW is she going to learn Italian?" },
+      { id: 96, tense: "Future", wh: "HOW", statement: "We will travel to the island by ferry.", clue: "by ferry", question: "HOW will you travel to the island?" }
+    ];
+
+    // -------------------------------------------------------------
+    // CONTEXT-PRESERVING MASK RESOLVER ALGORITHM
+    // Derives exact target phrase to obfuscate while leaving connectors visible
+    // -------------------------------------------------------------
+    function getMaskForPrompt(item) {
+      if (item.mask) return item.mask;
+      const clue = item.clue;
+      if (!clue) return "";
+
+      if (item.wh === 'WHY') {
+        if (clue.startsWith('because ')) return clue.substring(8);
+      } else if (item.wh === 'WHERE') {
+        const preps = ['near ', 'at ', 'outside ', 'in ', 'to ', 'under ', 'on '];
+        for (const p of preps) {
+          if (clue.startsWith(p)) return clue.substring(p.length);
+        }
+      } else if (item.wh === 'WHEN') {
+        if (clue.startsWith('at ')) return clue.substring(3);
+        if (clue.startsWith('on ')) return clue.substring(3);
+        if (clue.endsWith(' ago')) return clue.substring(0, clue.length - 4);
+      } else if (item.wh === 'HOW') {
+        if (clue.startsWith('by ')) return clue.substring(3);
+        if (clue.startsWith('using ')) return clue.substring(6);
+        if (clue.startsWith('with ')) return clue.substring(5);
+      }
+      return clue;
+    }
+
+    // -------------------------------------------------------------
+    // STATE MANAGEMENT
+    // -------------------------------------------------------------
+    let currentDeck = [...ALL_PROMPTS];
+    let currentIndex = 0;
+    let isRevealed = false;            // Question card reveal state
+    let isClueEnabled = false;          // Amber clue highlight state
+    let isVeilEnabled = true;           // Obfuscation feature global toggle (ON by default)
+    let isCardTargetRevealed = false;   // Per-card target word revealed state (clears on card change)
+    let isShuffleEnabled = false;
+    let isDarkMode = false;
+    let textScale = 1.0;
+
+    // DOM Elements
+    const tenseSelect = document.getElementById('tenseSelect');
+    const cardCounter = document.getElementById('cardCounter');
+    const btnShuffle = document.getElementById('btnShuffle');
+    const btnVeil = document.getElementById('btnVeil');
+    const btnClue = document.getElementById('btnClue');
+    const btnFontDown = document.getElementById('btnFontDown');
+    const btnFontUp = document.getElementById('btnFontUp');
+    const btnTheme = document.getElementById('btnTheme');
+    const iconSun = document.getElementById('iconSun');
+    const iconMoon = document.getElementById('iconMoon');
+
+    const tenseBadge = document.getElementById('tenseBadge');
+    const promptIdTag = document.getElementById('promptIdTag');
+    const statementDisplay = document.getElementById('statementDisplay');
+    const obfuscationHint = document.getElementById('obfuscationHint');
+
+    const questionCard = document.getElementById('questionCard');
+    const whBadge = document.getElementById('whBadge');
+    const concealedState = document.getElementById('concealedState');
+    const revealedState = document.getElementById('revealedState');
+    const questionDisplay = document.getElementById('questionDisplay');
+
+    const btnPrev = document.getElementById('btnPrev');
+    const btnNext = document.getElementById('btnNext');
+
+    // Helper: HTML Escaping
+    function escapeHTML(str) {
+      if (!str) return '';
+      return str
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+    }
+
+    // Helper: Fisher-Yates Shuffle
+    function shuffleArray(arr) {
+      const array = [...arr];
+      for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+      }
+      return array;
+    }
+
+    // Theme Management
+    function initTheme() {
+      try {
+        const savedTheme = localStorage.getItem('wh_deck_theme');
+        isDarkMode = savedTheme === 'dark';
+      } catch (e) {
+        isDarkMode = false;
+      }
+      applyTheme();
+    }
+
+    function applyTheme() {
+      if (isDarkMode) {
+        document.body.classList.remove('light-theme');
+        document.body.classList.add('dark-theme');
+        document.documentElement.classList.add('dark');
+        iconSun.classList.remove('hidden');
+        iconMoon.classList.add('hidden');
+      } else {
+        document.body.classList.remove('dark-theme');
+        document.body.classList.add('light-theme');
+        document.documentElement.classList.remove('dark');
+        iconSun.classList.add('hidden');
+        iconMoon.classList.remove('hidden');
+      }
+    }
+
+    function toggleTheme() {
+      isDarkMode = !isDarkMode;
+      try {
+        localStorage.setItem('wh_deck_theme', isDarkMode ? 'dark' : 'light');
+      } catch (e) {}
+      applyTheme();
+    }
+
+    // Deck Filter & Shuffle Update
+    function updateDeckFilter() {
+      const selectedTense = tenseSelect.value;
+      let filtered = selectedTense === "ALL" 
+        ? [...ALL_PROMPTS] 
+        : ALL_PROMPTS.filter(item => item.tense === selectedTense);
+
+      if (isShuffleEnabled) {
+        filtered = shuffleArray(filtered);
+      }
+
+      currentDeck = filtered;
+      currentIndex = 0;
+      isRevealed = false;
+      isCardTargetRevealed = false;
+      renderCard();
+    }
+
+    // -------------------------------------------------------------
+    // STATEMENT RENDERING WITH DRIFTING MIST OBFUSCATION
+    // -------------------------------------------------------------
+    function renderStatementContent(item) {
+      const statement = item.statement;
+      const clue = item.clue || '';
+      const mask = getMaskForPrompt(item);
+
+      if (!clue || !mask) {
+        statementDisplay.textContent = statement;
+        return;
+      }
+
+      // Locate clue in statement and mask in clue
+      const clueIdx = statement.indexOf(clue);
+      if (clueIdx === -1) {
+        statementDisplay.textContent = statement;
+        return;
+      }
+
+      const stmtBefore = statement.substring(0, clueIdx);
+      const stmtAfter = statement.substring(clueIdx + clue.length);
+
+      const maskIdx = clue.indexOf(mask);
+      if (maskIdx === -1) {
+        statementDisplay.textContent = statement;
+        return;
+      }
+
+      const cluePrefix = clue.substring(0, maskIdx);
+      const clueSuffix = clue.substring(maskIdx + mask.length);
+
+      // Construct Obfuscated / Veiled Target Span HTML
+      let maskSpanHtml = '';
+      const isTargetObfuscatedNow = isVeilEnabled && !isCardTargetRevealed;
+
+      if (isVeilEnabled) {
+        const obfuscatedClass = isTargetObfuscatedNow ? 'is-obfuscated' : 'is-revealed';
+        const ariaLabel = isTargetObfuscatedNow ? 'Hidden text. Click or press Space to reveal.' : 'Revealed text. Click or press Space to re-hide.';
+        const ariaPressed = isTargetObfuscatedNow ? 'false' : 'true';
+
+        maskSpanHtml = `<span class="obfuscated-span ${obfuscatedClass} badge-glow-${item.wh}" ` +
+          `tabindex="0" role="button" aria-pressed="${ariaPressed}" aria-label="${ariaLabel}" ` +
+          `title="${isTargetObfuscatedNow ? 'Click to reveal hidden words' : 'Click to re-hide words'}" ` +
+          `onclick="handleTargetClick(event)" onkeydown="handleTargetKeyDown(event)">` +
+            `<span class="obfuscated-text">${escapeHTML(mask)}</span>` +
+            `<span class="mist-veil" aria-hidden="true">` +
+              `<span class="mist-layer layer-1"></span>` +
+              `<span class="mist-layer layer-2"></span>` +
+              `<span class="mist-shimmer"></span>` +
+            `</span>` +
+          `</span>`;
+      } else {
+        maskSpanHtml = escapeHTML(mask);
+      }
+
+      // Combine with Clue Highlight if Clue mode is enabled
+      let clueContentHtml = '';
+      if (isClueEnabled) {
+        clueContentHtml = `<mark class="clue-highlight">${escapeHTML(cluePrefix)}${maskSpanHtml}${escapeHTML(clueSuffix)}</mark>`;
+      } else {
+        clueContentHtml = `${escapeHTML(cluePrefix)}${maskSpanHtml}${escapeHTML(clueSuffix)}`;
+      }
+
+      statementDisplay.innerHTML = `${escapeHTML(stmtBefore)}${clueContentHtml}${escapeHTML(stmtAfter)}`;
+
+      // Update Obfuscation Micro-Hint visibility
+      if (isVeilEnabled && isTargetObfuscatedNow) {
+        obfuscationHint.style.opacity = "0.7";
+      } else {
+        obfuscationHint.style.opacity = "0";
+      }
+    }
+
+    // Toggle target obfuscation state on click/key
+    function handleTargetClick(e) {
+      e.stopPropagation(); // Prevents triggering bottom question card reveal
+      isCardTargetRevealed = !isCardTargetRevealed;
+      renderCard();
+    }
+
+    function handleTargetKeyDown(e) {
+      if (e.key === ' ' || e.key === 'Enter') {
+        e.stopPropagation();
+        e.preventDefault();
+        isCardTargetRevealed = !isCardTargetRevealed;
+        renderCard();
+      }
+    }
+
+    // Render Full Card
+    function renderCard() {
+      if (!currentDeck || currentDeck.length === 0) return;
+
+      const item = currentDeck[currentIndex];
+
+      // Update Tense & Prompt ID
+      tenseBadge.textContent = item.tense.toUpperCase();
+      promptIdTag.textContent = `#${item.id}`;
+
+      // Render Statement with optional Veil and Clue
+      renderStatementContent(item);
+
+      // Update Wh-word Badge
+      whBadge.textContent = item.wh;
+      whBadge.className = `px-3.5 py-1 rounded-full text-sm font-extrabold tracking-wider border shadow-sm transition-all uppercase badge-${item.wh}`;
+
+      // Update Question Display
+      questionDisplay.innerHTML = formatQuestionText(item.question, item.wh);
+
+      // Concealed vs Revealed Bottom Question Card UI
+      if (isRevealed) {
+        concealedState.classList.add('hidden');
+        revealedState.classList.remove('hidden');
+      } else {
+        concealedState.classList.remove('hidden');
+        revealedState.classList.add('hidden');
+      }
+
+      // Update Card Counter
+      cardCounter.textContent = `${currentIndex + 1} / ${currentDeck.length}`;
+    }
+
+    // Format Question Text
+    function formatQuestionText(question, wh) {
+      const safeQ = escapeHTML(question);
+      if (safeQ.startsWith(wh)) {
+        return `<span class="font-black text-blue-600 dark:text-blue-400">${wh}</span>${safeQ.slice(wh.length)}`;
+      }
+      return safeQ;
+    }
+
+    // Bottom Question Card Reveal Toggle
+    function toggleReveal() {
+      isRevealed = !isRevealed;
+      renderCard();
+    }
+
+    // Navigation Controls
+    function nextCard() {
+      if (currentDeck.length === 0) return;
+      currentIndex = (currentIndex + 1) % currentDeck.length;
+      isRevealed = false;
+      isCardTargetRevealed = false;
+      renderCard();
+    }
+
+    function prevCard() {
+      if (currentDeck.length === 0) return;
+      currentIndex = (currentIndex - 1 + currentDeck.length) % currentDeck.length;
+      isRevealed = false;
+      isCardTargetRevealed = false;
+      renderCard();
+    }
+
+    // Font Scaling Controls
+    function setFontScale(newScale) {
+      textScale = Math.min(Math.max(newScale, 0.8), 1.45);
+      document.documentElement.style.setProperty('--text-scale', textScale);
+    }
+
+    // -------------------------------------------------------------
+    // EVENT LISTENERS & KEYBOARD SHORTCUTS
+    // -------------------------------------------------------------
+    tenseSelect.addEventListener('change', updateDeckFilter);
+
+    btnShuffle.addEventListener('click', () => {
+      isShuffleEnabled = !isShuffleEnabled;
+      btnShuffle.classList.toggle('active', isShuffleEnabled);
+      updateDeckFilter();
+    });
+
+    btnVeil.addEventListener('click', () => {
+      isVeilEnabled = !isVeilEnabled;
+      btnVeil.classList.toggle('active', isVeilEnabled);
+      renderCard();
+    });
+
+    btnClue.addEventListener('click', () => {
+      isClueEnabled = !isClueEnabled;
+      btnClue.classList.toggle('active', isClueEnabled);
+      renderCard();
+    });
+
+    btnFontDown.addEventListener('click', () => setFontScale(textScale - 0.1));
+    btnFontUp.addEventListener('click', () => setFontScale(textScale + 0.1));
+    btnTheme.addEventListener('click', toggleTheme);
+
+    questionCard.addEventListener('click', toggleReveal);
+    btnNext.addEventListener('click', nextCard);
+    btnPrev.addEventListener('click', prevCard);
+
+    // Global Keyboard Shortcuts
+    window.addEventListener('keydown', (e) => {
+      // Ignore key events when interacting with form inputs
+      if (document.activeElement === tenseSelect) {
+        if (e.key === ' ' || e.key === 'Enter') return;
+      }
+
+      // Check if user is focused on the obfuscated span
+      if (document.activeElement && document.activeElement.classList.contains('obfuscated-span')) {
+        if (e.key === ' ' || e.key === 'Enter') return; // Handled by handleTargetKeyDown
+      }
+
+      if (e.key === 'ArrowRight') {
+        nextCard();
+      } else if (e.key === 'ArrowLeft') {
+        prevCard();
+      } else if (e.key === ' ' || e.key === 'Enter') {
+        e.preventDefault();
+        toggleReveal();
+      } else if (e.key === 'v' || e.key === 'V' || e.key === 'm' || e.key === 'M') {
+        isVeilEnabled = !isVeilEnabled;
+        btnVeil.classList.toggle('active', isVeilEnabled);
+        renderCard();
+      } else if (e.key === 'c' || e.key === 'C') {
+        isClueEnabled = !isClueEnabled;
+        btnClue.classList.toggle('active', isClueEnabled);
+        renderCard();
+      } else if (e.key === 'd' || e.key === 'D') {
+        toggleTheme();
+      }
+    });
+
+    // Initial Load
+    window.onload = function() {
+      initTheme();
+      updateDeckFilter();
+    };
+  </script>
+</body>
+</html>
