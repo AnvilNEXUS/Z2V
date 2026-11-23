@@ -1,0 +1,686 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kitchen Vocabulary Interactive</title>
+    <style>
+        :root {
+            --bg-color: #f3f4f6;
+            --text-color: #1f2937;
+            --nav-bg: #ffffff;
+            --card-bg: rgba(255, 255, 255, 0.96);
+            --card-border: rgba(0, 0, 0, 0.1);
+            --primary: #2563eb;
+            --primary-hover: #1d4ed8;
+            --success: #16a34a;
+            --danger: #dc2626;
+            --shadow: rgba(0, 0, 0, 0.12);
+            --badge-bg: rgba(255, 255, 255, 0.9);
+            --badge-text: #111827;
+            --pill-bg: #e5e7eb;
+        }
+
+        body.dark-mode {
+            --bg-color: #111827;
+            --text-color: #f3f4f6;
+            --nav-bg: #1f2937;
+            --card-bg: rgba(31, 41, 55, 0.96);
+            --card-border: rgba(255, 255, 255, 0.14);
+            --primary: #3b82f6;
+            --primary-hover: #2563eb;
+            --success: #22c55e;
+            --danger: #ef4444;
+            --shadow: rgba(0, 0, 0, 0.45);
+            --badge-bg: rgba(17, 24, 39, 0.85);
+            --badge-text: #f9fafb;
+            --pill-bg: #374151;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            transition: background-color 0.25s, color 0.25s;
+        }
+
+        /* Minimal Top Navigation */
+        nav {
+            background-color: var(--nav-bg);
+            padding: 10px 16px;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: center;
+            gap: 10px;
+            box-shadow: 0 2px 10px var(--shadow);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .nav-links {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+        }
+
+        .nav-right {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .btn {
+            background-color: transparent;
+            color: var(--text-color);
+            border: 1px solid var(--card-border);
+            padding: 7px 14px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+
+        .btn:hover {
+            background-color: var(--pill-bg);
+        }
+
+        .btn.active,
+        .btn-primary {
+            background-color: var(--primary);
+            color: #ffffff;
+            border-color: var(--primary);
+        }
+
+        .btn.active:hover,
+        .btn-primary:hover {
+            background-color: var(--primary-hover);
+        }
+
+        /* Claimed / Found Counter Pill */
+        .progress-pill {
+            background-color: var(--pill-bg);
+            padding: 6px 14px;
+            border-radius: 999px;
+            font-size: 0.95rem;
+            font-weight: 700;
+            letter-spacing: 0.02em;
+            white-space: nowrap;
+        }
+
+        .progress-pill.complete {
+            background-color: var(--success);
+            color: #ffffff;
+        }
+
+        /* Prominent Top Word Banner (Game Modes) */
+        #game-bar {
+            display: none;
+            align-items: center;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 14px;
+            padding: 12px 20px;
+            background: var(--card-bg);
+            border-bottom: 1px solid var(--card-border);
+            box-shadow: 0 4px 12px var(--shadow);
+            z-index: 80;
+        }
+
+        #game-bar.visible {
+            display: flex;
+        }
+
+        #target-word {
+            font-size: clamp(1.6rem, 3.2vw, 2.5rem);
+            font-weight: 800;
+            letter-spacing: -0.01em;
+            min-height: 1.3em;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+        }
+
+        #action-btn {
+            font-size: 1rem;
+            padding: 10px 20px;
+        }
+
+        #timer-display {
+            display: none;
+            font-size: clamp(1.2rem, 2vw, 1.6rem);
+            font-weight: 800;
+            color: var(--danger);
+            padding: 4px 12px;
+            border-radius: 8px;
+            background: var(--pill-bg);
+        }
+
+        /* Responsive Workspace & Image Wrapper */
+        .workspace {
+            flex: 1;
+            width: 100%;
+            padding: 14px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .image-container {
+            position: relative;
+            --img-ratio: 2.55;
+            width: min(100%, calc((100vh - 145px) * var(--img-ratio)));
+            aspect-ratio: var(--img-ratio);
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px var(--shadow);
+            user-select: none;
+        }
+
+        .image-container img {
+            width: 100%;
+            height: 100%;
+            display: block;
+            object-fit: fill;
+        }
+
+        /* Responsive Percentage Hotspots */
+        .hotspot {
+            position: absolute;
+            cursor: pointer;
+            border-radius: 8px;
+            transition: background-color 0.2s, box-shadow 0.2s;
+            z-index: 5;
+        }
+
+        .hotspot:hover {
+            background-color: rgba(255, 255, 255, 0.22);
+            box-shadow: 0 0 14px rgba(255, 255, 255, 0.65), inset 0 0 8px rgba(255, 255, 255, 0.35);
+        }
+
+        /* Number Badges (01 - 35) */
+        .badge {
+            position: absolute;
+            top: 3%;
+            right: 4%;
+            background: var(--badge-bg);
+            color: var(--badge-text);
+            font-size: clamp(10px, 1.05vw, 15px);
+            font-weight: 800;
+            width: clamp(18px, 1.85vw, 28px);
+            height: clamp(18px, 1.85vw, 28px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            border: 1px solid var(--card-border);
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.25s, background-color 0.25s, transform 0.25s;
+            box-shadow: 0 2px 5px var(--shadow);
+        }
+
+        .mode-quiz .badge,
+        .mode-trans .badge,
+        .mode-time .badge {
+            opacity: 1;
+        }
+
+        .badge.solved {
+            background: var(--success);
+            color: #ffffff;
+            border-color: var(--success);
+            transform: scale(1.1);
+        }
+
+        /* Wrong Guess "X" Overlay */
+        .feedback-x {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0);
+            color: var(--danger);
+            font-size: clamp(1.8rem, 3.5vw, 3.2rem);
+            font-weight: 900;
+            pointer-events: none;
+            animation: popOut 0.65s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.45);
+            z-index: 15;
+        }
+
+        @keyframes popOut {
+            0% { transform: translate(-50%, -50%) scale(0.2); opacity: 0; }
+            45% { transform: translate(-50%, -50%) scale(1.15); opacity: 1; }
+            100% { transform: translate(-50%, -50%) scale(0.95); opacity: 0; }
+        }
+
+        /* Explore Mode Card in Top-Center Empty Space of Image */
+        #explore-card {
+            position: absolute;
+            top: 1.5%;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--card-bg);
+            color: var(--text-color);
+            border: 1px solid var(--card-border);
+            padding: clamp(8px, 1.2vw, 14px) clamp(16px, 2.4vw, 28px);
+            border-radius: 14px;
+            box-shadow: 0 8px 25px var(--shadow);
+            z-index: 30;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            cursor: pointer;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.2s, visibility 0.2s;
+            max-width: 72%;
+        }
+
+        #explore-card.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        #explore-text {
+            font-size: clamp(1.4rem, 3vw, 2.4rem);
+            font-weight: 800;
+            white-space: nowrap;
+        }
+
+        #flip-btn {
+            font-size: 0.95rem;
+            padding: 6px 12px;
+        }
+
+        @media (max-width: 640px) {
+            .image-container {
+                width: 100%;
+            }
+            #explore-card {
+                top: 1%;
+                padding: 6px 12px;
+                gap: 8px;
+            }
+        }
+    </style>
+</head>
+<body class="mode-explore">
+
+    <nav>
+        <div class="nav-links">
+            <button class="btn active" data-mode="explore" onclick="setMode('explore')">Explore</button>
+            <button class="btn" data-mode="quiz" onclick="setMode('quiz')">1. Find It (EN)</button>
+            <button class="btn" data-mode="trans" onclick="setMode('trans')">2. Vietnamese (VI)</button>
+            <button class="btn" data-mode="time" onclick="setMode('time')">3. Time Attack</button>
+        </div>
+        <div class="nav-right">
+            <span id="claimed-counter" class="progress-pill">Explored: 0 / 35</span>
+            <button id="theme-toggle" class="btn" onclick="toggleTheme()">Dark Mode</button>
+        </div>
+    </nav>
+
+    <div id="game-bar">
+        <span id="target-word"></span>
+        <button id="action-btn" class="btn btn-primary">Next Object</button>
+        <span id="timer-display">60s</span>
+    </div>
+
+    <div class="workspace">
+        <div class="image-container" id="container">
+            <img id="kitchen-img" src="KITCHEN-VOCAB-V02.png" alt="Kitchen Vocabulary" />
+
+            <div id="explore-card" onclick="handleCardClick()" title="Click to reveal translation or dismiss">
+                <span id="explore-text">Word</span>
+                <button id="flip-btn" class="btn btn-primary" onclick="flipToEnglish(event)">EN</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Synthesized Sound Effects (Web Audio API)
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+        function playDing() {
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+            const now = audioCtx.currentTime;
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(1046.5, now); // C6
+            osc.frequency.setValueAtTime(1318.5, now + 0.08); // E6
+            gain.gain.setValueAtTime(0.28, now);
+            gain.gain.exponentialRampToValueAtTime(0.001, now + 0.45);
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            osc.start(now);
+            osc.stop(now + 0.45);
+        }
+
+        function playFail() {
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+            const now = audioCtx.currentTime;
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.type = 'sawtooth';
+            osc.frequency.setValueAtTime(210, now);
+            osc.frequency.exponentialRampToValueAtTime(95, now + 0.28);
+            gain.gain.setValueAtTime(0.2, now);
+            gain.gain.exponentialRampToValueAtTime(0.001, now + 0.28);
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            osc.start(now);
+            osc.stop(now + 0.28);
+        }
+
+        function playWin() {
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+            const notes = [523.25, 659.25, 783.99, 1046.5];
+            notes.forEach((freq, i) => {
+                const now = audioCtx.currentTime + i * 0.1;
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.type = 'triangle';
+                osc.frequency.setValueAtTime(freq, now);
+                gain.gain.setValueAtTime(0.25, now);
+                gain.gain.exponentialRampToValueAtTime(0.001, now + 0.4);
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+                osc.start(now);
+                osc.stop(now + 0.4);
+            });
+        }
+
+        // Recalibrated Percentage Coordinates for KITCHEN-VOCAB-V02.png (35 Objects)
+        const items = [
+            // Row 1 (Top Counter)
+            { id: 1, en: "Refrigerator", vi: "Tủ lạnh", x: 1.0, y: 13.0, w: 10.0, h: 30.0 },
+            { id: 2, en: "Microwave oven", vi: "Lò vi sóng", x: 11.2, y: 23.0, w: 11.2, h: 16.0 },
+            { id: 3, en: "Oven", vi: "Lò nướng", x: 23.0, y: 16.0, w: 9.8, h: 23.0 },
+            { id: 4, en: "Stove", vi: "Bếp", x: 33.2, y: 27.0, w: 11.2, h: 12.0 },
+            { id: 5, en: "Electric kettle", vi: "Ấm siêu tốc", x: 44.8, y: 17.0, w: 7.2, h: 22.0 },
+            { id: 6, en: "Wok", vi: "Chảo xào", x: 52.0, y: 24.0, w: 9.2, h: 15.0 },
+            { id: 7, en: "Pressure cooker", vi: "Nồi áp suất", x: 61.2, y: 22.0, w: 9.5, h: 17.0 },
+            { id: 8, en: "Cooking pot", vi: "Nồi nấu", x: 70.5, y: 23.0, w: 9.5, h: 16.0 },
+            { id: 9, en: "Saucepan", vi: "Nồi nhỏ (xoong)", x: 80.0, y: 25.0, w: 8.8, h: 14.0 },
+            { id: 10, en: "Frying pan", vi: "Chảo rán", x: 88.2, y: 25.0, w: 11.0, h: 14.0 },
+
+            // Row 2 (Middle Utensils)
+            { id: 11, en: "Cutting board", vi: "Thớt", x: 1.0, y: 47.0, w: 11.5, h: 18.0 },
+            { id: 12, en: "Knife", vi: "Dao", x: 13.8, y: 46.0, w: 7.5, h: 19.0 },
+            { id: 13, en: "Peeler", vi: "Dao bào", x: 21.5, y: 47.0, w: 8.5, h: 18.0 },
+            { id: 14, en: "Grater", vi: "Dụng cụ bào", x: 31.2, y: 46.0, w: 6.2, h: 19.0 },
+            { id: 15, en: "Can opener", vi: "Đồ khui hộp", x: 38.8, y: 46.0, w: 6.2, h: 20.0 },
+            { id: 16, en: "Scissors", vi: "Kéo", x: 46.2, y: 47.0, w: 7.0, h: 19.0 },
+            { id: 17, en: "Spatula", vi: "Sạn xào", x: 54.5, y: 47.0, w: 6.8, h: 19.0 },
+            { id: 18, en: "Wooden spoon", vi: "Muỗng gỗ", x: 61.5, y: 47.0, w: 6.8, h: 19.0 },
+            { id: 19, en: "Ladle", vi: "Vá (muôi)", x: 68.2, y: 47.0, w: 7.2, h: 19.0 },
+            { id: 20, en: "Tongs", vi: "Kẹp gắp", x: 75.2, y: 48.0, w: 7.8, h: 17.0 },
+            { id: 21, en: "Whisk", vi: "Phới lồng", x: 82.4, y: 47.0, w: 8.2, h: 18.0 },
+            { id: 22, en: "Measuring cup", vi: "Cốc đong", x: 91.0, y: 48.0, w: 8.2, h: 17.0 },
+
+            // Row 3 (Bottom Tableware & Sink Area)
+            { id: 23, en: "Plate", vi: "Đĩa", x: 0.5, y: 75.0, w: 11.2, h: 16.0 },
+            { id: 24, en: "Bowl", vi: "Bát (Chén)", x: 12.0, y: 76.0, w: 9.2, h: 16.0 },
+            { id: 25, en: "Mug", vi: "Cốc", x: 22.0, y: 76.0, w: 7.2, h: 16.0 },
+            { id: 26, en: "Glass", vi: "Ly thủy tinh", x: 30.2, y: 73.0, w: 5.5, h: 19.0 },
+            { id: 27, en: "Fork", vi: "Nĩa", x: 36.6, y: 73.0, w: 3.2, h: 20.0 },
+            { id: 28, en: "Spoon", vi: "Thìa (Muỗng)", x: 40.6, y: 73.0, w: 3.8, h: 20.0 },
+            { id: 29, en: "Chopsticks", vi: "Đũa", x: 44.8, y: 73.0, w: 7.5, h: 20.0 },
+            { id: 30, en: "Sink", vi: "Bồn rửa bát", x: 52.8, y: 69.0, w: 12.0, h: 24.0 },
+            { id: 31, en: "Sponge", vi: "Miếng mút", x: 65.0, y: 79.0, w: 5.5, h: 14.0 },
+            { id: 32, en: "Dish soap", vi: "Nước rửa bát", x: 70.6, y: 71.0, w: 4.5, h: 24.0 },
+            { id: 33, en: "Dish towel", vi: "Khăn lau", x: 75.5, y: 77.0, w: 6.5, h: 17.0 },
+            { id: 34, en: "Trash bin", vi: "Thùng rác", x: 82.4, y: 70.0, w: 6.5, h: 25.0 },
+            { id: 35, en: "Dish rack", vi: "Giá úp bát", x: 89.2, y: 71.0, w: 10.2, h: 24.0 }
+        ];
+
+        const container = document.getElementById('container');
+        const kitchenImg = document.getElementById('kitchen-img');
+        const gameBar = document.getElementById('game-bar');
+        const targetWordUI = document.getElementById('target-word');
+        const actionBtn = document.getElementById('action-btn');
+        const claimedCounter = document.getElementById('claimed-counter');
+        const timerDisplay = document.getElementById('timer-display');
+        const exploreCard = document.getElementById('explore-card');
+        const exploreText = document.getElementById('explore-text');
+        const flipBtn = document.getElementById('flip-btn');
+
+        let currentMode = 'explore';
+        let currentTarget = null;
+        let remainingItems = [];
+        let claimedIds = new Set();
+        let exploredIds = new Set();
+        let timerInterval = null;
+        let timeLeft = 60;
+
+        // Explore Card State
+        let exploreItem = null;
+        let exploreLang = 'en';
+
+        // Lock container aspect ratio to image's exact natural dimensions
+        function syncImageAspectRatio() {
+            if (kitchenImg.naturalWidth && kitchenImg.naturalHeight) {
+                container.style.setProperty('--img-ratio', `${kitchenImg.naturalWidth} / ${kitchenImg.naturalHeight}`);
+            }
+        }
+        kitchenImg.addEventListener('load', syncImageAspectRatio);
+        if (kitchenImg.complete) syncImageAspectRatio();
+
+        // Build Hotspots & Number Badges
+        items.forEach(item => {
+            const hotspot = document.createElement('div');
+            hotspot.className = 'hotspot';
+            hotspot.style.left = `${item.x}%`;
+            hotspot.style.top = `${item.y}%`;
+            hotspot.style.width = `${item.w}%`;
+            hotspot.style.height = `${item.h}%`;
+            hotspot.dataset.id = item.id;
+
+            const badge = document.createElement('div');
+            badge.className = 'badge';
+            badge.id = `badge-${item.id}`;
+            badge.textContent = String(item.id).padStart(2, '0');
+            hotspot.appendChild(badge);
+
+            hotspot.addEventListener('click', () => handleHotspotClick(item, hotspot));
+            container.appendChild(hotspot);
+        });
+
+        function toggleTheme() {
+            document.body.classList.toggle('dark-mode');
+            const isDark = document.body.classList.contains('dark-mode');
+            document.getElementById('theme-toggle').textContent = isDark ? 'Light Mode' : 'Dark Mode';
+        }
+
+        function updateCounterUI() {
+            const count = currentMode === 'explore' ? exploredIds.size : claimedIds.size;
+            const label = currentMode === 'explore' ? 'Explored' : 'Claimed';
+            claimedCounter.textContent = `${label}: ${count} / ${items.length}`;
+            claimedCounter.classList.toggle('complete', count === items.length);
+        }
+
+        function setMode(mode) {
+            currentMode = mode;
+            const isDark = document.body.classList.contains('dark-mode');
+            document.body.className = `${isDark ? 'dark-mode ' : ''}mode-${mode}`;
+
+            document.querySelectorAll('.nav-links .btn').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.mode === mode);
+            });
+
+            resetState();
+
+            if (mode === 'explore') {
+                gameBar.classList.remove('visible');
+            } else {
+                gameBar.classList.add('visible');
+                targetWordUI.textContent = '';
+                actionBtn.style.display = 'inline-block';
+                actionBtn.textContent = mode === 'time' ? 'Start 60s Challenge' : 'Generate Object';
+                timerDisplay.style.display = mode === 'time' ? 'inline-block' : 'none';
+            }
+            updateCounterUI();
+        }
+
+        function resetState() {
+            currentTarget = null;
+            claimedIds.clear();
+            remainingItems = [...items];
+            clearInterval(timerInterval);
+            timerInterval = null;
+            timeLeft = 60;
+            timerDisplay.textContent = '60s';
+            exploreCard.classList.remove('active');
+
+            document.querySelectorAll('.badge').forEach(badge => {
+                badge.classList.remove('solved');
+                badge.textContent = badge.id.replace('badge-', '').padStart(2, '0');
+            });
+        }
+
+        // Hotspot Click Handler
+        function handleHotspotClick(item, element) {
+            if (currentMode === 'explore') {
+                exploredIds.add(item.id);
+                updateCounterUI();
+                openExploreCard(item);
+                return;
+            }
+
+            if (!currentTarget) return;
+
+            if (item.id === currentTarget.id) {
+                playDing();
+                claimedIds.add(item.id);
+                updateCounterUI();
+
+                const badge = document.getElementById(`badge-${item.id}`);
+                badge.classList.add('solved');
+                badge.textContent = '✓';
+
+                if (claimedIds.size === items.length) {
+                    clearInterval(timerInterval);
+                    currentTarget = null;
+                    targetWordUI.textContent = 'All 35 Objects Claimed! 🎉';
+                    actionBtn.textContent = 'Play Again';
+                    actionBtn.style.display = 'inline-block';
+                    playWin();
+                    return;
+                }
+
+                if (currentMode === 'time') {
+                    generateRandomTarget();
+                } else {
+                    // Clear object name until button generates a new name
+                    currentTarget = null;
+                    targetWordUI.textContent = '';
+                    actionBtn.textContent = 'Generate Object';
+                    actionBtn.style.display = 'inline-block';
+                }
+            } else {
+                playFail();
+                showWrongFeedback(element);
+            }
+        }
+
+        // Explore Mode Card Interactions
+        function openExploreCard(item) {
+            exploreItem = item;
+            exploreLang = 'en';
+            exploreText.textContent = item.en;
+            flipBtn.style.display = 'none';
+            exploreCard.classList.add('active');
+        }
+
+        function handleCardClick() {
+            if (!exploreItem) return;
+            if (exploreLang === 'en') {
+                // First click on card reveals Vietnamese translation and shows "EN" flip button
+                exploreLang = 'vi';
+                exploreText.textContent = exploreItem.vi;
+                flipBtn.style.display = 'inline-block';
+            } else {
+                // Clicking card again dismisses it
+                exploreCard.classList.remove('active');
+            }
+        }
+
+        function flipToEnglish(event) {
+            event.stopPropagation();
+            if (!exploreItem) return;
+            exploreLang = 'en';
+            exploreText.textContent = exploreItem.en;
+            flipBtn.style.display = 'none';
+        }
+
+        // Game Controls
+        actionBtn.addEventListener('click', () => {
+            if (claimedIds.size === items.length || (currentMode === 'time' && timeLeft <= 0)) {
+                resetState();
+                updateCounterUI();
+            }
+
+            if (currentMode === 'time' && !timerInterval) {
+                startTimer();
+            }
+
+            generateRandomTarget();
+        });
+
+        function generateRandomTarget() {
+            if (remainingItems.length === 0) return;
+
+            const idx = Math.floor(Math.random() * remainingItems.length);
+            currentTarget = remainingItems.splice(idx, 1)[0];
+            actionBtn.style.display = 'none';
+
+            if (currentMode === 'trans') {
+                targetWordUI.textContent = currentTarget.vi;
+            } else {
+                targetWordUI.textContent = currentTarget.en;
+            }
+        }
+
+        function showWrongFeedback(element) {
+            const xMark = document.createElement('div');
+            xMark.className = 'feedback-x';
+            xMark.textContent = '✕';
+            element.appendChild(xMark);
+            setTimeout(() => xMark.remove(), 650);
+        }
+
+        function startTimer() {
+            timeLeft = 60;
+            timerDisplay.textContent = '60s';
+            timerInterval = setInterval(() => {
+                timeLeft--;
+                timerDisplay.textContent = `${timeLeft}s`;
+                if (timeLeft <= 0) {
+                    clearInterval(timerInterval);
+                    timerInterval = null;
+                    currentTarget = null;
+                    targetWordUI.textContent = `Time's Up! (${claimedIds.size} / 35)`;
+                    actionBtn.textContent = 'Play Again';
+                    actionBtn.style.display = 'inline-block';
+                }
+            }, 1000);
+        }
+
+        // Initialize
+        setMode('explore');
+    </script>
+</body>
+</html>
