@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Kitchen Vocabulary</title>
+    <style>
+        :root {
+            --bg-color: #f4f4f9;
+            --text-color: #333333;
+            --card-bg: rgba(255, 255, 255, 0.95);
+            --card-text: #2c3e50;
+            --button-bg: #3498db;
+            --button-text: #ffffff;
+            --button-hover: #2980b9;
+        }
+
+        body.dark-mode {
+            --bg-color: #1a1a2e;
+            --text-color: #e0e0e0;
+            --card-bg: rgba(30, 30, 46, 0.95);
+            --card-text: #e0e0e0;
+            --button-bg: #e94560;
+            --button-text: #ffffff;
+            --button-hover: #d83a56;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        .controls {
+            width: 100%;
+            max-width: 1000px;
+            display: flex;
+            justify-content: flex-end;
+            margin-bottom: 15px;
+        }
+
+        #theme-toggle {
+            background-color: var(--button-bg);
+            color: var(--button-text);
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background-color 0.3s;
+        }
+
+        #theme-toggle:hover {
+            background-color: var(--button-hover);
+        }
+
+        .image-container {
+            position: relative;
+            max-width: 1000px;
+            width: 100%;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+        }
+
+        .image-container img {
+            display: block;
+            width: 100%;
+            height: auto;
+        }
+
+        .hotspot {
+            position: absolute;
+            cursor: pointer;
+            border-radius: 8px;
+            transition: all 0.2s ease-in-out;
+            z-index: 5;
+        }
+
+        .hotspot:hover {
+            background-color: rgba(255, 255, 255, 0.25);
+            box-shadow: 0 0 15px rgba(255, 255, 255, 0.6);
+            backdrop-filter: blur(2px);
+        }
+
+        /* Vocabulary Display Card */
+        #vocab-card {
+            position: absolute;
+            top: 2%; /* Empty space at the top-center */
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--card-bg);
+            color: var(--card-text);
+            padding: 15px 25px;
+            border-radius: 12px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            z-index: 10;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+            cursor: pointer; /* Click card to dismiss */
+            border: 1px solid rgba(128, 128, 128, 0.2);
+        }
+
+        #vocab-card.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        #vocab-text {
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin: 0;
+            min-width: 150px;
+            text-align: center;
+        }
+
+        #flip-btn {
+            background-color: var(--button-bg);
+            color: var(--button-text);
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-weight: bold;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        #flip-btn:hover {
+            background-color: var(--button-hover);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="controls">
+        <button id="theme-toggle">Toggle Dark Mode</button>
+    </div>
+
+    <div class="image-container" id="container">
+        <img src="KITCHEN-VOCAB.png" alt="Kitchen Vocabulary" />
+        
+        <div id="vocab-card">
+            <div id="vocab-text">Word</div>
+            <button id="flip-btn">VI</button>
+        </div>
+        
+        <!-- Hotspots are dynamically generated via JavaScript -->
+    </div>
+
+    <script>
+        // Mapping of objects, percentages for top (t), left (l), width (w), and height (h)
+        const kitchenItems = [
+            // Row 1
+            { en: "Refrigerator", vi: "Tủ lạnh", t: 13, l: 0, w: 18, h: 16 },
+            { en: "Microwave oven", vi: "Lò vi sóng", t: 13, l: 19, w: 22, h: 16 },
+            { en: "Oven", vi: "Lò nướng", t: 13, l: 42, w: 18, h: 16 },
+            { en: "Stove", vi: "Bếp", t: 13, l: 61, w: 21, h: 16 },
+            { en: "Electric kettle", vi: "Ấm siêu tốc", t: 13, l: 83, w: 15, h: 16 },
+            
+            // Row 2
+            { en: "Frying pan", vi: "Chảo rán", t: 30, l: 0, w: 22, h: 13 },
+            { en: "Saucepan", vi: "Nồi nhỏ (xoong)", t: 30, l: 23, w: 16, h: 13 },
+            { en: "Cooking pot", vi: "Nồi nấu", t: 30, l: 40, w: 19, h: 13 },
+            { en: "Pressure cooker", vi: "Nồi áp suất", t: 30, l: 61, w: 18, h: 13 },
+            { en: "Wok", vi: "Chảo xào", t: 30, l: 80, w: 19, h: 13 },
+            
+            // Row 3
+            { en: "Cutting board", vi: "Thớt", t: 45, l: 1, w: 22, h: 13 },
+            { en: "Knife", vi: "Dao", t: 45, l: 24, w: 14, h: 13 },
+            { en: "Peeler", vi: "Dao bào", t: 45, l: 39, w: 15, h: 13 },
+            { en: "Grater", vi: "Dụng cụ bào", t: 45, l: 56, w: 13, h: 13 },
+            { en: "Can opener", vi: "Đồ khui hộp", t: 45, l: 71, w: 11, h: 13 },
+            { en: "Scissors", vi: "Kéo", t: 45, l: 84, w: 15, h: 13 },
+            
+            // Row 4
+            { en: "Spatula", vi: "Sạn xào", t: 59, l: 1, w: 15, h: 13 },
+            { en: "Spoon", vi: "Muỗng gỗ", t: 59, l: 17, w: 14, h: 13 },
+            { en: "Ladle", vi: "Vá (muôi)", t: 59, l: 32, w: 16, h: 13 },
+            { en: "Tongs", vi: "Kẹp gắp", t: 59, l: 49, w: 12, h: 13 },
+            { en: "Whisk", vi: "Phới lồng", t: 59, l: 62, w: 17, h: 13 },
+            { en: "Measuring cup", vi: "Cốc đong", t: 59, l: 80, w: 18, h: 13 },
+            
+            // Row 5
+            { en: "Plate", vi: "Đĩa", t: 72, l: 0, w: 19, h: 12 },
+            { en: "Bowl", vi: "Bát (Chén)", t: 72, l: 20, w: 17, h: 12 },
+            { en: "Mug", vi: "Cốc", t: 72, l: 38, w: 14, h: 12 },
+            { en: "Glass", vi: "Ly thủy tinh", t: 72, l: 53, w: 11, h: 12 },
+            { en: "Fork", vi: "Nĩa", t: 72, l: 65, w: 8, h: 12 },
+            { en: "Spoon", vi: "Thìa (Muỗng)", t: 72, l: 74, w: 8, h: 12 },
+            { en: "Chopsticks", vi: "Đũa", t: 72, l: 83, w: 16, h: 12 },
+            
+            // Row 6
+            { en: "Sink", vi: "Bồn rửa bát", t: 85, l: 0, w: 24, h: 14 },
+            { en: "Sponge", vi: "Miếng mút", t: 85, l: 25, w: 12, h: 14 },
+            { en: "Dish soap", vi: "Nước rửa bát", t: 85, l: 38, w: 10, h: 14 },
+            { en: "Dish towel", vi: "Khăn lau", t: 85, l: 49, w: 15, h: 14 },
+            { en: "Trash bin", vi: "Thùng rác", t: 85, l: 65, w: 13, h: 14 },
+            { en: "Dish rack", vi: "Giá úp bát", t: 85, l: 79, w: 20, h: 14 }
+        ];
+
+        const container = document.getElementById('container');
+        const vocabCard = document.getElementById('vocab-card');
+        const vocabText = document.getElementById('vocab-text');
+        const flipBtn = document.getElementById('flip-btn');
+        const themeToggleBtn = document.getElementById('theme-toggle');
+
+        let currentItem = null;
+        let isShowingEnglish = true;
+
+        // Generate Hotspots Overlay
+        kitchenItems.forEach(item => {
+            const hotspot = document.createElement('div');
+            hotspot.className = 'hotspot';
+            hotspot.style.top = `${item.t}%`;
+            hotspot.style.left = `${item.l}%`;
+            hotspot.style.width = `${item.w}%`;
+            hotspot.style.height = `${item.h}%`;
+            hotspot.title = "Click to reveal name";
+            
+            hotspot.addEventListener('click', () => {
+                currentItem = item;
+                isShowingEnglish = true; // Default to English when newly opened
+                vocabText.textContent = item.en;
+                flipBtn.textContent = 'VI';
+                vocabCard.classList.add('active');
+            });
+
+            container.appendChild(hotspot);
+        });
+
+        // Flip Translation Logic
+        flipBtn.addEventListener('click', (e) => {
+            e.stopPropagation(); // Prevents the card dismiss click event from triggering
+            if (!currentItem) return;
+            
+            isShowingEnglish = !isShowingEnglish;
+            vocabText.textContent = isShowingEnglish ? currentItem.en : currentItem.vi;
+            flipBtn.textContent = isShowingEnglish ? 'VI' : 'EN';
+        });
+
+        // Dismiss Card Logic (clicking the card itself)
+        vocabCard.addEventListener('click', () => {
+            vocabCard.classList.remove('active');
+        });
+
+        // Light/Dark Theme Toggle
+        themeToggleBtn.addEventListener('click', () => {
+            document.body.classList.toggle('dark-mode');
+        });
+    </script>
+</body>
+</html>
