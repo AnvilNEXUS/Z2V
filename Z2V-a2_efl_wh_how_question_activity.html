@@ -1,0 +1,1689 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>A2 EFL — Wh- &amp; How- Questions</title>
+  <style>
+    /* ==========================================================================
+       Design Tokens & Theme Variables
+       ========================================================================== */
+    :root {
+      --bg: #F7F7F5;
+      --surface: #FFFFFF;
+      --surface-answer: #F0FDFA;
+      --ink: #161618;
+      --ink-muted: #6B7280;
+      --border: #E5E5E0;
+      --accent: #0F766E;
+      --accent-hover: #115E59;
+      --accent-soft: rgba(15, 118, 110, 0.12);
+      --accent-border: rgba(15, 118, 110, 0.35);
+      --accent-ink: #FFFFFF;
+      --danger: #B91C1C;
+      --danger-soft: rgba(185, 28, 28, 0.08);
+      --dot-idle: rgba(22, 22, 24, 0.14);
+      --dot-consumed: #0F766E;
+      --shadow: 0 4px 20px rgba(0, 0, 0, 0.05), 0 1px 3px rgba(0, 0, 0, 0.04);
+      --shadow-modal: 0 20px 50px rgba(0, 0, 0, 0.16);
+      --overlay: rgba(16, 18, 21, 0.45);
+      --btn-secondary-hover: rgba(22, 22, 24, 0.06);
+      --progress-track: rgba(22, 22, 24, 0.08);
+      --radius-card: 20px;
+      --radius-btn: 14px;
+      --font-sans: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    }
+
+    [data-theme="dark"] {
+      --bg: #101215;
+      --surface: #1A1D23;
+      --surface-answer: #132524;
+      --ink: #F3F4F6;
+      --ink-muted: #9CA3AF;
+      --border: #2B303A;
+      --accent: #2DD4BF;
+      --accent-hover: #5EEAD4;
+      --accent-soft: rgba(45, 212, 191, 0.14);
+      --accent-border: rgba(45, 212, 191, 0.38);
+      --accent-ink: #0B1413;
+      --danger: #F87171;
+      --danger-soft: rgba(248, 113, 113, 0.12);
+      --dot-idle: rgba(243, 244, 246, 0.16);
+      --dot-consumed: #2DD4BF;
+      --shadow: 0 8px 28px rgba(0, 0, 0, 0.35), 0 1px 3px rgba(0, 0, 0, 0.25);
+      --shadow-modal: 0 24px 60px rgba(0, 0, 0, 0.6);
+      --overlay: rgba(0, 0, 0, 0.68);
+      --btn-secondary-hover: rgba(243, 244, 246, 0.08);
+      --progress-track: rgba(243, 244, 246, 0.1);
+    }
+
+    /* ==========================================================================
+       Base Reset & Mobile Viewport Optimization
+       ========================================================================== */
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html, body {
+      height: 100%;
+      background-color: var(--bg);
+      color: var(--ink);
+      font-family: var(--font-sans);
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      transition: background-color 0.2s ease, color 0.2s ease;
+      overflow-x: hidden;
+    }
+
+    button {
+      font-family: inherit;
+      cursor: pointer;
+      touch-action: manipulation;
+      -webkit-tap-highlight-color: transparent;
+      border: none;
+      background: none;
+      color: inherit;
+    }
+
+    button:focus-visible,
+    .flip-card:focus-visible,
+    input:focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: 2px;
+    }
+
+    .is-hidden {
+      display: none !important;
+    }
+
+    /* ==========================================================================
+       Hairline Top Progress Bar
+       ========================================================================== */
+    .progress-track {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 3px;
+      background-color: var(--progress-track);
+      z-index: 100;
+    }
+
+    .progress-fill {
+      height: 100%;
+      width: 0%;
+      background-color: var(--accent);
+      transition: width 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    /* ==========================================================================
+       Main App Shell
+       ========================================================================== */
+    .app-shell {
+      min-height: 100dvh;
+      width: 100%;
+      max-width: 680px;
+      margin: 0 auto;
+      padding-top: calc(env(safe-area-inset-top, 0px) + 14px);
+      padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 18px);
+      padding-left: calc(env(safe-area-inset-left, 0px) + 18px);
+      padding-right: calc(env(safe-area-inset-right, 0px) + 18px);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 14px;
+    }
+
+    /* ==========================================================================
+       Minimal Header
+       ========================================================================== */
+    .header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      min-height: 44px;
+    }
+
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .counter {
+      font-size: 0.95rem;
+      font-weight: 600;
+      letter-spacing: 0.02em;
+      color: var(--ink-muted);
+      font-variant-numeric: tabular-nums;
+    }
+
+    .score-pill {
+      font-size: 0.88rem;
+      font-weight: 600;
+      color: var(--accent);
+      background-color: var(--accent-soft);
+      padding: 5px 11px;
+      border-radius: 999px;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .header-right {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .btn-end {
+      min-height: 44px;
+      padding: 0 14px;
+      border-radius: 12px;
+      font-size: 0.85rem;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      color: var(--danger);
+      background-color: var(--danger-soft);
+      transition: opacity 0.15s ease, transform 0.1s ease;
+    }
+
+    .btn-end:hover {
+      opacity: 0.85;
+    }
+
+    .btn-end:active {
+      transform: scale(0.97);
+    }
+
+    .theme-toggle {
+      width: 44px;
+      height: 44px;
+      border-radius: 12px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--ink-muted);
+      transition: background-color 0.15s ease, color 0.15s ease;
+    }
+
+    .theme-toggle:hover {
+      background-color: var(--btn-secondary-hover);
+      color: var(--ink);
+    }
+
+    .theme-toggle svg {
+      width: 21px;
+      height: 21px;
+      stroke: currentColor;
+      fill: none;
+      stroke-width: 1.9;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    /* ==========================================================================
+       Activity Stage (Sentence + Dot Timer + Flip Card + Optional Input)
+       ========================================================================== */
+    .stage {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      gap: clamp(16px, 3vh, 26px);
+      width: 100%;
+    }
+
+    .sentence-block {
+      text-align: left;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .sentence-text {
+      font-size: clamp(1.3rem, 4.1vw, 1.85rem);
+      line-height: 1.44;
+      font-weight: 600;
+      letter-spacing: -0.015em;
+      color: var(--ink);
+    }
+
+    /* ==========================================================================
+       Horizontal 10-Dot Timer Bar
+       ========================================================================== */
+    .timer-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      min-height: 22px;
+    }
+
+    .timer-dots {
+      display: flex;
+      align-items: center;
+      gap: clamp(6px, 1.8vw, 10px);
+    }
+
+    .timer-dot {
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+      background-color: var(--dot-idle);
+      transition: background-color 0.25s ease, transform 0.25s ease, opacity 0.25s ease;
+    }
+
+    .timer-dots.is-grace .timer-dot {
+      animation: gracePulse 1.6s ease-in-out infinite;
+    }
+
+    .timer-dot.is-consumed {
+      background-color: var(--dot-consumed);
+      transform: scale(1.12);
+    }
+
+    .timer-dots.is-locked .timer-dot {
+      animation: none;
+    }
+
+    .timer-status {
+      font-size: 0.82rem;
+      font-weight: 600;
+      letter-spacing: 0.02em;
+      color: var(--ink-muted);
+      font-variant-numeric: tabular-nums;
+      white-space: nowrap;
+    }
+
+    .timer-status.is-accent {
+      color: var(--accent);
+    }
+
+    @keyframes gracePulse {
+      0%, 100% { opacity: 0.45; }
+      50% { opacity: 0.95; }
+    }
+
+    /* ==========================================================================
+       3D Flip Card (iOS Safari Compatible)
+       ========================================================================== */
+    .card-scene {
+      width: 100%;
+      perspective: 1200px;
+      -webkit-perspective: 1200px;
+      transition: opacity 0.15s ease;
+    }
+
+    .card-scene.is-fading {
+      opacity: 0;
+    }
+
+    .flip-card {
+      position: relative;
+      width: 100%;
+      min-height: clamp(205px, 31dvh, 270px);
+      cursor: pointer;
+      touch-action: manipulation;
+      -webkit-tap-highlight-color: transparent;
+      user-select: none;
+      -webkit-user-select: none;
+      border-radius: var(--radius-card);
+    }
+
+    .flip-card-inner {
+      position: relative;
+      width: 100%;
+      min-height: inherit;
+      transform-style: preserve-3d;
+      -webkit-transform-style: preserve-3d;
+      transition: transform 0.52s cubic-bezier(0.22, 1, 0.36, 1);
+      display: grid;
+    }
+
+    .flip-card-inner.no-transition {
+      transition: none !important;
+    }
+
+    .flip-card.is-flipped .flip-card-inner {
+      transform: rotateY(180deg);
+      -webkit-transform: rotateY(180deg);
+    }
+
+    .card-face {
+      grid-area: 1 / 1;
+      width: 100%;
+      min-height: inherit;
+      padding: clamp(18px, 3.8vw, 28px);
+      border-radius: var(--radius-card);
+      backface-visibility: hidden;
+      -webkit-backface-visibility: hidden;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      align-items: center;
+      text-align: center;
+      box-shadow: var(--shadow);
+    }
+
+    .card-front {
+      background-color: var(--surface);
+      border: 1px solid var(--border);
+      transform: rotateY(0deg);
+      -webkit-transform: rotateY(0deg);
+    }
+
+    .card-back {
+      background-color: var(--surface-answer);
+      border: 1.5px solid var(--accent-border);
+      transform: rotateY(180deg);
+      -webkit-transform: rotateY(180deg);
+    }
+
+    .card-top-row {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      min-height: 24px;
+    }
+
+    .card-label {
+      font-size: 0.82rem;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      color: var(--ink-muted);
+    }
+
+    .card-back .card-label {
+      color: var(--accent);
+    }
+
+    .points-badge {
+      position: absolute;
+      right: 0;
+      font-size: 0.78rem;
+      font-weight: 700;
+      color: var(--accent);
+      background-color: var(--accent-soft);
+      padding: 3px 9px;
+      border-radius: 999px;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .card-body {
+      font-size: clamp(1.2rem, 4vw, 1.68rem);
+      line-height: 1.4;
+      font-weight: 500;
+      color: var(--ink);
+      margin: 14px 0;
+      max-width: 34ch;
+    }
+
+    .card-back .card-body {
+      font-weight: 600;
+    }
+
+    .card-hint {
+      font-size: 0.82rem;
+      font-weight: 500;
+      color: var(--ink-muted);
+      opacity: 0.85;
+    }
+
+    /* ==========================================================================
+       Optional Student Response Input (Minimal & iOS Zoom-Safe >= 16px)
+       ========================================================================== */
+    .response-wrap {
+      width: 100%;
+    }
+
+    .response-input {
+      width: 100%;
+      min-height: 48px;
+      padding: 12px 16px;
+      border-radius: 14px;
+      border: 1px solid var(--border);
+      background-color: var(--surface);
+      color: var(--ink);
+      font-family: inherit;
+      font-size: 16px; /* Prevents iOS Safari auto-zoom */
+      line-height: 1.35;
+      transition: border-color 0.15s ease, background-color 0.15s ease;
+    }
+
+    .response-input::placeholder {
+      color: var(--ink-muted);
+      opacity: 0.75;
+    }
+
+    .response-input:focus {
+      border-color: var(--accent);
+      outline: none;
+    }
+
+    /* ==========================================================================
+       Bottom Navigation Controls
+       ========================================================================== */
+    .controls {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding-top: 2px;
+    }
+
+    .btn {
+      min-height: 52px;
+      padding: 0 20px;
+      border-radius: var(--radius-btn);
+      font-size: 1.02rem;
+      font-weight: 600;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      transition: background-color 0.15s ease, color 0.15s ease, transform 0.1s ease, opacity 0.15s ease;
+    }
+
+    .btn:active:not(:disabled) {
+      transform: scale(0.98);
+    }
+
+    .btn-back {
+      flex: 0 0 auto;
+      min-width: 92px;
+      color: var(--ink-muted);
+      border: 1px solid var(--border);
+    }
+
+    .btn-back:hover:not(:disabled) {
+      background-color: var(--btn-secondary-hover);
+      color: var(--ink);
+    }
+
+    .btn-back:disabled {
+      opacity: 0.35;
+      cursor: default;
+    }
+
+    .btn-next {
+      flex: 1;
+      background-color: var(--accent);
+      color: var(--accent-ink);
+    }
+
+    .btn-next:hover {
+      background-color: var(--accent-hover);
+    }
+
+    .btn-outline {
+      width: 100%;
+      background-color: var(--surface);
+      color: var(--ink);
+      border: 1px solid var(--border);
+    }
+
+    .btn-outline:hover {
+      background-color: var(--btn-secondary-hover);
+    }
+
+    /* ==========================================================================
+       Session Complete Screen
+       ========================================================================== */
+    .completion {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      gap: 22px;
+      padding: 12px 0;
+    }
+
+    .completion-title {
+      font-size: clamp(1.5rem, 5vw, 2.05rem);
+      line-height: 1.25;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      color: var(--ink);
+    }
+
+    .completion-meta {
+      font-size: 0.95rem;
+      color: var(--ink-muted);
+      line-height: 1.5;
+    }
+
+    .summary-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+      width: 100%;
+      max-width: 420px;
+    }
+
+    .summary-card {
+      background-color: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 16px 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .summary-value {
+      font-size: clamp(1.35rem, 4.5vw, 1.75rem);
+      font-weight: 700;
+      color: var(--accent);
+      font-variant-numeric: tabular-nums;
+    }
+
+    .summary-label {
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: var(--ink-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    .completion-actions {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+      width: 100%;
+      max-width: 420px;
+    }
+
+    /* ==========================================================================
+       Learner Name Modal
+       ========================================================================== */
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background-color: var(--overlay);
+      backdrop-filter: blur(6px);
+      -webkit-backdrop-filter: blur(6px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      z-index: 200;
+    }
+
+    .modal-card {
+      width: 100%;
+      max-width: 420px;
+      background-color: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 22px;
+      padding: clamp(22px, 5vw, 30px);
+      box-shadow: var(--shadow-modal);
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+    }
+
+    .modal-title {
+      font-size: clamp(1.35rem, 4.5vw, 1.65rem);
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      color: var(--ink);
+    }
+
+    .modal-subtitle {
+      font-size: 0.95rem;
+      line-height: 1.45;
+      color: var(--ink-muted);
+      margin-top: -10px;
+    }
+
+    .modal-form {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .modal-input {
+      width: 100%;
+      min-height: 50px;
+      padding: 12px 16px;
+      border-radius: 14px;
+      border: 1px solid var(--border);
+      background-color: var(--bg);
+      color: var(--ink);
+      font-family: inherit;
+      font-size: 16px; /* Prevents iOS Safari auto-zoom */
+    }
+
+    .modal-input:focus {
+      border-color: var(--accent);
+      outline: none;
+    }
+
+    .modal-error {
+      font-size: 0.85rem;
+      color: var(--danger);
+      min-height: 1.1em;
+      margin-top: -6px;
+    }
+
+    @media (min-width: 640px) {
+      .app-shell {
+        padding-top: 26px;
+        padding-bottom: 28px;
+      }
+      .completion-actions {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+      .completion-actions .btn-span-2 {
+        grid-column: span 2;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Hairline Progress Bar -->
+  <div class="progress-track" aria-hidden="true">
+    <div class="progress-fill" id="progressFill"></div>
+  </div>
+
+  <!-- Learner Name Modal -->
+  <div class="modal-backdrop" id="nameModal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+    <div class="modal-card">
+      <h1 class="modal-title" id="modalTitle">Wh- &amp; How- Practice</h1>
+      <p class="modal-subtitle">Enter your name to begin. You have a 5-second reading lead-in before the 10-second timer starts.</p>
+      <form class="modal-form" id="nameForm" novalidate>
+        <input
+          type="text"
+          id="learnerNameInput"
+          class="modal-input"
+          placeholder="Your name"
+          autocomplete="name"
+          maxlength="60"
+          aria-label="Your name"
+        />
+        <div class="modal-error" id="nameError" aria-live="polite"></div>
+        <button type="submit" class="btn btn-next">Start Activity</button>
+      </form>
+    </div>
+  </div>
+
+  <main class="app-shell">
+    <!-- Minimal Header -->
+    <header class="header">
+      <div class="header-left">
+        <div class="counter" id="counter" aria-live="polite">1 / 24</div>
+        <div class="score-pill" id="scorePill" aria-live="polite">0 pts</div>
+      </div>
+      <div class="header-right">
+        <button type="button" class="btn-end" id="endBtn" title="End session and download Markdown report">END</button>
+        <button
+          type="button"
+          class="theme-toggle"
+          id="themeToggle"
+          aria-label="Toggle dark or light mode"
+          title="Toggle dark or light mode"
+        >
+          <svg id="iconSun" class="is-hidden" viewBox="0 0 24 24" aria-hidden="true">
+            <circle cx="12" cy="12" r="4"></circle>
+            <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"></path>
+          </svg>
+          <svg id="iconMoon" viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+          </svg>
+        </button>
+      </div>
+    </header>
+
+    <!-- Active Learning Stage -->
+    <section class="stage" id="activityStage" aria-label="Reading and question activity">
+      <div class="sentence-block">
+        <p class="sentence-text" id="sentenceText"></p>
+        <div class="timer-row" aria-live="polite">
+          <div class="timer-dots" id="timerDots" aria-hidden="true">
+            <span class="timer-dot"></span>
+            <span class="timer-dot"></span>
+            <span class="timer-dot"></span>
+            <span class="timer-dot"></span>
+            <span class="timer-dot"></span>
+            <span class="timer-dot"></span>
+            <span class="timer-dot"></span>
+            <span class="timer-dot"></span>
+            <span class="timer-dot"></span>
+            <span class="timer-dot"></span>
+          </div>
+          <span class="timer-status" id="timerStatus">Read...</span>
+        </div>
+      </div>
+
+      <div class="card-scene" id="cardScene">
+        <div
+          class="flip-card"
+          id="flipCard"
+          role="button"
+          tabindex="0"
+          aria-pressed="false"
+          aria-label="Flip card to reveal answer"
+        >
+          <div class="flip-card-inner" id="flipCardInner">
+            <!-- Front: Question -->
+            <div class="card-face card-front" aria-hidden="false" id="cardFront">
+              <div class="card-top-row">
+                <span class="card-label" id="questionLabel">Question 1 of 2</span>
+              </div>
+              <p class="card-body" id="questionText"></p>
+              <span class="card-hint">Tap to reveal answer</span>
+            </div>
+
+            <!-- Back: Answer -->
+            <div class="card-face card-back" aria-hidden="true" id="cardBack">
+              <div class="card-top-row">
+                <span class="card-label" id="answerLabel">Answer 1 of 2</span>
+                <span class="points-badge" id="pointsBadge">+10 pts</span>
+              </div>
+              <p class="card-body" id="answerText"></p>
+              <span class="card-hint">Tap to flip back</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Optional Student Response Input -->
+      <div class="response-wrap">
+        <input
+          type="text"
+          id="responseInput"
+          class="response-input"
+          placeholder="Optional: type your full-sentence answer..."
+          autocomplete="off"
+          aria-label="Optional full-sentence answer"
+        />
+      </div>
+    </section>
+
+    <!-- Bottom Navigation -->
+    <footer class="controls" id="controlsBar">
+      <button type="button" class="btn btn-back" id="backBtn">Back</button>
+      <button type="button" class="btn btn-next" id="nextBtn">Next Question</button>
+    </footer>
+
+    <!-- Session Complete Screen -->
+    <section class="completion is-hidden" id="completionScreen" aria-live="polite">
+      <div>
+        <h2 class="completion-title">Session Complete</h2>
+        <p class="completion-meta" id="completionMeta"></p>
+      </div>
+
+      <div class="summary-grid">
+        <div class="summary-card">
+          <span class="summary-value" id="summaryScore">0</span>
+          <span class="summary-label">Total Points</span>
+        </div>
+        <div class="summary-card">
+          <span class="summary-value" id="summaryCompleted">0 / 48</span>
+          <span class="summary-label">Cards Completed</span>
+        </div>
+      </div>
+
+      <div class="completion-actions">
+        <button type="button" class="btn btn-next btn-span-2" id="downloadAgainBtn">Download Markdown Again</button>
+        <button type="button" class="btn btn-outline" id="restartBtn">Start Again</button>
+        <button type="button" class="btn btn-outline" id="shuffleRestartBtn">Shuffle &amp; Restart</button>
+        <button type="button" class="btn btn-outline btn-span-2" id="newLearnerBtn">New Learner</button>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    (function () {
+      'use strict';
+
+      /* ======================================================================
+         24 CEFR A2 Sentences (48 Balanced Wh- & How- Questions)
+         ====================================================================== */
+      const BASE_DATA = [
+        {
+          id: 1,
+          sentence: "Yesterday morning, Maria walked quickly to the bakery to buy fresh bread for breakfast.",
+          questions: [
+            { q: "Why did Maria go to the bakery?", a: "She went to the bakery to buy fresh bread for breakfast." },
+            { q: "How did Maria walk to the bakery?", a: "She walked quickly to the bakery." }
+          ]
+        },
+        {
+          id: 2,
+          sentence: "Last Saturday, Tom took the bus to the city library because he needed quiet space to study.",
+          questions: [
+            { q: "How did Tom go to the city library?", a: "He went to the city library by bus." },
+            { q: "When did Tom go to the city library?", a: "He went to the city library last Saturday." }
+          ]
+        },
+        {
+          id: 3,
+          sentence: "Every evening, Anna carefully cooks vegetable soup in her kitchen because her family loves healthy food.",
+          questions: [
+            { q: "What does Anna cook every evening?", a: "She cooks vegetable soup every evening." },
+            { q: "Why does Anna cook vegetable soup?", a: "She cooks vegetable soup because her family loves healthy food." }
+          ]
+        },
+        {
+          id: 4,
+          sentence: "On Sunday afternoon, David rode his bike to the park to play football with his friends.",
+          questions: [
+            { q: "Where did David go on Sunday afternoon?", a: "He went to the park on Sunday afternoon." },
+            { q: "How did David get to the park?", a: "He rode his bike to the park." }
+          ]
+        },
+        {
+          id: 5,
+          sentence: "At 7 a.m., Sarah drove slowly to the airport because the road was wet and foggy.",
+          questions: [
+            { q: "Why did Sarah drive slowly?", a: "She drove slowly because the road was wet and foggy." },
+            { q: "When did Sarah drive to the airport?", a: "She drove to the airport at 7 a.m." }
+          ]
+        },
+        {
+          id: 6,
+          sentence: "Last night, Ken washed the dishes by hand in the sink because the dishwasher was broken.",
+          questions: [
+            { q: "How did Ken wash the dishes?", a: "He washed the dishes by hand." },
+            { q: "What did Ken wash by hand last night?", a: "He washed the dishes by hand last night." }
+          ]
+        },
+        {
+          id: 7,
+          sentence: "Every Monday, Emma takes the train to the office to arrive before her first meeting.",
+          questions: [
+            { q: "Who takes the train to the office every Monday?", a: "Emma takes the train to the office every Monday." },
+            { q: "Why does Emma take the train?", a: "She takes the train to arrive before her first meeting." }
+          ]
+        },
+        {
+          id: 8,
+          sentence: "Yesterday afternoon, Leo spoke loudly on the phone at the bus stop because the traffic was noisy.",
+          questions: [
+            { q: "Where was Leo speaking on the phone?", a: "He was speaking on the phone at the bus stop." },
+            { q: "How did Leo speak on the phone?", a: "He spoke loudly on the phone." }
+          ]
+        },
+        {
+          id: 9,
+          sentence: "Last week, Sofia paid by credit card at the shoe shop to buy new boots for winter.",
+          questions: [
+            { q: "How did Sofia pay at the shoe shop?", a: "She paid by credit card at the shoe shop." },
+            { q: "What did Sofia buy at the shoe shop?", a: "She bought new boots for winter." }
+          ]
+        },
+        {
+          id: 10,
+          sentence: "Every Friday night, Marco plays the guitar softly in his bedroom to relax after work.",
+          questions: [
+            { q: "When does Marco play the guitar?", a: "He plays the guitar every Friday night." },
+            { q: "Why does Marco play the guitar?", a: "He plays the guitar to relax after work." }
+          ]
+        },
+        {
+          id: 11,
+          sentence: "This morning, Lisa ran fast to the train station because she woke up ten minutes late.",
+          questions: [
+            { q: "Who ran to the train station this morning?", a: "Lisa ran to the train station this morning." },
+            { q: "Why did Lisa run fast?", a: "She ran fast because she woke up ten minutes late." }
+          ]
+        },
+        {
+          id: 12,
+          sentence: "Last summer, Ben traveled by boat to a small island to visit his grandparents.",
+          questions: [
+            { q: "How did Ben travel to the small island?", a: "He traveled to the small island by boat." },
+            { q: "Where did Ben go last summer?", a: "He went to a small island last summer." }
+          ]
+        },
+        {
+          id: 13,
+          sentence: "After lunch, Mia wrote her notes neatly in her notebook to prepare for the English test.",
+          questions: [
+            { q: "What did Mia write after lunch?", a: "She wrote her notes in her notebook after lunch." },
+            { q: "How did Mia write her notes?", a: "She wrote her notes neatly." }
+          ]
+        },
+        {
+          id: 14,
+          sentence: "On Tuesday evening, Omar waited patiently outside the clinic because he had a bad toothache.",
+          questions: [
+            { q: "Where did Omar wait on Tuesday evening?", a: "He waited outside the clinic on Tuesday evening." },
+            { q: "Who waited outside the clinic?", a: "Omar waited outside the clinic." }
+          ]
+        },
+        {
+          id: 15,
+          sentence: "Every weekend, Chloe walks happily through the forest with her dog to get fresh air.",
+          questions: [
+            { q: "When does Chloe walk through the forest?", a: "She walks through the forest every weekend." },
+            { q: "Where does Chloe walk with her dog?", a: "She walks with her dog through the forest." }
+          ]
+        },
+        {
+          id: 16,
+          sentence: "Yesterday at noon, Noah ate his sandwich quickly at his desk because he had lots of work.",
+          questions: [
+            { q: "What did Noah eat at his desk?", a: "He ate his sandwich at his desk." },
+            { q: "How did Noah eat his sandwich?", a: "He ate his sandwich quickly." }
+          ]
+        },
+        {
+          id: 17,
+          sentence: "Last month, Nina flew by plane to Rome to celebrate her sister's wedding.",
+          questions: [
+            { q: "When did Nina fly to Rome?", a: "She flew to Rome last month." },
+            { q: "Why did Nina fly to Rome?", a: "She flew to Rome to celebrate her sister's wedding." }
+          ]
+        },
+        {
+          id: 18,
+          sentence: "Before dinner, Sam opened the window wide in the living room because the house was too warm.",
+          questions: [
+            { q: "Who opened the window in the living room?", a: "Sam opened the window in the living room." },
+            { q: "Why did Sam open the window?", a: "He opened the window because the house was too warm." }
+          ]
+        },
+        {
+          id: 19,
+          sentence: "Every winter, Hannah knits warm scarves by hand at home to give them as holiday gifts.",
+          questions: [
+            { q: "What does Hannah make every winter?", a: "She knits warm scarves every winter." },
+            { q: "How does Hannah knit the scarves?", a: "She knits the scarves by hand." }
+          ]
+        },
+        {
+          id: 20,
+          sentence: "On Friday morning, Lucas took a taxi to the museum because it was raining heavily outside.",
+          questions: [
+            { q: "How did Lucas go to the museum?", a: "He went to the museum by taxi." },
+            { q: "Where did Lucas go on Friday morning?", a: "He went to the museum on Friday morning." }
+          ]
+        },
+        {
+          id: 21,
+          sentence: "Last Sunday, Mei painted a bright picture with watercolors in the garden to decorate her room.",
+          questions: [
+            { q: "Where did Mei paint a picture?", a: "She painted a picture in the garden." },
+            { q: "How did Mei paint the picture?", a: "She painted the picture with watercolors." }
+          ]
+        },
+        {
+          id: 22,
+          sentence: "At midnight, Alex walked quietly into the kitchen because he wanted a glass of cold water.",
+          questions: [
+            { q: "When did Alex walk into the kitchen?", a: "He walked into the kitchen at midnight." },
+            { q: "Why did Alex walk into the kitchen?", a: "He walked into the kitchen because he wanted a glass of cold water." }
+          ]
+        },
+        {
+          id: 23,
+          sentence: "Every afternoon, Priya reads short stories aloud at the library to help young children learn.",
+          questions: [
+            { q: "Who reads short stories at the library?", a: "Priya reads short stories at the library." },
+            { q: "What does Priya read every afternoon?", a: "She reads short stories every afternoon." }
+          ]
+        },
+        {
+          id: 24,
+          sentence: "On Saturday night, Daniel cooked grilled chicken over a fire in the backyard to celebrate his birthday.",
+          questions: [
+            { q: "Who cooked grilled chicken in the backyard?", a: "Daniel cooked grilled chicken in the backyard." },
+            { q: "Why did Daniel cook grilled chicken?", a: "He cooked grilled chicken to celebrate his birthday." }
+          ]
+        }
+      ];
+
+      /* ======================================================================
+         Constants & State
+         ====================================================================== */
+      const GRACE_MS = 5000;
+      const MAX_SECONDS = 10;
+      const THEME_KEY = 'efl_a2_theme';
+
+      let learnerName = '';
+      let hasStarted = false;
+      let items = [...BASE_DATA];
+      let sentenceIndex = 0;
+      let questionIndex = 0;
+      let isFlipped = false;
+      let isComplete = false;
+      let isTransitioning = false;
+      let sessionEndDate = null;
+
+      // Per-card progress keyed by `${sentenceIndex}-${questionIndex}`
+      // Value: { completed: bool, points: number, secondsConsumed: number, withinGrace: bool, response: string }
+      let cardRecords = {};
+
+      // Active timer handles
+      let graceTimeoutId = null;
+      let countdownIntervalId = null;
+      let activePhase = 'idle'; // 'idle' | 'grace' | 'countdown' | 'locked'
+      let activeConsumed = 0;
+
+      /* ======================================================================
+         DOM Elements
+         ====================================================================== */
+      const progressFill = document.getElementById('progressFill');
+      const nameModal = document.getElementById('nameModal');
+      const nameForm = document.getElementById('nameForm');
+      const learnerNameInput = document.getElementById('learnerNameInput');
+      const nameError = document.getElementById('nameError');
+
+      const counterEl = document.getElementById('counter');
+      const scorePill = document.getElementById('scorePill');
+      const endBtn = document.getElementById('endBtn');
+      const themeToggle = document.getElementById('themeToggle');
+      const iconSun = document.getElementById('iconSun');
+      const iconMoon = document.getElementById('iconMoon');
+
+      const activityStage = document.getElementById('activityStage');
+      const controlsBar = document.getElementById('controlsBar');
+      const completionScreen = document.getElementById('completionScreen');
+
+      const sentenceText = document.getElementById('sentenceText');
+      const timerDotsEl = document.getElementById('timerDots');
+      const dotEls = Array.from(timerDotsEl.querySelectorAll('.timer-dot'));
+      const timerStatus = document.getElementById('timerStatus');
+
+      const cardScene = document.getElementById('cardScene');
+      const flipCard = document.getElementById('flipCard');
+      const flipCardInner = document.getElementById('flipCardInner');
+      const cardFront = document.getElementById('cardFront');
+      const cardBack = document.getElementById('cardBack');
+      const questionLabel = document.getElementById('questionLabel');
+      const answerLabel = document.getElementById('answerLabel');
+      const pointsBadge = document.getElementById('pointsBadge');
+      const questionText = document.getElementById('questionText');
+      const answerText = document.getElementById('answerText');
+      const responseInput = document.getElementById('responseInput');
+
+      const backBtn = document.getElementById('backBtn');
+      const nextBtn = document.getElementById('nextBtn');
+
+      const completionMeta = document.getElementById('completionMeta');
+      const summaryScore = document.getElementById('summaryScore');
+      const summaryCompleted = document.getElementById('summaryCompleted');
+      const downloadAgainBtn = document.getElementById('downloadAgainBtn');
+      const restartBtn = document.getElementById('restartBtn');
+      const shuffleRestartBtn = document.getElementById('shuffleRestartBtn');
+      const newLearnerBtn = document.getElementById('newLearnerBtn');
+
+      /* ======================================================================
+         Theme Management
+         ====================================================================== */
+      function applyTheme(theme) {
+        document.documentElement.setAttribute('data-theme', theme);
+        const isDark = theme === 'dark';
+        iconSun.classList.toggle('is-hidden', !isDark);
+        iconMoon.classList.toggle('is-hidden', isDark);
+        themeToggle.setAttribute('aria-label', isDark ? 'Switch to light mode' : 'Switch to dark mode');
+      }
+
+      function initTheme() {
+        let saved = null;
+        try {
+          saved = localStorage.getItem(THEME_KEY);
+        } catch (e) { /* ignore */ }
+        if (saved === 'dark' || saved === 'light') {
+          applyTheme(saved);
+        } else {
+          const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+          applyTheme(prefersDark ? 'dark' : 'light');
+        }
+      }
+
+      themeToggle.addEventListener('click', function () {
+        const current = document.documentElement.getAttribute('data-theme');
+        const next = current === 'dark' ? 'light' : 'dark';
+        applyTheme(next);
+        try {
+          localStorage.setItem(THEME_KEY, next);
+        } catch (e) { /* ignore */ }
+      });
+
+      /* ======================================================================
+         Card Record Helpers
+         ====================================================================== */
+      function getCardKey(sIdx, qIdx) {
+        return sIdx + '-' + qIdx;
+      }
+
+      function getCurrentKey() {
+        return getCardKey(sentenceIndex, questionIndex);
+      }
+
+      function ensureRecord(key) {
+        if (!cardRecords[key]) {
+          cardRecords[key] = {
+            completed: false,
+            points: 0,
+            secondsConsumed: 0,
+            withinGrace: false,
+            response: ''
+          };
+        }
+        return cardRecords[key];
+      }
+
+      function getTotalPoints() {
+        let total = 0;
+        const keys = Object.keys(cardRecords);
+        for (let i = 0; i < keys.length; i++) {
+          if (cardRecords[keys[i]].completed) {
+            total += cardRecords[keys[i]].points;
+          }
+        }
+        return total;
+      }
+
+      function getCompletedCount() {
+        let count = 0;
+        const keys = Object.keys(cardRecords);
+        for (let i = 0; i < keys.length; i++) {
+          if (cardRecords[keys[i]].completed) {
+            count += 1;
+          }
+        }
+        return count;
+      }
+
+      function updateScoreDisplay() {
+        scorePill.textContent = getTotalPoints() + ' pts';
+      }
+
+      /* ======================================================================
+         5-Second Grace + 10-Second Horizontal Dot Timer
+         ====================================================================== */
+      function clearActiveTimers() {
+        if (graceTimeoutId !== null) {
+          clearTimeout(graceTimeoutId);
+          graceTimeoutId = null;
+        }
+        if (countdownIntervalId !== null) {
+          clearInterval(countdownIntervalId);
+          countdownIntervalId = null;
+        }
+      }
+
+      function renderDots(consumedCount, phase) {
+        timerDotsEl.classList.toggle('is-grace', phase === 'grace');
+        timerDotsEl.classList.toggle('is-locked', phase === 'locked');
+
+        for (let i = 0; i < dotEls.length; i++) {
+          dotEls[i].classList.toggle('is-consumed', i < consumedCount);
+        }
+      }
+
+      function startCardTimer() {
+        clearActiveTimers();
+        if (!hasStarted || isComplete) return;
+
+        const record = ensureRecord(getCurrentKey());
+        if (record.completed) {
+          activePhase = 'locked';
+          activeConsumed = record.secondsConsumed;
+          renderDots(record.secondsConsumed, 'locked');
+          timerStatus.textContent = '+' + record.points + ' pts';
+          timerStatus.classList.add('is-accent');
+          return;
+        }
+
+        // Start 5-second reading grace period
+        activePhase = 'grace';
+        activeConsumed = 0;
+        renderDots(0, 'grace');
+        timerStatus.textContent = 'Read...';
+        timerStatus.classList.remove('is-accent');
+
+        graceTimeoutId = setTimeout(function () {
+          graceTimeoutId = null;
+          if (!hasStarted || isComplete) return;
+          const rec = ensureRecord(getCurrentKey());
+          if (rec.completed) return;
+
+          // Begin 10-second countdown
+          activePhase = 'countdown';
+          activeConsumed = 0;
+          renderDots(0, 'countdown');
+          timerStatus.textContent = MAX_SECONDS + ' pts';
+
+          countdownIntervalId = setInterval(function () {
+            activeConsumed += 1;
+            const remaining = Math.max(0, MAX_SECONDS - activeConsumed);
+            renderDots(activeConsumed, 'countdown');
+            timerStatus.textContent = remaining + ' pts';
+
+            if (activeConsumed >= MAX_SECONDS) {
+              clearInterval(countdownIntervalId);
+              countdownIntervalId = null;
+            }
+          }, 1000);
+        }, GRACE_MS);
+      }
+
+      function lockCurrentCardScore() {
+        const record = ensureRecord(getCurrentKey());
+        if (record.completed) return;
+
+        clearActiveTimers();
+
+        const withinGrace = (activePhase === 'grace' || activePhase === 'idle');
+        const consumed = withinGrace ? 0 : Math.min(MAX_SECONDS, activeConsumed);
+        const earned = MAX_SECONDS - consumed;
+
+        record.completed = true;
+        record.withinGrace = withinGrace;
+        record.secondsConsumed = consumed;
+        record.points = earned;
+
+        activePhase = 'locked';
+        renderDots(consumed, 'locked');
+        timerStatus.textContent = '+' + earned + ' pts';
+        timerStatus.classList.add('is-accent');
+        pointsBadge.textContent = '+' + earned + ' pts';
+        updateScoreDisplay();
+      }
+
+      /* ======================================================================
+         Card Flip & Safe Transitions
+         ====================================================================== */
+      function setFlipped(flipped, instant) {
+        isFlipped = flipped;
+        if (instant) {
+          flipCardInner.classList.add('no-transition');
+        }
+        flipCard.classList.toggle('is-flipped', isFlipped);
+        flipCard.setAttribute('aria-pressed', String(isFlipped));
+        cardFront.setAttribute('aria-hidden', String(isFlipped));
+        cardBack.setAttribute('aria-hidden', String(!isFlipped));
+
+        if (instant) {
+          void flipCardInner.offsetWidth;
+          flipCardInner.classList.remove('no-transition');
+        }
+      }
+
+      function toggleFlip() {
+        if (!hasStarted || isComplete || isTransitioning) return;
+        if (!isFlipped) {
+          lockCurrentCardScore();
+        }
+        setFlipped(!isFlipped, false);
+      }
+
+      function renderCurrentContent() {
+        const totalSentences = items.length;
+        const totalSteps = totalSentences * 2;
+
+        if (isComplete) {
+          progressFill.style.width = '100%';
+          counterEl.textContent = totalSentences + ' / ' + totalSentences;
+          activityStage.classList.add('is-hidden');
+          controlsBar.classList.add('is-hidden');
+          endBtn.classList.add('is-hidden');
+          completionScreen.classList.remove('is-hidden');
+          return;
+        }
+
+        activityStage.classList.remove('is-hidden');
+        controlsBar.classList.remove('is-hidden');
+        endBtn.classList.remove('is-hidden');
+        completionScreen.classList.add('is-hidden');
+
+        const currentItem = items[sentenceIndex];
+        const currentQA = currentItem.questions[questionIndex];
+        const currentStep = sentenceIndex * 2 + questionIndex + 1;
+        const record = ensureRecord(getCurrentKey());
+
+        progressFill.style.width = ((currentStep / totalSteps) * 100) + '%';
+        counterEl.textContent = (sentenceIndex + 1) + ' / ' + totalSentences;
+        updateScoreDisplay();
+
+        sentenceText.textContent = currentItem.sentence;
+        questionLabel.textContent = 'Question ' + (questionIndex + 1) + ' of 2';
+        answerLabel.textContent = 'Answer ' + (questionIndex + 1) + ' of 2';
+        questionText.textContent = currentQA.q;
+        answerText.textContent = currentQA.a;
+        pointsBadge.textContent = '+' + (record.completed ? record.points : MAX_SECONDS) + ' pts';
+
+        responseInput.value = record.response || '';
+
+        backBtn.disabled = (sentenceIndex === 0 && questionIndex === 0);
+
+        if (questionIndex === 0) {
+          nextBtn.textContent = 'Next Question';
+        } else if (sentenceIndex < totalSentences - 1) {
+          nextBtn.textContent = 'Next Sentence';
+        } else {
+          nextBtn.textContent = 'Finish';
+        }
+
+        startCardTimer();
+      }
+
+      function transitionTo(updateStateFn) {
+        if (isTransitioning) return;
+        isTransitioning = true;
+        clearActiveTimers();
+
+        cardScene.classList.add('is-fading');
+
+        setTimeout(function () {
+          setFlipped(false, true);
+          updateStateFn();
+          renderCurrentContent();
+
+          requestAnimationFrame(function () {
+            cardScene.classList.remove('is-fading');
+            isTransitioning = false;
+          });
+        }, 150);
+      }
+
+      function goNext() {
+        if (!hasStarted || isComplete || isTransitioning) return;
+
+        // If on the final card, finish and download report
+        if (questionIndex === 1 && sentenceIndex === items.length - 1) {
+          endSession();
+          return;
+        }
+
+        transitionTo(function () {
+          if (questionIndex === 0) {
+            questionIndex = 1;
+          } else if (sentenceIndex < items.length - 1) {
+            sentenceIndex += 1;
+            questionIndex = 0;
+          }
+        });
+      }
+
+      function goBack() {
+        if (!hasStarted || isComplete || isTransitioning) return;
+        if (sentenceIndex === 0 && questionIndex === 0) return;
+
+        transitionTo(function () {
+          if (questionIndex === 1) {
+            questionIndex = 0;
+          } else if (sentenceIndex > 0) {
+            sentenceIndex -= 1;
+            questionIndex = 1;
+          }
+        });
+      }
+
+      /* ======================================================================
+         Markdown Report Generation & Download
+         ====================================================================== */
+      function escapeMarkdownCell(text) {
+        return String(text || '')
+          .replace(/\|/g, '\\|')
+          .replace(/\r?\n/g, ' ')
+          .trim();
+      }
+
+      function sanitizeFilename(name) {
+        const cleaned = name
+          .toLowerCase()
+          .trim()
+          .replace(/[^a-z0-9]+/g, '-')
+          .replace(/^-+|-+$/g, '');
+        return cleaned || 'learner';
+      }
+
+      function formatTimestampForFilename(date) {
+        const pad = function (n) { return String(n).padStart(2, '0'); };
+        return (
+          date.getFullYear() + '-' +
+          pad(date.getMonth() + 1) + '-' +
+          pad(date.getDate()) + '-' +
+          pad(date.getHours()) +
+          pad(date.getMinutes())
+        );
+      }
+
+      function buildMarkdownReport(dateObj) {
+        const localDate = dateObj.toLocaleDateString(undefined, {
+          year: 'numeric',
+          month: 'long',
+          day: 'numeric'
+        });
+        const localTime = dateObj.toLocaleTimeString(undefined, {
+          hour: '2-digit',
+          minute: '2-digit'
+        });
+
+        const attemptedRows = [];
+        let totalPoints = 0;
+
+        for (let sIdx = 0; sIdx < items.length; sIdx++) {
+          for (let qIdx = 0; qIdx < items[sIdx].questions.length; qIdx++) {
+            const key = getCardKey(sIdx, qIdx);
+            const rec = cardRecords[key];
+            if (rec && (rec.completed || (rec.response && rec.response.trim() !== ''))) {
+              if (rec.completed) {
+                totalPoints += rec.points;
+              }
+              attemptedRows.push({
+                sentenceNum: sIdx + 1,
+                sentence: items[sIdx].sentence,
+                question: items[sIdx].questions[qIdx].q,
+                response: rec.response && rec.response.trim() !== '' ? rec.response.trim() : '_(Oral response)_',
+                modelAnswer: items[sIdx].questions[qIdx].a,
+                timerResult: rec.completed
+                  ? (rec.withinGrace ? 'Within 5s grace' : rec.secondsConsumed + 's consumed')
+                  : 'Not flipped',
+                pointsText: rec.completed ? (rec.points + ' / 10') : '0 / 10'
+              });
+            }
+          }
+        }
+
+        const completedCount = getCompletedCount();
+        const maxPossible = completedCount * MAX_SECONDS;
+        const averagePoints = completedCount > 0 ? (totalPoints / completedCount).toFixed(1) : '0.0';
+
+        const lines = [
+          '# A2 EFL Wh- & How- Practice Report',
+          '',
+          '- **Learner:** ' + learnerName,
+          '- **Date:** ' + localDate,
+          '- **Time:** ' + localTime,
+          '',
+          '## Summary',
+          '',
+          '- **Total Points Earned:** ' + totalPoints,
+          '- **Maximum Possible Points (Completed Cards):** ' + maxPossible,
+          '- **Cards Completed:** ' + completedCount + ' / ' + (items.length * 2),
+          '- **Average Points per Card:** ' + averagePoints + ' / 10',
+          '',
+          '## Attempted Cards',
+          ''
+        ];
+
+        if (attemptedRows.length === 0) {
+          lines.push('_No cards were completed during this session._');
+        } else {
+          lines.push('| Sentence # | Full Sentence | Question | Student\'s Response | Model Full-Sentence Answer | Timer Result | Points Earned |');
+          lines.push('| --- | --- | --- | --- | --- | --- | --- |');
+          for (let i = 0; i < attemptedRows.length; i++) {
+            const r = attemptedRows[i];
+            lines.push(
+              '| ' + r.sentenceNum +
+              ' | ' + escapeMarkdownCell(r.sentence) +
+              ' | ' + escapeMarkdownCell(r.question) +
+              ' | ' + escapeMarkdownCell(r.response) +
+              ' | ' + escapeMarkdownCell(r.modelAnswer) +
+              ' | ' + escapeMarkdownCell(r.timerResult) +
+              ' | ' + escapeMarkdownCell(r.pointsText) + ' |'
+            );
+          }
+        }
+
+        lines.push('');
+        return lines.join('\n');
+      }
+
+      function downloadMarkdownReport(dateObj) {
+        const markdown = buildMarkdownReport(dateObj);
+        const filename = sanitizeFilename(learnerName) + '-efl-wh-results-' + formatTimestampForFilename(dateObj) + '.md';
+
+        const blob = new Blob([markdown], { type: 'text/markdown;charset=utf-8' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        setTimeout(function () {
+          URL.revokeObjectURL(url);
+        }, 1000);
+      }
+
+      function endSession() {
+        clearActiveTimers();
+        isComplete = true;
+        sessionEndDate = new Date();
+
+        const localDate = sessionEndDate.toLocaleDateString(undefined, {
+          year: 'numeric',
+          month: 'short',
+          day: 'numeric'
+        });
+        const localTime = sessionEndDate.toLocaleTimeString(undefined, {
+          hour: '2-digit',
+          minute: '2-digit'
+        });
+
+        completionMeta.textContent = learnerName + ' · ' + localDate + ' at ' + localTime;
+        summaryScore.textContent = getTotalPoints() + ' pts';
+        summaryCompleted.textContent = getCompletedCount() + ' / ' + (items.length * 2);
+
+        renderCurrentContent();
+        downloadMarkdownReport(sessionEndDate);
+      }
+
+      /* ======================================================================
+         Restart & New Learner Flows
+         ====================================================================== */
+      function resetSession(shouldShuffle) {
+        clearActiveTimers();
+        if (shouldShuffle) {
+          items = [...BASE_DATA];
+          for (let i = items.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            const temp = items[i];
+            items[i] = items[j];
+            items[j] = temp;
+          }
+        } else {
+          items = [...BASE_DATA];
+        }
+        sentenceIndex = 0;
+        questionIndex = 0;
+        cardRecords = {};
+        isComplete = false;
+        sessionEndDate = null;
+        setFlipped(false, true);
+        renderCurrentContent();
+      }
+
+      function openNameModal() {
+        clearActiveTimers();
+        hasStarted = false;
+        learnerNameInput.value = '';
+        nameError.textContent = '';
+        nameModal.classList.remove('is-hidden');
+        setTimeout(function () {
+          learnerNameInput.focus();
+        }, 50);
+      }
+
+      nameForm.addEventListener('submit', function (event) {
+        event.preventDefault();
+        const trimmed = learnerNameInput.value.trim();
+        if (!trimmed) {
+          nameError.textContent = 'Please enter your name to start.';
+          learnerNameInput.focus();
+          return;
+        }
+        learnerName = trimmed;
+        hasStarted = true;
+        nameModal.classList.add('is-hidden');
+        resetSession(false);
+      });
+
+      /* ======================================================================
+         Event Listeners
+         ====================================================================== */
+      responseInput.addEventListener('input', function () {
+        const record = ensureRecord(getCurrentKey());
+        record.response = responseInput.value;
+      });
+
+      flipCard.addEventListener('click', toggleFlip);
+      nextBtn.addEventListener('click', goNext);
+      backBtn.addEventListener('click', goBack);
+      endBtn.addEventListener('click', endSession);
+
+      downloadAgainBtn.addEventListener('click', function () {
+        downloadMarkdownReport(sessionEndDate || new Date());
+      });
+      restartBtn.addEventListener('click', function () { resetSession(false); });
+      shuffleRestartBtn.addEventListener('click', function () { resetSession(true); });
+      newLearnerBtn.addEventListener('click', openNameModal);
+
+      document.addEventListener('keydown', function (event) {
+        if (!hasStarted || isComplete) return;
+
+        // Disable shortcuts while typing in any input or textarea
+        const activeEl = document.activeElement;
+        const activeTag = activeEl ? activeEl.tagName : '';
+        if (activeTag === 'INPUT' || activeTag === 'TEXTAREA') {
+          return;
+        }
+
+        const isButtonFocused = activeTag === 'BUTTON';
+
+        if (event.code === 'Space' || event.key === ' ') {
+          if (!isButtonFocused) {
+            event.preventDefault();
+            toggleFlip();
+          }
+        } else if (event.key === 'Enter') {
+          if (!isButtonFocused) {
+            event.preventDefault();
+            toggleFlip();
+          }
+        } else if (event.key === 'ArrowRight') {
+          event.preventDefault();
+          goNext();
+        } else if (event.key === 'ArrowLeft') {
+          event.preventDefault();
+          goBack();
+        }
+      });
+
+      /* ======================================================================
+         Initialize
+         ====================================================================== */
+      initTheme();
+      // Pre-render first card behind modal without starting timer
+      sentenceText.textContent = items[0].sentence;
+      questionText.textContent = items[0].questions[0].q;
+      answerText.textContent = items[0].questions[0].a;
+      openNameModal();
+    })();
+  </script>
+</body>
+</html>
