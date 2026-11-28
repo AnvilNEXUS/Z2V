@@ -1,0 +1,1414 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Linh's Trip to Her Hometown (A1) — Comprehension</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;1,6..72,400&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    /* =========================================
+       Design Tokens & Theme Variables
+       ========================================= */
+    :root {
+      --text-scale: 1.15;
+
+      /* Light Mode (Warm Ivory & Refined Slate) */
+      --bg-page: #f7f6f2;
+      --bg-surface: #ffffff;
+      --bg-surface-hover: #fbfaf7;
+      --bg-surface-muted: #f0eee8;
+      --bg-topbar: rgba(247, 246, 242, 0.88);
+
+      --text-primary: #18181b;
+      --text-secondary: #52525b;
+      --text-muted: #8a8a93;
+
+      --border-subtle: #e5e3dc;
+      --border-strong: #d4d1c7;
+
+      --accent: #1e4d3b;
+      --accent-soft: rgba(30, 77, 59, 0.09);
+      --accent-text: #ffffff;
+
+      --mark-bg: #fde68a;
+      --mark-text: #18181b;
+      --mark-ring: rgba(217, 119, 6, 0.25);
+
+      --shadow-card: 0 2px 10px rgba(24, 24, 27, 0.03), 0 1px 2px rgba(24, 24, 27, 0.04);
+      --shadow-card-hover: 0 8px 24px rgba(24, 24, 27, 0.06), 0 2px 6px rgba(24, 24, 27, 0.04);
+
+      --radius-sm: 10px;
+      --radius-md: 16px;
+      --radius-lg: 20px;
+      --transition-theme: 240ms cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    [data-theme="dark"] {
+      /* Dark Mode (Rich Deep Charcoal & Slate) */
+      --bg-page: #111214;
+      --bg-surface: #1a1c1f;
+      --bg-surface-hover: #212428;
+      --bg-surface-muted: #24272c;
+      --bg-topbar: rgba(17, 18, 20, 0.88);
+
+      --text-primary: #f4f4f5;
+      --text-secondary: #a1a1aa;
+      --text-muted: #71717a;
+
+      --border-subtle: #272a30;
+      --border-strong: #373b44;
+
+      --accent: #34d399;
+      --accent-soft: rgba(52, 211, 153, 0.14);
+      --accent-text: #0b1411;
+
+      --mark-bg: rgba(251, 191, 36, 0.24);
+      --mark-text: #fef3c7;
+      --mark-ring: rgba(251, 191, 36, 0.42);
+
+      --shadow-card: 0 4px 16px rgba(0, 0, 0, 0.24);
+      --shadow-card-hover: 0 10px 28px rgba(0, 0, 0, 0.36);
+    }
+
+    /* =========================================
+       Base Reset & Layout
+       ========================================= */
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html, body {
+      height: 100%;
+    }
+
+    body {
+      font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background-color: var(--bg-page);
+      color: var(--text-primary);
+      transition: background-color var(--transition-theme), color var(--transition-theme);
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    /* =========================================
+       Minimal Top Navigation Bar
+       ========================================= */
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      background-color: var(--bg-topbar);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border-subtle);
+      transition: background-color var(--transition-theme), border-color var(--transition-theme);
+    }
+
+    .topbar-inner {
+      max-width: 1120px;
+      margin: 0 auto;
+      padding: 12px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    /* Paragraph Navigation Buttons */
+    .para-nav {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+
+    .para-btn {
+      position: relative;
+      appearance: none;
+      border: 1px solid transparent;
+      background: transparent;
+      color: var(--text-secondary);
+      font-family: inherit;
+      font-size: 0.85rem;
+      font-weight: 600;
+      letter-spacing: 0.02em;
+      padding: 7px 11px 9px;
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      transition: background-color 180ms ease, color 180ms ease, border-color 180ms ease, transform 120ms ease;
+    }
+
+    .para-btn:hover {
+      background-color: var(--bg-surface-muted);
+      color: var(--text-primary);
+    }
+
+    .para-btn:active {
+      transform: scale(0.96);
+    }
+
+    .para-btn.active {
+      background-color: var(--accent-soft);
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+
+    .para-dots {
+      display: flex;
+      gap: 3px;
+      height: 4px;
+      align-items: center;
+    }
+
+    .para-dot {
+      width: 4px;
+      height: 4px;
+      border-radius: 50%;
+      background-color: var(--border-strong);
+      opacity: 0.45;
+      transition: background-color 180ms ease, opacity 180ms ease, transform 180ms ease;
+    }
+
+    .para-btn.active .para-dot {
+      opacity: 0.35;
+      background-color: var(--accent);
+    }
+
+    .para-btn.active .para-dot.filled {
+      opacity: 1;
+      transform: scale(1.15);
+    }
+
+    /* Right Controls: Counter, Font Slider, Theme Toggle */
+    .topbar-controls {
+      display: flex;
+      align-items: center;
+      gap: 18px;
+      margin-left: auto;
+    }
+
+    .q-counter {
+      font-size: 0.9rem;
+      font-weight: 600;
+      font-variant-numeric: tabular-nums;
+      color: var(--text-secondary);
+      white-space: nowrap;
+    }
+
+    .slider-group {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      padding: 5px 12px;
+      background-color: var(--bg-surface-muted);
+      border-radius: 999px;
+      transition: background-color var(--transition-theme);
+    }
+
+    .slider-label-sm {
+      font-size: 0.78rem;
+      font-weight: 600;
+      color: var(--text-secondary);
+      user-select: none;
+    }
+
+    .slider-label-lg {
+      font-size: 1.08rem;
+      font-weight: 700;
+      color: var(--text-primary);
+      user-select: none;
+    }
+
+    .font-slider {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 96px;
+      height: 4px;
+      border-radius: 999px;
+      background: var(--border-strong);
+      outline: none;
+      cursor: pointer;
+    }
+
+    .font-slider::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      background: var(--accent);
+      border: 2px solid var(--bg-surface);
+      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
+      cursor: pointer;
+      transition: transform 140ms ease;
+    }
+
+    .font-slider::-webkit-slider-thumb:hover {
+      transform: scale(1.15);
+    }
+
+    .font-slider::-moz-range-thumb {
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      background: var(--accent);
+      border: 2px solid var(--bg-surface);
+      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
+      cursor: pointer;
+    }
+
+    .theme-btn {
+      appearance: none;
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      border: 1px solid var(--border-subtle);
+      background-color: var(--bg-surface);
+      color: var(--text-primary);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: background-color 180ms ease, border-color 180ms ease, transform 140ms ease;
+    }
+
+    .theme-btn:hover {
+      background-color: var(--bg-surface-muted);
+      border-color: var(--border-strong);
+    }
+
+    .theme-btn:active {
+      transform: scale(0.94);
+    }
+
+    .theme-btn svg {
+      width: 18px;
+      height: 18px;
+      stroke: currentColor;
+      fill: none;
+      stroke-width: 2;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    /* =========================================
+       Main Stage (Centered, Spacious)
+       ========================================= */
+    .stage {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      padding: 36px 24px 48px;
+      width: 100%;
+    }
+
+    .stage-inner {
+      width: 100%;
+      max-width: 960px;
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+      animation: fadeSlideIn 220ms cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    @keyframes fadeSlideIn {
+      from {
+        opacity: 0;
+        transform: translateY(6px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    /* Question Display */
+    .question-block {
+      position: relative;
+      padding: 8px 34px 12px 4px;
+      text-align: left;
+    }
+
+    .question-text {
+      font-size: calc(2rem * var(--text-scale));
+      font-weight: 700;
+      line-height: 1.28;
+      letter-spacing: -0.02em;
+      color: var(--text-primary);
+      transition: font-size 80ms linear, color var(--transition-theme);
+    }
+
+    /* Interactive Reveal Cards */
+    .reveal-card {
+      width: 100%;
+      text-align: left;
+      font-family: inherit;
+      background-color: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-card);
+      cursor: pointer;
+      transition:
+        background-color var(--transition-theme),
+        border-color 180ms ease,
+        box-shadow 200ms ease,
+        transform 140ms ease;
+      position: relative;
+      overflow: hidden;
+      user-select: none;
+    }
+
+    .reveal-card.is-revealed {
+      user-select: text;
+    }
+
+    .reveal-card:hover {
+      background-color: var(--bg-surface-hover);
+      border-color: var(--border-strong);
+      box-shadow: var(--shadow-card-hover);
+    }
+
+    .reveal-card:active {
+      transform: scale(0.996);
+    }
+
+    .reveal-card:focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: 3px;
+    }
+
+    /* Answer Card */
+    .answer-card {
+      padding: 26px 32px;
+      min-height: 96px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    /* Larger Context Card */
+    .context-card {
+      padding: 36px 38px;
+      min-height: 220px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    /* Hidden / Cover State */
+    .card-cover {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      color: var(--text-muted);
+      font-size: 1rem;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      user-select: none;
+      transition: color 180ms ease;
+    }
+
+    .reveal-card:hover .card-cover {
+      color: var(--text-primary);
+    }
+
+    .card-cover svg {
+      width: 19px;
+      height: 19px;
+      stroke: currentColor;
+      fill: none;
+      stroke-width: 2;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    /* Revealed Content State */
+    .card-content {
+      display: none;
+      padding-right: 22px;
+      animation: revealFade 200ms ease-out;
+    }
+
+    @keyframes revealFade {
+      from {
+        opacity: 0;
+        transform: translateY(4px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .reveal-card.is-revealed .card-cover {
+      display: none;
+    }
+
+    .reveal-card.is-revealed .card-content {
+      display: block;
+    }
+
+    .reveal-card.is-revealed {
+      border-color: var(--border-strong);
+    }
+
+    .answer-text {
+      font-size: calc(1.45rem * var(--text-scale));
+      font-weight: 600;
+      line-height: 1.4;
+      color: var(--accent);
+      transition: font-size 80ms linear, color var(--transition-theme);
+    }
+
+    .context-text {
+      font-family: 'Newsreader', Georgia, 'Times New Roman', serif;
+      font-size: calc(1.38rem * var(--text-scale));
+      font-weight: 400;
+      line-height: 1.65;
+      color: var(--text-primary);
+      transition: font-size 80ms linear, color var(--transition-theme);
+    }
+
+    .context-text mark {
+      background-color: var(--mark-bg);
+      color: var(--mark-text);
+      padding: 0.08em 0.24em;
+      border-radius: 6px;
+      box-decoration-break: clone;
+      -webkit-box-decoration-break: clone;
+      box-shadow: 0 0 0 1px var(--mark-ring);
+      transition: background-color var(--transition-theme), color var(--transition-theme);
+    }
+
+    /* =========================================
+       Discreet Vietnamese Flag Toggle (Content Only)
+       ========================================= */
+    .lang-flag-btn {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      z-index: 3;
+      appearance: none;
+      border: 1px solid transparent;
+      background: transparent;
+      width: 24px;
+      height: 18px;
+      padding: 3px;
+      border-radius: 5px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      opacity: 0.16;
+      filter: saturate(0.25);
+      transition: opacity 180ms ease, filter 180ms ease, transform 140ms ease, background-color 180ms ease, border-color 180ms ease;
+    }
+
+    .question-block .lang-flag-btn {
+      top: 10px;
+      right: 2px;
+    }
+
+    .reveal-card:not(.is-revealed) .lang-flag-btn {
+      display: none;
+    }
+
+    .question-block:hover .lang-flag-btn,
+    .reveal-card.is-revealed:hover .lang-flag-btn {
+      opacity: 0.45;
+      filter: saturate(0.8);
+    }
+
+    .lang-flag-btn:hover,
+    .lang-flag-btn:focus-visible {
+      opacity: 1 !important;
+      filter: saturate(1) !important;
+      background-color: var(--bg-surface-muted);
+      border-color: var(--border-subtle);
+      transform: scale(1.08);
+      outline: none;
+    }
+
+    .lang-flag-btn:active {
+      transform: scale(0.94);
+    }
+
+    .lang-flag-btn.is-vi {
+      opacity: 0.92;
+      filter: saturate(1);
+      background-color: var(--accent-soft);
+      border-color: var(--accent);
+    }
+
+    .lang-flag-btn svg {
+      width: 15px;
+      height: 10px;
+      display: block;
+      border-radius: 1.5px;
+      box-shadow: 0 0 0 0.5px rgba(0, 0, 0, 0.14);
+      pointer-events: none;
+    }
+
+    @media (hover: none) {
+      .lang-flag-btn {
+        opacity: 0.28;
+        filter: saturate(0.5);
+      }
+    }
+
+    /* =========================================
+       Subtle Bottom Prev / Next Controls
+       ========================================= */
+    .nav-footer {
+      width: 100%;
+      max-width: 960px;
+      margin-top: 28px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+    }
+
+    .nav-btn {
+      appearance: none;
+      border: 1px solid var(--border-subtle);
+      background-color: var(--bg-surface);
+      color: var(--text-primary);
+      font-family: inherit;
+      font-size: 0.95rem;
+      font-weight: 600;
+      padding: 12px 22px;
+      border-radius: 999px;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+      box-shadow: var(--shadow-card);
+      transition: background-color 180ms ease, border-color 180ms ease, transform 120ms ease, opacity 180ms ease;
+    }
+
+    .nav-btn:hover:not(:disabled) {
+      background-color: var(--bg-surface-muted);
+      border-color: var(--border-strong);
+    }
+
+    .nav-btn:active:not(:disabled) {
+      transform: scale(0.97);
+    }
+
+    .nav-btn:disabled {
+      opacity: 0.35;
+      cursor: not-allowed;
+      box-shadow: none;
+    }
+
+    .nav-btn svg {
+      width: 18px;
+      height: 18px;
+      stroke: currentColor;
+      fill: none;
+      stroke-width: 2;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    /* =========================================
+       Responsive Adjustments
+       ========================================= */
+    @media (max-width: 720px) {
+      .topbar-inner {
+        padding: 10px 14px;
+        gap: 10px;
+      }
+
+      .para-nav {
+        width: 100%;
+        justify-content: space-between;
+        gap: 4px;
+      }
+
+      .para-btn {
+        flex: 1;
+        padding: 6px 4px 8px;
+        font-size: 0.78rem;
+      }
+
+      .topbar-controls {
+        width: 100%;
+        justify-content: space-between;
+      }
+
+      .stage {
+        padding: 24px 16px 36px;
+      }
+
+      .answer-card {
+        padding: 20px 22px;
+        min-height: 82px;
+      }
+
+      .context-card {
+        padding: 24px 22px;
+        min-height: 180px;
+      }
+
+      .nav-btn {
+        padding: 11px 18px;
+        font-size: 0.9rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Minimal Top Navigation Bar -->
+  <header class="topbar">
+    <div class="topbar-inner">
+      <nav class="para-nav" id="paraNav" aria-label="Paragraph Navigation"></nav>
+
+      <div class="topbar-controls">
+        <div class="q-counter" id="qCounter" aria-live="polite">1 / 32</div>
+
+        <div class="slider-group" title="Adjust text size">
+          <span class="slider-label-sm" aria-hidden="true">A</span>
+          <input
+            type="range"
+            id="fontSlider"
+            class="font-slider"
+            min="0.85"
+            max="1.8"
+            step="0.05"
+            value="1.15"
+            aria-label="Text size"
+          />
+          <span class="slider-label-lg" aria-hidden="true">A</span>
+        </div>
+
+        <button
+          type="button"
+          id="themeToggle"
+          class="theme-btn"
+          aria-label="Toggle dark mode"
+          title="Toggle light/dark mode"
+        >
+          <!-- Moon icon (shown in light mode) -->
+          <svg id="iconMoon" viewBox="0 0 24 24">
+            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+          </svg>
+          <!-- Sun icon (shown in dark mode) -->
+          <svg id="iconSun" viewBox="0 0 24 24" style="display: none;">
+            <circle cx="12" cy="12" r="5"></circle>
+            <line x1="12" y1="1" x2="12" y2="3"></line>
+            <line x1="12" y1="21" x2="12" y2="23"></line>
+            <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+            <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+            <line x1="1" y1="12" x2="3" y2="12"></line>
+            <line x1="21" y1="12" x2="23" y2="12"></line>
+            <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+            <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+          </svg>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Single-Question Stage -->
+  <main class="stage">
+    <div class="stage-inner" id="stageInner">
+      <!-- Question Display -->
+      <section class="question-block">
+        <h1 class="question-text" id="questionText"></h1>
+        <button
+          type="button"
+          class="lang-flag-btn"
+          id="questionLangBtn"
+          aria-label="Toggle Vietnamese translation for question"
+          aria-pressed="false"
+        >
+          <svg viewBox="0 0 30 20" aria-hidden="true">
+            <rect width="30" height="20" fill="#DA251D" />
+            <polygon fill="#FFFF00" points="15,4.2 16.45,8.65 21.15,8.65 17.35,11.4 18.8,15.85 15,13.1 11.2,15.85 12.65,11.4 8.85,8.65 13.55,8.65" />
+          </svg>
+        </button>
+      </section>
+
+      <!-- Answer Card -->
+      <div
+        role="button"
+        tabindex="0"
+        class="reveal-card answer-card"
+        id="answerCard"
+        aria-expanded="false"
+      >
+        <span class="card-cover">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+            <circle cx="12" cy="12" r="3"></circle>
+          </svg>
+          Answer
+        </span>
+        <div class="card-content">
+          <p class="answer-text" id="answerText"></p>
+        </div>
+        <button
+          type="button"
+          class="lang-flag-btn"
+          id="answerLangBtn"
+          aria-label="Toggle Vietnamese translation for answer"
+          aria-pressed="false"
+        >
+          <svg viewBox="0 0 30 20" aria-hidden="true">
+            <rect width="30" height="20" fill="#DA251D" />
+            <polygon fill="#FFFF00" points="15,4.2 16.45,8.65 21.15,8.65 17.35,11.4 18.8,15.85 15,13.1 11.2,15.85 12.65,11.4 8.85,8.65 13.55,8.65" />
+          </svg>
+        </button>
+      </div>
+
+      <!-- Larger Story Context Card -->
+      <div
+        role="button"
+        tabindex="0"
+        class="reveal-card context-card"
+        id="contextCard"
+        aria-expanded="false"
+      >
+        <span class="card-cover">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
+            <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
+          </svg>
+          Story Context
+        </span>
+        <div class="card-content">
+          <p class="context-text" id="contextText"></p>
+        </div>
+        <button
+          type="button"
+          class="lang-flag-btn"
+          id="contextLangBtn"
+          aria-label="Toggle Vietnamese translation for story context"
+          aria-pressed="false"
+        >
+          <svg viewBox="0 0 30 20" aria-hidden="true">
+            <rect width="30" height="20" fill="#DA251D" />
+            <polygon fill="#FFFF00" points="15,4.2 16.45,8.65 21.15,8.65 17.35,11.4 18.8,15.85 15,13.1 11.2,15.85 12.65,11.4 8.85,8.65 13.55,8.65" />
+          </svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- Subtle Previous / Next Controls -->
+    <div class="nav-footer">
+      <button type="button" class="nav-btn" id="prevBtn" aria-label="Previous question">
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <polyline points="15 18 9 12 15 6"></polyline>
+        </svg>
+        Previous
+      </button>
+
+      <button type="button" class="nav-btn" id="nextBtn" aria-label="Next question">
+        Next
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <polyline points="9 18 15 12 9 6"></polyline>
+        </svg>
+      </button>
+    </div>
+  </main>
+
+  <script>
+    /* =========================================
+       Story Paragraphs (8 Paragraphs — A1 EN & VI)
+       ========================================= */
+    const PARAGRAPHS = [
+  "On Saturday morning, Linh woke up early. She is thirteen years old. She lives in a noisy apartment in Ho Chi Minh City. She put her clothes into a blue bag. Then she got on a big bus with her mom and dad. They went to her mother's hometown in the countryside to visit her grandparents. Linh loves her grandparents, but she was a little worried. The small village has very slow Wi-Fi. She was afraid she would be bored without her city friends.",
+  "The bus ride was two hours long. Soon, there were no tall buildings or busy motorbikes. Linh looked out the window. She saw green rice fields and many tall coconut trees. The bus stopped near a small bridge. Her grandmother and grandfather were there with big smiles. Linh got off the bus and took a deep breath. The country air was fresh and clean. It was very different from the city.",
+  "They walked on a quiet dirt road to her grandparents' old house. The house was next to a big brown river. Behind the house, there was a nice garden. It had mango trees, banana trees, and yellow flowers. Linh walked to the wooden gate. Suddenly, a small brown dog ran out to say hello. His name was Muc. He wagged his tail and jumped near her shoes. Linh laughed for the first time that day.",
+  "After lunch, Linh's cousin Nam came to the house on an old bike. He is twelve years old. \"Come on, Linh! Let's see the village!\" he said with a big smile. Linh took a bike from the yard and rode with him on the small road by the river. At first, she took out her phone, but there was no internet. She smiled, put her phone away, and rode faster with Nam.",
+  "They saw small wooden boats on the river. Friendly people waved hello from their gardens. Soon, Nam stopped at a small shop by the road. He bought two cold glasses of sweet sugarcane juice. They sat under a big tree and drank slowly in the warm wind. On the river, white ducks swam in a line. Linh forgot about her busy life in the city.",
+  "When they went back to the house, the evening sky was orange and pink. Linh went to the kitchen outside to help her grandmother. They washed green vegetables and made sour fish soup. The yard smelled good with garlic and hot white rice. When dinner was ready, the whole family sat on a big mat on the floor. They ate, talked, and laughed together.",
+  "After dinner, Linh sat outside on a wooden bench with her grandfather. The night air was cool. There were no bright street lights or tall buildings. The dark sky was full of shining stars. She heard frogs near the river and insects in the grass. Linh felt very calm and happy. She did not look at her phone all afternoon.",
+  "On Sunday afternoon, it was time to go back to Ho Chi Minh City. Linh packed her blue bag. Before they left, her grandmother gave her a big bag of sweet yellow mangoes and coconut candy for her friends at school. Linh gave her grandparents and Nam big hugs. She patted Muc on the head and said goodbye. On the bus, Linh looked out the window with a happy smile. She already wanted to visit again."
+];
+
+    const PARAGRAPHS_VI = [
+  "Sáng thứ Bảy, Linh thức dậy sớm. Em mười ba tuổi. Em sống trong một căn hộ ồn ào ở Thành phố Hồ Chí Minh. Em xếp quần áo vào một chiếc túi màu xanh dương. Sau đó, em lên một chiếc xe khách lớn cùng bố và mẹ. Cả nhà về quê mẹ ở miền quê để thăm ông bà ngoại. Linh rất thương ông bà, nhưng em hơi lo lắng. Ngôi làng nhỏ có Wi-Fi rất chậm. Em sợ mình sẽ buồn chán khi không có bạn bè ở thành phố.",
+  "Chuyến xe khách dài hai tiếng. Chẳng bao lâu, không còn những tòa nhà cao tầng hay dòng xe máy đông đúc nữa. Linh nhìn ra ngoài cửa sổ. Em thấy những cánh đồng lúa xanh và rất nhiều cây dừa cao. Xe khách dừng lại gần một cây cầu nhỏ. Bà ngoại và ông ngoại đã đứng đó với những nụ cười rạng rỡ. Linh bước xuống xe và hít một hơi thật sâu. Không khí ở quê thật trong lành và sạch sẽ. Nơi đây rất khác với thành phố.",
+  "Họ đi bộ trên một con đường đất yên tĩnh đến ngôi nhà cũ của ông bà. Ngôi nhà nằm cạnh một con sông lớn màu nâu. Phía sau nhà có một khu vườn đẹp. Khu vườn có cây xoài, cây chuối và những bông hoa màu vàng. Linh bước tới cánh cổng gỗ. Bỗng nhiên, một chú chó nhỏ màu nâu chạy ra chào đón. Tên của chú là Mực. Chú vẫy đuôi và nhảy quanh đôi giày của em. Linh bật cười lần đầu tiên trong ngày.",
+  "Sau bữa trưa, em họ của Linh là Nam đến nhà trên một chiếc xe đạp cũ. Cậu bé mười hai tuổi. \"Đi thôi chị Linh! Mình đi xem quanh làng nhé!\" cậu bé nói với một nụ cười thật tươi. Linh lấy một chiếc xe đạp trong sân rồi đạp cùng cậu trên con đường nhỏ bên bờ sông. Lúc đầu, em lấy điện thoại ra, nhưng không có mạng internet. Em mỉm cười, cất điện thoại đi rồi đạp nhanh hơn cùng Nam.",
+  "Họ nhìn thấy những chiếc thuyền gỗ nhỏ trên sông. Những người hàng xóm thân thiện vẫy tay chào từ trong vườn nhà họ. Chẳng mấy chốc, Nam dừng lại ở một quán nhỏ bên đường. Cậu mua hai ly nước mía ngọt mát lạnh. Hai đứa ngồi dưới một cái cây lớn và uống chậm rãi trong làn gió ấm. Trên sông, những chú vịt trắng bơi thành một hàng. Linh quên hẳn cuộc sống bận rộn ở thành phố.",
+  "Khi họ quay trở về nhà, bầu trời buổi chiều có màu cam và hồng. Linh đi ra gian bếp ngoài trời để giúp bà ngoại. Hai bà cháu rửa rau xanh và nấu canh chua cá. Cả sân thơm lừng mùi tỏi và cơm trắng nóng hổi. Khi bữa tối đã sẵn sàng, cả gia đình ngồi trên một chiếc chiếu lớn trên sàn nhà. Mọi người cùng ăn, trò chuyện và cười đùa vui vẻ.",
+  "Sau bữa tối, Linh ngồi ngoài sân trên một chiếc ghế gỗ cùng ông ngoại. Không khí ban đêm thật mát mẻ. Xung quanh không có đèn đường sáng chói hay những tòa nhà cao tầng. Bầu trời tối tràn ngập những vì sao lấp lánh. Em nghe thấy tiếng ếch gần bờ sông và tiếng côn trùng trong bãi cỏ. Linh cảm thấy rất bình yên và vui vẻ. Em đã không nhìn vào điện thoại suốt cả buổi chiều.",
+  "Chiều Chủ nhật, đã đến lúc trở về Thành phố Hồ Chí Minh. Linh xếp đồ vào chiếc túi màu xanh dương. Trước khi rời đi, bà ngoại đưa cho em một túi lớn đựng xoài chín vàng ngọt và kẹo dừa cho các bạn ở trường. Linh ôm thật chặt ông bà và Nam. Em vỗ nhẹ lên đầu chú chó Mực rồi nói lời tạm biệt. Trên xe khách, Linh nhìn ra cửa sổ với nụ cười hạnh phúc. Em đã muốn quay lại thăm quê lần nữa rồi."
+];
+
+    /* =========================================
+       32 Comprehension Questions (4 per Paragraph)
+       ========================================= */
+    const QUESTIONS = [
+  {
+    "p": 0,
+    "q": "Where does Linh live?",
+    "q_vi": "Linh sống ở đâu?",
+    "a": "She lives in a noisy apartment in Ho Chi Minh City.",
+    "a_vi": "Em sống trong một căn hộ ồn ào ở Thành phố Hồ Chí Minh.",
+    "highlight": "lives in a noisy apartment in Ho Chi Minh City",
+    "highlight_vi": "sống trong một căn hộ ồn ào ở Thành phố Hồ Chí Minh"
+  },
+  {
+    "p": 0,
+    "q": "How did Linh go to the countryside with her mom and dad?",
+    "q_vi": "Linh đã về quê cùng bố mẹ bằng cách nào?",
+    "a": "She got on a big bus.",
+    "a_vi": "Em đi bằng một chiếc xe khách lớn.",
+    "highlight": "got on a big bus with her mom and dad",
+    "highlight_vi": "lên một chiếc xe khách lớn cùng bố và mẹ"
+  },
+  {
+    "p": 0,
+    "q": "Who did they go to visit?",
+    "q_vi": "Họ đã về quê thăm ai?",
+    "a": "Her grandparents in her mother's hometown.",
+    "a_vi": "Ông bà ngoại ở quê mẹ của em.",
+    "highlight": "her mother's hometown in the countryside to visit her grandparents",
+    "highlight_vi": "quê mẹ ở miền quê để thăm ông bà ngoại"
+  },
+  {
+    "p": 0,
+    "q": "Why was Linh a little worried?",
+    "q_vi": "Tại sao Linh hơi lo lắng?",
+    "a": "The small village has very slow Wi-Fi, and she was afraid she would be bored without her city friends.",
+    "a_vi": "Ngôi làng nhỏ có Wi-Fi rất chậm, và em sợ mình sẽ buồn chán khi không có bạn bè ở thành phố.",
+    "highlight": "The small village has very slow Wi-Fi. She was afraid she would be bored without her city friends.",
+    "highlight_vi": "Ngôi làng nhỏ có Wi-Fi rất chậm. Em sợ mình sẽ buồn chán khi không có bạn bè ở thành phố."
+  },
+  {
+    "p": 1,
+    "q": "How long was the bus ride?",
+    "q_vi": "Chuyến xe khách kéo dài bao lâu?",
+    "a": "Two hours long.",
+    "a_vi": "Dài hai tiếng.",
+    "highlight": "The bus ride was two hours long.",
+    "highlight_vi": "Chuyến xe khách dài hai tiếng."
+  },
+  {
+    "p": 1,
+    "q": "What did Linh see out the window?",
+    "q_vi": "Linh nhìn thấy gì ngoài cửa sổ?",
+    "a": "Green rice fields and many tall coconut trees.",
+    "a_vi": "Những cánh đồng lúa xanh và rất nhiều cây dừa cao.",
+    "highlight": "green rice fields and many tall coconut trees",
+    "highlight_vi": "những cánh đồng lúa xanh và rất nhiều cây dừa cao"
+  },
+  {
+    "p": 1,
+    "q": "Where did the bus stop?",
+    "q_vi": "Xe khách đã dừng lại ở đâu?",
+    "a": "Near a small bridge.",
+    "a_vi": "Gần một cây cầu nhỏ.",
+    "highlight": "near a small bridge",
+    "highlight_vi": "gần một cây cầu nhỏ"
+  },
+  {
+    "p": 1,
+    "q": "How was the country air?",
+    "q_vi": "Không khí ở quê như thế nào?",
+    "a": "It was fresh and clean.",
+    "a_vi": "Không khí rất trong lành và sạch sẽ.",
+    "highlight": "The country air was fresh and clean.",
+    "highlight_vi": "Không khí ở quê thật trong lành và sạch sẽ."
+  },
+  {
+    "p": 2,
+    "q": "Where was her grandparents' old house?",
+    "q_vi": "Ngôi nhà cũ của ông bà nằm ở đâu?",
+    "a": "On a quiet dirt road, next to a big brown river.",
+    "a_vi": "Trên một con đường đất yên tĩnh, cạnh một con sông lớn màu nâu.",
+    "highlight": "on a quiet dirt road to her grandparents' old house. The house was next to a big brown river.",
+    "highlight_vi": "trên một con đường đất yên tĩnh đến ngôi nhà cũ của ông bà. Ngôi nhà nằm cạnh một con sông lớn màu nâu."
+  },
+  {
+    "p": 2,
+    "q": "What was in the garden behind the house?",
+    "q_vi": "Trong khu vườn phía sau nhà có gì?",
+    "a": "Mango trees, banana trees, and yellow flowers.",
+    "a_vi": "Cây xoài, cây chuối và những bông hoa màu vàng.",
+    "highlight": "mango trees, banana trees, and yellow flowers",
+    "highlight_vi": "cây xoài, cây chuối và những bông hoa màu vàng"
+  },
+  {
+    "p": 2,
+    "q": "Who ran out to say hello at the wooden gate?",
+    "q_vi": "Ai đã chạy ra chào đón ở cánh cổng gỗ?",
+    "a": "A small brown dog named Muc.",
+    "a_vi": "Một chú chó nhỏ màu nâu tên là Mực.",
+    "highlight": "a small brown dog ran out to say hello. His name was Muc.",
+    "highlight_vi": "một chú chó nhỏ màu nâu chạy ra chào đón. Tên của chú là Mực."
+  },
+  {
+    "p": 2,
+    "q": "What did Muc do that made Linh laugh?",
+    "q_vi": "Mực đã làm gì khiến Linh bật cười?",
+    "a": "He wagged his tail and jumped near her shoes.",
+    "a_vi": "Chú vẫy đuôi và nhảy quanh đôi giày của em.",
+    "highlight": "He wagged his tail and jumped near her shoes. Linh laughed for the first time that day.",
+    "highlight_vi": "Chú vẫy đuôi và nhảy quanh đôi giày của em. Linh bật cười lần đầu tiên trong ngày."
+  },
+  {
+    "p": 3,
+    "q": "Who came to the house after lunch on an old bike?",
+    "q_vi": "Ai đã đạp xe đạp cũ đến nhà sau bữa trưa?",
+    "a": "Linh's twelve-year-old cousin, Nam.",
+    "a_vi": "Em họ mười hai tuổi của Linh là Nam.",
+    "highlight": "Linh's cousin Nam came to the house on an old bike. He is twelve years old.",
+    "highlight_vi": "em họ của Linh là Nam đến nhà trên một chiếc xe đạp cũ. Cậu bé mười hai tuổi."
+  },
+  {
+    "p": 3,
+    "q": "Where did Linh and Nam ride their bikes?",
+    "q_vi": "Linh và Nam đã đạp xe ở đâu?",
+    "a": "On the small road by the river.",
+    "a_vi": "Trên con đường nhỏ bên bờ sông.",
+    "highlight": "on the small road by the river",
+    "highlight_vi": "trên con đường nhỏ bên bờ sông"
+  },
+  {
+    "p": 3,
+    "q": "Why did Linh put her phone away?",
+    "q_vi": "Tại sao Linh cất điện thoại đi?",
+    "a": "Because there was no internet.",
+    "a_vi": "Bởi vì không có mạng internet.",
+    "highlight": "there was no internet",
+    "highlight_vi": "không có mạng internet"
+  },
+  {
+    "p": 3,
+    "q": "What did Linh do after she put her phone away?",
+    "q_vi": "Linh đã làm gì sau khi cất điện thoại đi?",
+    "a": "She smiled and rode faster with Nam.",
+    "a_vi": "Em mỉm cười và đạp nhanh hơn cùng Nam.",
+    "highlight": "She smiled, put her phone away, and rode faster with Nam.",
+    "highlight_vi": "Em mỉm cười, cất điện thoại đi rồi đạp nhanh hơn cùng Nam."
+  },
+  {
+    "p": 4,
+    "q": "What did they see on the river and in the gardens?",
+    "q_vi": "Họ đã thấy gì trên sông và trong các khu vườn?",
+    "a": "Small wooden boats on the river and friendly people waving hello.",
+    "a_vi": "Những chiếc thuyền gỗ nhỏ trên sông và những người hàng xóm thân thiện vẫy tay chào.",
+    "highlight": "small wooden boats on the river. Friendly people waved hello from their gardens.",
+    "highlight_vi": "những chiếc thuyền gỗ nhỏ trên sông. Những người hàng xóm thân thiện vẫy tay chào từ trong vườn nhà họ."
+  },
+  {
+    "p": 4,
+    "q": "What did Nam buy at the small shop by the road?",
+    "q_vi": "Nam đã mua gì ở quán nhỏ bên đường?",
+    "a": "Two cold glasses of sweet sugarcane juice.",
+    "a_vi": "Hai ly nước mía ngọt mát lạnh.",
+    "highlight": "two cold glasses of sweet sugarcane juice",
+    "highlight_vi": "hai ly nước mía ngọt mát lạnh"
+  },
+  {
+    "p": 4,
+    "q": "Where did they sit to drink?",
+    "q_vi": "Họ đã ngồi đâu để uống nước mía?",
+    "a": "Under a big tree.",
+    "a_vi": "Dưới một cái cây lớn.",
+    "highlight": "under a big tree",
+    "highlight_vi": "dưới một cái cây lớn"
+  },
+  {
+    "p": 4,
+    "q": "What swam in a line on the river?",
+    "q_vi": "Con gì đã bơi thành một hàng trên sông?",
+    "a": "White ducks.",
+    "a_vi": "Những chú vịt trắng.",
+    "highlight": "white ducks swam in a line",
+    "highlight_vi": "những chú vịt trắng bơi thành một hàng"
+  },
+  {
+    "p": 5,
+    "q": "What colors was the evening sky?",
+    "q_vi": "Bầu trời buổi chiều có màu gì?",
+    "a": "Orange and pink.",
+    "a_vi": "Màu cam và hồng.",
+    "highlight": "orange and pink",
+    "highlight_vi": "màu cam và hồng"
+  },
+  {
+    "p": 5,
+    "q": "How did Linh help her grandmother in the kitchen outside?",
+    "q_vi": "Linh đã giúp bà ngoại làm gì ở gian bếp ngoài trời?",
+    "a": "They washed green vegetables and made sour fish soup.",
+    "a_vi": "Hai bà cháu rửa rau xanh và nấu canh chua cá.",
+    "highlight": "washed green vegetables and made sour fish soup",
+    "highlight_vi": "rửa rau xanh và nấu canh chua cá"
+  },
+  {
+    "p": 5,
+    "q": "What made the yard smell good?",
+    "q_vi": "Mùi gì làm cả sân thơm lừng?",
+    "a": "Garlic and hot white rice.",
+    "a_vi": "Mùi tỏi và cơm trắng nóng hổi.",
+    "highlight": "garlic and hot white rice",
+    "highlight_vi": "tỏi và cơm trắng nóng hổi"
+  },
+  {
+    "p": 5,
+    "q": "Where did the whole family sit for dinner?",
+    "q_vi": "Cả gia đình đã ngồi ăn tối ở đâu?",
+    "a": "On a big mat on the floor.",
+    "a_vi": "Trên một chiếc chiếu lớn trên sàn nhà.",
+    "highlight": "on a big mat on the floor",
+    "highlight_vi": "trên một chiếc chiếu lớn trên sàn nhà"
+  },
+  {
+    "p": 6,
+    "q": "Who did Linh sit with on the wooden bench?",
+    "q_vi": "Linh đã ngồi cùng ai trên chiếc ghế gỗ?",
+    "a": "Her grandfather.",
+    "a_vi": "Cùng ông ngoại.",
+    "highlight": "with her grandfather",
+    "highlight_vi": "cùng ông ngoại"
+  },
+  {
+    "p": 6,
+    "q": "Why was the dark sky full of shining stars?",
+    "q_vi": "Tại sao bầu trời tối lại tràn ngập những vì sao lấp lánh?",
+    "a": "Because there were no bright street lights or tall buildings.",
+    "a_vi": "Bởi vì xung quanh không có đèn đường sáng chói hay những tòa nhà cao tầng.",
+    "highlight": "There were no bright street lights or tall buildings.",
+    "highlight_vi": "Xung quanh không có đèn đường sáng chói hay những tòa nhà cao tầng."
+  },
+  {
+    "p": 6,
+    "q": "What did Linh hear at night?",
+    "q_vi": "Linh nghe thấy gì vào ban đêm?",
+    "a": "Frogs near the river and insects in the grass.",
+    "a_vi": "Tiếng ếch gần bờ sông và tiếng côn trùng trong bãi cỏ.",
+    "highlight": "frogs near the river and insects in the grass",
+    "highlight_vi": "tiếng ếch gần bờ sông và tiếng côn trùng trong bãi cỏ"
+  },
+  {
+    "p": 6,
+    "q": "How did Linh feel, and what did she not do all afternoon?",
+    "q_vi": "Linh cảm thấy thế nào, và em đã không làm gì suốt cả buổi chiều?",
+    "a": "She felt very calm and happy, and she did not look at her phone all afternoon.",
+    "a_vi": "Em cảm thấy rất bình yên và vui vẻ, và em đã không nhìn vào điện thoại suốt cả buổi chiều.",
+    "highlight": "Linh felt very calm and happy. She did not look at her phone all afternoon.",
+    "highlight_vi": "Linh cảm thấy rất bình yên và vui vẻ. Em đã không nhìn vào điện thoại suốt cả buổi chiều."
+  },
+  {
+    "p": 7,
+    "q": "When was it time to go back to Ho Chi Minh City?",
+    "q_vi": "Khi nào đến lúc trở về Thành phố Hồ Chí Minh?",
+    "a": "On Sunday afternoon.",
+    "a_vi": "Vào chiều Chủ nhật.",
+    "highlight": "On Sunday afternoon",
+    "highlight_vi": "Chiều Chủ nhật"
+  },
+  {
+    "p": 7,
+    "q": "What did her grandmother give her for her friends at school?",
+    "q_vi": "Bà ngoại đã đưa cho em thứ gì cho các bạn ở trường?",
+    "a": "A big bag of sweet yellow mangoes and coconut candy.",
+    "a_vi": "Một túi lớn đựng xoài chín vàng ngọt và kẹo dừa.",
+    "highlight": "a big bag of sweet yellow mangoes and coconut candy for her friends at school",
+    "highlight_vi": "một túi lớn đựng xoài chín vàng ngọt và kẹo dừa cho các bạn ở trường"
+  },
+  {
+    "p": 7,
+    "q": "How did Linh say goodbye to Muc?",
+    "q_vi": "Linh đã tạm biệt chú chó Mực như thế nào?",
+    "a": "She patted Muc on the head and said goodbye.",
+    "a_vi": "Em vỗ nhẹ lên đầu chú chó Mực rồi nói lời tạm biệt.",
+    "highlight": "She patted Muc on the head and said goodbye.",
+    "highlight_vi": "Em vỗ nhẹ lên đầu chú chó Mực rồi nói lời tạm biệt."
+  },
+  {
+    "p": 7,
+    "q": "What did Linh already want to do on the bus?",
+    "q_vi": "Trên xe khách, Linh đã muốn làm gì?",
+    "a": "She already wanted to visit again.",
+    "a_vi": "Em đã muốn quay lại thăm quê lần nữa rồi.",
+    "highlight": "She already wanted to visit again.",
+    "highlight_vi": "Em đã muốn quay lại thăm quê lần nữa rồi."
+  }
+];
+
+    /* =========================================
+       App State & DOM References
+       ========================================= */
+    let currentIndex = 0;
+    const langState = {
+      question: false,
+      answer: false,
+      context: false
+    };
+
+    const paraNav = document.getElementById("paraNav");
+    const qCounter = document.getElementById("qCounter");
+    const fontSlider = document.getElementById("fontSlider");
+    const themeToggle = document.getElementById("themeToggle");
+    const iconMoon = document.getElementById("iconMoon");
+    const iconSun = document.getElementById("iconSun");
+
+    const stageInner = document.getElementById("stageInner");
+    const questionText = document.getElementById("questionText");
+    const answerCard = document.getElementById("answerCard");
+    const answerText = document.getElementById("answerText");
+    const contextCard = document.getElementById("contextCard");
+    const contextText = document.getElementById("contextText");
+    const prevBtn = document.getElementById("prevBtn");
+    const nextBtn = document.getElementById("nextBtn");
+
+    const questionLangBtn = document.getElementById("questionLangBtn");
+    const answerLangBtn = document.getElementById("answerLangBtn");
+    const contextLangBtn = document.getElementById("contextLangBtn");
+
+    /* =========================================
+       Helpers
+       ========================================= */
+    function escapeHTML(str) {
+      return str
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#39;");
+    }
+
+    function buildHighlightedParagraph(paragraph, highlight) {
+      const idx = paragraph.indexOf(highlight);
+      if (idx === -1) {
+        return escapeHTML(paragraph);
+      }
+      const before = escapeHTML(paragraph.slice(0, idx));
+      const match = escapeHTML(paragraph.slice(idx, idx + highlight.length));
+      const after = escapeHTML(paragraph.slice(idx + highlight.length));
+      return `${before}<mark>${match}</mark>${after}`;
+    }
+
+    /* =========================================
+       Render Individual Content Slots (EN / VI)
+       ========================================= */
+    function renderQuestionText() {
+      const item = QUESTIONS[currentIndex];
+      const isVi = langState.question;
+      questionText.textContent = isVi ? item.q_vi : item.q;
+      questionText.setAttribute("lang", isVi ? "vi" : "en");
+      questionLangBtn.classList.toggle("is-vi", isVi);
+      questionLangBtn.setAttribute("aria-pressed", String(isVi));
+    }
+
+    function renderAnswerText() {
+      const item = QUESTIONS[currentIndex];
+      const isVi = langState.answer;
+      answerText.textContent = isVi ? item.a_vi : item.a;
+      answerText.setAttribute("lang", isVi ? "vi" : "en");
+      answerLangBtn.classList.toggle("is-vi", isVi);
+      answerLangBtn.setAttribute("aria-pressed", String(isVi));
+    }
+
+    function renderContextText() {
+      const item = QUESTIONS[currentIndex];
+      const isVi = langState.context;
+      const paragraph = isVi ? PARAGRAPHS_VI[item.p] : PARAGRAPHS[item.p];
+      const highlight = isVi ? item.highlight_vi : item.highlight;
+      contextText.innerHTML = buildHighlightedParagraph(paragraph, highlight);
+      contextText.setAttribute("lang", isVi ? "vi" : "en");
+      contextLangBtn.classList.toggle("is-vi", isVi);
+      contextLangBtn.setAttribute("aria-pressed", String(isVi));
+    }
+
+    /* =========================================
+       Build Paragraph Navigation (P1 - P8)
+       ========================================= */
+    function initParagraphNav() {
+      paraNav.innerHTML = "";
+      for (let i = 0; i < 8; i++) {
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = "para-btn";
+        btn.dataset.para = i;
+        btn.setAttribute("aria-label", `Paragraph ${i + 1}`);
+
+        const label = document.createElement("span");
+        label.textContent = `P${i + 1}`;
+
+        const dots = document.createElement("span");
+        dots.className = "para-dots";
+        dots.setAttribute("aria-hidden", "true");
+        for (let d = 0; d < 4; d++) {
+          const dot = document.createElement("span");
+          dot.className = "para-dot";
+          dots.appendChild(dot);
+        }
+
+        btn.appendChild(label);
+        btn.appendChild(dots);
+
+        btn.addEventListener("click", () => {
+          goToQuestion(i * 4);
+        });
+
+        paraNav.appendChild(btn);
+      }
+    }
+
+    function updateParagraphNav() {
+      const activePara = QUESTIONS[currentIndex].p;
+      const posInPara = currentIndex % 4; // 0, 1, 2, or 3
+
+      const buttons = paraNav.querySelectorAll(".para-btn");
+      buttons.forEach((btn, idx) => {
+        const isActive = idx === activePara;
+        btn.classList.toggle("active", isActive);
+        btn.setAttribute("aria-current", isActive ? "true" : "false");
+
+        const dots = btn.querySelectorAll(".para-dot");
+        dots.forEach((dot, dIdx) => {
+          dot.classList.toggle("filled", isActive && dIdx <= posInPara);
+        });
+      });
+    }
+
+    /* =========================================
+       Render Active Question
+       ========================================= */
+    function resetCards() {
+      answerCard.classList.remove("is-revealed");
+      answerCard.setAttribute("aria-expanded", "false");
+      contextCard.classList.remove("is-revealed");
+      contextCard.setAttribute("aria-expanded", "false");
+
+      langState.question = false;
+      langState.answer = false;
+      langState.context = false;
+    }
+
+    function renderQuestion() {
+      // Reset cards and language toggles to English
+      resetCards();
+
+      // Update text content
+      renderQuestionText();
+      renderAnswerText();
+      renderContextText();
+
+      // Update counter & nav
+      qCounter.textContent = `${currentIndex + 1} / ${QUESTIONS.length}`;
+      prevBtn.disabled = currentIndex === 0;
+      nextBtn.disabled = currentIndex === QUESTIONS.length - 1;
+      updateParagraphNav();
+
+      // Subtle re-trigger of entrance animation
+      stageInner.style.animation = "none";
+      void stageInner.offsetWidth;
+      stageInner.style.animation = "";
+    }
+
+    function goToQuestion(index) {
+      if (index < 0 || index >= QUESTIONS.length) return;
+      currentIndex = index;
+      renderQuestion();
+    }
+
+    /* =========================================
+       Event Listeners
+       ========================================= */
+    function toggleCard(card) {
+      const revealed = card.classList.toggle("is-revealed");
+      card.setAttribute("aria-expanded", String(revealed));
+    }
+
+    function bindCardReveal(card) {
+      card.addEventListener("click", (e) => {
+        if (e.target.closest(".lang-flag-btn")) return;
+        toggleCard(card);
+      });
+
+      card.addEventListener("keydown", (e) => {
+        if (e.target !== card) return;
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          toggleCard(card);
+        }
+      });
+    }
+
+    bindCardReveal(answerCard);
+    bindCardReveal(contextCard);
+
+    // Discreet Vietnamese Flag Toggles (per card, content only)
+    questionLangBtn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      langState.question = !langState.question;
+      renderQuestionText();
+    });
+
+    answerLangBtn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      langState.answer = !langState.answer;
+      renderAnswerText();
+    });
+
+    contextLangBtn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      langState.context = !langState.context;
+      renderContextText();
+    });
+
+    // Previous / Next Buttons
+    prevBtn.addEventListener("click", () => goToQuestion(currentIndex - 1));
+    nextBtn.addEventListener("click", () => goToQuestion(currentIndex + 1));
+
+    // Keyboard Arrow Navigation
+    document.addEventListener("keydown", (e) => {
+      if (e.target.tagName === "INPUT") return;
+      if (e.key === "ArrowRight") {
+        goToQuestion(currentIndex + 1);
+      } else if (e.key === "ArrowLeft") {
+        goToQuestion(currentIndex - 1);
+      }
+    });
+
+    // Dynamic Font-Size Slider
+    fontSlider.addEventListener("input", (e) => {
+      document.documentElement.style.setProperty("--text-scale", e.target.value);
+    });
+
+    // Light / Dark Mode Toggle
+    function setTheme(theme) {
+      document.documentElement.setAttribute("data-theme", theme);
+      const isDark = theme === "dark";
+      iconMoon.style.display = isDark ? "none" : "block";
+      iconSun.style.display = isDark ? "block" : "none";
+      themeToggle.setAttribute("aria-label", isDark ? "Switch to light mode" : "Switch to dark mode");
+    }
+
+    themeToggle.addEventListener("click", () => {
+      const current = document.documentElement.getAttribute("data-theme");
+      setTheme(current === "dark" ? "light" : "dark");
+    });
+
+    // Initialize
+    initParagraphNav();
+    renderQuestion();
+  </script>
+</body>
+</html>
