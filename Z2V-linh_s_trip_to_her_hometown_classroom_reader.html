@@ -1,0 +1,1353 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Linh's Trip to Her Hometown — Classroom Reader</title>
+  <style>
+    /* ==========================================================================
+       DESIGN TOKENS & THEME PALETTES (Antique Parchment Light & Espresso Dark)
+       ========================================================================== */
+    :root {
+      /* Light Mode (Default: Warm Antique Parchment & Ivory) */
+      --bg-outer: #f2eadb;
+      --bg-card: #fbf7ee;
+      --bg-toolbar: rgba(251, 247, 238, 0.94);
+      --bg-subtle: #eee4d2;
+      --bg-hover: #e8dcc6;
+      --border-color: #e2d6be;
+      --border-strong: #d3c2a3;
+      --text-primary: #2b241c;
+      --text-secondary: #6d5f4e;
+      --accent: #b85d2b;
+      --accent-hover: #9c4c20;
+      --accent-text: #fbf7ee;
+      --shadow-card: 0 12px 36px rgba(43, 36, 28, 0.08), 0 2px 8px rgba(43, 36, 28, 0.04);
+      --shadow-bar: 0 4px 16px rgba(43, 36, 28, 0.06);
+
+      /* Sentence Hover & Highlight Colors (Light Mode - High Contrast) */
+      --sentence-hover-bg: rgba(184, 93, 43, 0.09);
+      --sentence-hover-underline: rgba(184, 93, 43, 0.35);
+
+      --hl-amber-bg: #f6d88b;
+      --hl-amber-text: #261d12;
+      --hl-amber-swatch: #e5b340;
+
+      --hl-sage-bg: #cde2c6;
+      --hl-sage-text: #1c2918;
+      --hl-sage-swatch: #7ba672;
+
+      --hl-sky-bg: #c6dfef;
+      --hl-sky-text: #162836;
+      --hl-sky-swatch: #679ec2;
+
+      /* Typography */
+      --font-reading: Georgia, "Iowan Old Style", "Palatino Linotype", "Book Antiqua", Palatino, serif;
+      --font-ui: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      --reading-size: 34px;
+      --radius-lg: 18px;
+      --radius-md: 12px;
+      --radius-sm: 8px;
+      --radius-pill: 999px;
+      --transition-fast: 0.18s ease;
+      --transition-theme: 0.28s ease;
+    }
+
+    [data-theme="dark"] {
+      /* Dark Mode (Warm Deep Charcoal / Espresso) */
+      --bg-outer: #161412;
+      --bg-card: #211e1a;
+      --bg-toolbar: rgba(33, 30, 26, 0.94);
+      --bg-subtle: #2b2722;
+      --bg-hover: #353029;
+      --border-color: #353029;
+      --border-strong: #4a4339;
+      --text-primary: #efe8d8;
+      --text-secondary: #a89d8b;
+      --accent: #e59a54;
+      --accent-hover: #f0ab6a;
+      --accent-text: #1a1612;
+      --shadow-card: 0 16px 40px rgba(0, 0, 0, 0.42), 0 2px 10px rgba(0, 0, 0, 0.25);
+      --shadow-bar: 0 4px 16px rgba(0, 0, 0, 0.35);
+
+      /* Sentence Hover & Highlight Colors (Dark Mode - Crisp Accessible Contrast) */
+      --sentence-hover-bg: rgba(229, 154, 84, 0.14);
+      --sentence-hover-underline: rgba(229, 154, 84, 0.45);
+
+      --hl-amber-bg: #6b4e18;
+      --hl-amber-text: #fff4d6;
+      --hl-amber-swatch: #e5b340;
+
+      --hl-sage-bg: #2e4d30;
+      --hl-sage-text: #e3f5e4;
+      --hl-sage-swatch: #7ba672;
+
+      --hl-sky-bg: #234761;
+      --hl-sky-text: #e0f2ff;
+      --hl-sky-swatch: #679ec2;
+    }
+
+    /* ==========================================================================
+       RESET & BASE LAYOUT
+       ========================================================================== */
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html, body {
+      min-height: 100%;
+      background-color: var(--bg-outer);
+      color: var(--text-primary);
+      font-family: var(--font-ui);
+      transition: background-color var(--transition-theme), color var(--transition-theme);
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    body {
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+
+    button {
+      font-family: inherit;
+      cursor: pointer;
+      border: none;
+      background: none;
+      color: inherit;
+      touch-action: manipulation;
+    }
+
+    button:focus-visible,
+    input[type="range"]:focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: 2px;
+    }
+
+    /* ==========================================================================
+       TOP TOOLBAR
+       ========================================================================== */
+    .toolbar {
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      background-color: var(--bg-toolbar);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      border-bottom: 1px solid var(--border-color);
+      box-shadow: var(--shadow-bar);
+      transition: background-color var(--transition-theme), border-color var(--transition-theme);
+    }
+
+    .toolbar-inner {
+      max-width: 1120px;
+      margin: 0 auto;
+      padding: 12px 20px;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px 18px;
+    }
+
+    .brand {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      min-width: 180px;
+    }
+
+    .brand-title {
+      font-family: var(--font-reading);
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: var(--text-primary);
+      letter-spacing: -0.01em;
+      line-height: 1.2;
+    }
+
+    .brand-subtitle {
+      font-size: 0.78rem;
+      color: var(--text-secondary);
+      letter-spacing: 0.01em;
+    }
+
+    .controls-group {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .control-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background-color: var(--bg-subtle);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-pill);
+      padding: 5px 10px;
+      transition: background-color var(--transition-fast), border-color var(--transition-fast);
+    }
+
+    /* Font Size Slider Control */
+    .font-control {
+      gap: 8px;
+      padding: 4px 10px;
+    }
+
+    .btn-step {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1rem;
+      font-weight: 600;
+      color: var(--text-primary);
+      background-color: var(--bg-card);
+      border: 1px solid var(--border-color);
+      transition: background-color var(--transition-fast), transform 0.1s ease;
+    }
+
+    .btn-step:hover {
+      background-color: var(--bg-hover);
+    }
+
+    .btn-step:active {
+      transform: scale(0.94);
+    }
+
+    .font-slider {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 96px;
+      height: 6px;
+      border-radius: var(--radius-pill);
+      background: var(--border-strong);
+      cursor: pointer;
+    }
+
+    .font-slider::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: var(--accent);
+      border: 2px solid var(--bg-card);
+      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.25);
+      cursor: pointer;
+      transition: transform 0.12s ease;
+    }
+
+    .font-slider::-webkit-slider-thumb:hover {
+      transform: scale(1.12);
+    }
+
+    .font-slider::-moz-range-thumb {
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: var(--accent);
+      border: 2px solid var(--bg-card);
+      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.25);
+      cursor: pointer;
+    }
+
+    .font-readout {
+      font-size: 0.8rem;
+      font-weight: 600;
+      font-variant-numeric: tabular-nums;
+      color: var(--text-secondary);
+      min-width: 34px;
+      text-align: right;
+    }
+
+    /* Highlighter Swatches */
+    .highlighter-control {
+      gap: 7px;
+      padding: 4px 10px;
+    }
+
+    .swatch-btn {
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      border: 2px solid transparent;
+      transition: transform 0.15s ease, box-shadow 0.15s ease;
+      position: relative;
+    }
+
+    .swatch-btn[data-color="amber"] { background-color: var(--hl-amber-swatch); }
+    .swatch-btn[data-color="sage"]  { background-color: var(--hl-sage-swatch); }
+    .swatch-btn[data-color="sky"]   { background-color: var(--hl-sky-swatch); }
+
+    .swatch-btn:hover {
+      transform: scale(1.12);
+    }
+
+    .swatch-btn.active {
+      border-color: var(--text-primary);
+      box-shadow: 0 0 0 2px var(--bg-card) inset;
+      transform: scale(1.08);
+    }
+
+    .btn-clear {
+      font-size: 0.78rem;
+      font-weight: 600;
+      color: var(--text-secondary);
+      padding: 4px 9px;
+      border-radius: var(--radius-pill);
+      transition: background-color var(--transition-fast), color var(--transition-fast);
+    }
+
+    .btn-clear:hover {
+      background-color: var(--bg-hover);
+      color: var(--text-primary);
+    }
+
+    /* Action Buttons (View Toggle, Sound, Theme) */
+    .btn-action {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      height: 36px;
+      padding: 0 12px;
+      border-radius: var(--radius-pill);
+      background-color: var(--bg-subtle);
+      border: 1px solid var(--border-color);
+      color: var(--text-primary);
+      font-size: 0.82rem;
+      font-weight: 600;
+      transition: background-color var(--transition-fast), border-color var(--transition-fast), transform 0.1s ease;
+    }
+
+    .btn-action:hover {
+      background-color: var(--bg-hover);
+      border-color: var(--border-strong);
+    }
+
+    .btn-action:active {
+      transform: scale(0.96);
+    }
+
+    .btn-icon-only {
+      width: 36px;
+      padding: 0;
+    }
+
+    .btn-action svg {
+      width: 18px;
+      height: 18px;
+      flex-shrink: 0;
+    }
+
+    /* ==========================================================================
+       MAIN READING STAGE
+       ========================================================================== */
+    .stage {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 28px 20px 24px;
+      width: 100%;
+    }
+
+    .reading-card {
+      width: 100%;
+      max-width: 960px;
+      background-color: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-card);
+      padding: clamp(28px, 5vw, 60px) clamp(24px, 6vw, 68px);
+      transition: background-color var(--transition-theme), border-color var(--transition-theme), box-shadow var(--transition-theme);
+      position: relative;
+    }
+
+    .paragraph-meta {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 22px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .paragraph-label {
+      font-size: 0.82rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--accent);
+    }
+
+    .paragraph-hint {
+      font-size: 0.8rem;
+      color: var(--text-secondary);
+    }
+
+    /* Paragraph Text & Clickable Sentences */
+    .story-paragraph {
+      font-family: var(--font-reading);
+      font-size: var(--reading-size);
+      line-height: 1.72;
+      color: var(--text-primary);
+      letter-spacing: 0.005em;
+      word-spacing: 0.02em;
+      animation: fadeSlideIn 0.24s ease-out;
+    }
+
+    @keyframes fadeSlideIn {
+      from {
+        opacity: 0;
+        transform: translateY(6px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .sentence {
+      display: inline;
+      cursor: pointer;
+      border-radius: 6px;
+      padding: 2px 4px;
+      margin: 0 -2px;
+      box-decoration-break: clone;
+      -webkit-box-decoration-break: clone;
+      transition: background-color 0.16s ease, color 0.16s ease, text-decoration-color 0.16s ease;
+    }
+
+    .sentence:hover {
+      background-color: var(--sentence-hover-bg);
+      text-decoration: underline;
+      text-decoration-color: var(--sentence-hover-underline);
+      text-decoration-thickness: 2px;
+      text-underline-offset: 4px;
+    }
+
+    .sentence.hl-amber {
+      background-color: var(--hl-amber-bg);
+      color: var(--hl-amber-text);
+      text-decoration: none;
+    }
+
+    .sentence.hl-sage {
+      background-color: var(--hl-sage-bg);
+      color: var(--hl-sage-text);
+      text-decoration: none;
+    }
+
+    .sentence.hl-sky {
+      background-color: var(--hl-sky-bg);
+      color: var(--hl-sky-text);
+      text-decoration: none;
+    }
+
+    /* All Paragraphs View Styling */
+    .all-paragraphs-container {
+      display: flex;
+      flex-direction: column;
+      gap: 36px;
+    }
+
+    .all-paragraph-block {
+      padding-bottom: 28px;
+      border-bottom: 1px dashed var(--border-color);
+    }
+
+    .all-paragraph-block:last-of-type {
+      border-bottom: none;
+      padding-bottom: 0;
+    }
+
+    .all-paragraph-num {
+      font-family: var(--font-ui);
+      font-size: 0.76rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--accent);
+      margin-bottom: 10px;
+      display: block;
+    }
+
+    /* Tasteful "THE END" Flourish */
+    .the-end {
+      margin-top: 34px;
+      padding-top: 22px;
+      border-top: 1px solid var(--border-color);
+      text-align: center;
+      font-family: var(--font-reading);
+      font-size: 1.05rem;
+      font-style: italic;
+      letter-spacing: 0.18em;
+      color: var(--text-secondary);
+      user-select: none;
+    }
+
+    /* ==========================================================================
+       BOTTOM NAVIGATION BAR
+       ========================================================================== */
+    .nav-footer {
+      width: 100%;
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 4px 20px 26px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .nav-footer.hidden {
+      display: none;
+    }
+
+    .nav-bar {
+      width: 100%;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      background-color: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-lg);
+      padding: 12px 18px;
+      box-shadow: var(--shadow-bar);
+      transition: background-color var(--transition-theme), border-color var(--transition-theme);
+    }
+
+    .btn-nav {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 10px 20px;
+      border-radius: var(--radius-md);
+      font-size: 0.95rem;
+      font-weight: 600;
+      background-color: var(--accent);
+      color: var(--accent-text);
+      transition: background-color var(--transition-fast), transform 0.1s ease, opacity var(--transition-fast);
+      min-width: 126px;
+    }
+
+    .btn-nav:hover:not(:disabled) {
+      background-color: var(--accent-hover);
+    }
+
+    .btn-nav:active:not(:disabled) {
+      transform: scale(0.97);
+    }
+
+    .btn-nav:disabled {
+      opacity: 0.38;
+      cursor: not-allowed;
+    }
+
+    .btn-nav svg {
+      width: 18px;
+      height: 18px;
+    }
+
+    .nav-center {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .nav-counter {
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--text-secondary);
+      letter-spacing: 0.02em;
+    }
+
+    .pills-row {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 6px;
+    }
+
+    .pill-btn {
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--text-secondary);
+      background-color: var(--bg-subtle);
+      border: 1px solid var(--border-color);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      transition: all var(--transition-fast);
+    }
+
+    .pill-btn:hover {
+      background-color: var(--bg-hover);
+      color: var(--text-primary);
+    }
+
+    .pill-btn.active {
+      background-color: var(--accent);
+      color: var(--accent-text);
+      border-color: var(--accent);
+      transform: scale(1.06);
+    }
+
+    .shortcuts-hint {
+      font-size: 0.76rem;
+      color: var(--text-secondary);
+      text-align: center;
+      opacity: 0.85;
+    }
+
+    .shortcuts-hint kbd {
+      display: inline-block;
+      padding: 1px 6px;
+      font-family: var(--font-ui);
+      font-size: 0.72rem;
+      font-weight: 600;
+      background-color: var(--bg-card);
+      border: 1px solid var(--border-strong);
+      border-radius: 5px;
+      margin: 0 2px;
+    }
+
+    /* ==========================================================================
+       RESPONSIVE ADJUSTMENTS
+       ========================================================================== */
+    @media (max-width: 768px) {
+      .toolbar-inner {
+        padding: 10px 14px;
+        gap: 10px;
+      }
+
+      .brand {
+        width: 100%;
+      }
+
+      .controls-group {
+        width: 100%;
+        justify-content: space-between;
+      }
+
+      .font-slider {
+        width: 76px;
+      }
+
+      .stage {
+        padding: 18px 12px 16px;
+      }
+
+      .nav-footer {
+        padding: 4px 12px 20px;
+      }
+
+      .nav-bar {
+        justify-content: center;
+        padding: 12px;
+      }
+
+      .btn-nav {
+        flex: 1;
+        min-width: 110px;
+        padding: 10px 14px;
+      }
+
+      .nav-center {
+        order: -1;
+        width: 100%;
+      }
+
+      .shortcuts-hint {
+        display: none;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- ========================================================================
+       TOP TOOLBAR
+       ======================================================================== -->
+  <header class="toolbar" role="banner">
+    <div class="toolbar-inner">
+      <div class="brand">
+        <h1 class="brand-title">Linh's Trip to Her Hometown</h1>
+        <p class="brand-subtitle">A short story for pre-teen English learners</p>
+      </div>
+
+      <div class="controls-group" role="toolbar" aria-label="Reading controls">
+        <!-- View Mode Toggle -->
+        <button type="button" id="btnViewToggle" class="btn-action" title="Switch between Single Paragraph and All Paragraphs">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <rect x="3" y="4" width="18" height="16" rx="2"></rect>
+            <line x1="7" y1="9" x2="17" y2="9"></line>
+            <line x1="7" y1="13" x2="17" y2="13"></line>
+            <line x1="7" y1="17" x2="13" y2="17"></line>
+          </svg>
+          <span id="viewToggleLabel">All Paragraphs</span>
+        </button>
+
+        <!-- Adjustable Font Size Slider -->
+        <div class="control-pill font-control" aria-label="Font size controls">
+          <button type="button" id="btnFontDown" class="btn-step" aria-label="Decrease font size" title="Decrease font size (-)">−</button>
+          <input
+            type="range"
+            id="fontSlider"
+            class="font-slider"
+            min="20"
+            max="64"
+            step="1"
+            value="34"
+            aria-label="Font size in pixels"
+          />
+          <button type="button" id="btnFontUp" class="btn-step" aria-label="Increase font size" title="Increase font size (+)">+</button>
+          <span id="fontReadout" class="font-readout" aria-live="polite">34px</span>
+        </div>
+
+        <!-- 3-Color Highlighter Selector + Clear -->
+        <div class="control-pill highlighter-control" aria-label="Sentence highlighter">
+          <button type="button" class="swatch-btn active" data-color="amber" aria-label="Warm Amber highlighter" title="Warm Amber highlighter"></button>
+          <button type="button" class="swatch-btn" data-color="sage" aria-label="Soft Sage Green highlighter" title="Soft Sage Green highlighter"></button>
+          <button type="button" class="swatch-btn" data-color="sky" aria-label="Soft Sky Blue highlighter" title="Soft Sky Blue highlighter"></button>
+          <button type="button" id="btnClearHighlights" class="btn-clear" title="Clear highlights (C)">Clear</button>
+        </div>
+
+        <!-- Sound Toggle -->
+        <button type="button" id="btnSoundToggle" class="btn-action btn-icon-only" aria-label="Toggle sound effects" title="Sound On">
+          <!-- Icon updated dynamically -->
+        </button>
+
+        <!-- Light / Dark Mode Toggle -->
+        <button type="button" id="btnThemeToggle" class="btn-action btn-icon-only" aria-label="Toggle Light and Dark mode" title="Toggle Light/Dark mode (D)">
+          <!-- Icon updated dynamically -->
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- ========================================================================
+       MAIN READING STAGE
+       ======================================================================== -->
+  <main class="stage" role="main">
+    <article class="reading-card" id="readingCard" aria-live="polite">
+      <!-- Content rendered dynamically by JavaScript -->
+    </article>
+  </main>
+
+  <!-- ========================================================================
+       BOTTOM NAVIGATION BAR (Single View)
+       ======================================================================== -->
+  <footer class="nav-footer" id="navFooter" role="navigation" aria-label="Paragraph navigation">
+    <div class="nav-bar">
+      <button type="button" id="btnPrev" class="btn-nav" aria-label="Previous paragraph">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <polyline points="15 18 9 12 15 6"></polyline>
+        </svg>
+        <span>Previous</span>
+      </button>
+
+      <div class="nav-center">
+        <div id="navCounter" class="nav-counter">Paragraph 1 of 8</div>
+        <div id="pillsRow" class="pills-row" role="tablist" aria-label="Jump to paragraph">
+          <!-- Numbered pills 1–8 rendered dynamically -->
+        </div>
+      </div>
+
+      <button type="button" id="btnNext" class="btn-nav" aria-label="Next paragraph">
+        <span>Next</span>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <polyline points="9 18 15 12 9 6"></polyline>
+        </svg>
+      </button>
+    </div>
+
+    <div class="shortcuts-hint">
+      Shortcuts: <kbd>←</kbd> <kbd>→</kbd> navigate · <kbd>+</kbd> <kbd>−</kbd> text size · <kbd>D</kbd> theme · <kbd>C</kbd> clear highlights
+    </div>
+  </footer>
+
+  <!-- ========================================================================
+       APPLICATION LOGIC (Vanilla JS + Web Audio API)
+       ======================================================================== -->
+  <script>
+    (function () {
+      "use strict";
+
+      /* ----------------------------------------------------------------------
+         1. EXACT STORY DATA (8 Paragraphs, Individual Sentences)
+         ---------------------------------------------------------------------- */
+      const STORY_PARAGRAPHS = [
+        [
+          "On Saturday morning, Linh woke up early.",
+          "She is thirteen years old.",
+          "She lives in a noisy apartment in Ho Chi Minh City.",
+          "She put her clothes into a blue bag.",
+          "Then she got on a big bus with her mom and dad.",
+          "They went to her mother's hometown in the countryside to visit her grandparents.",
+          "Linh loves her grandparents, but she was a little worried.",
+          "The small village has very slow Wi-Fi.",
+          "She was afraid she would be bored without her city friends."
+        ],
+        [
+          "The bus ride was two hours long.",
+          "Soon, there were no tall buildings or busy motorbikes.",
+          "Linh looked out the window.",
+          "She saw green rice fields and many tall coconut trees.",
+          "The bus stopped near a small bridge.",
+          "Her grandmother and grandfather were there with big smiles.",
+          "Linh got off the bus and took a deep breath.",
+          "The country air was fresh and clean.",
+          "It was very different from the city."
+        ],
+        [
+          "They walked on a quiet dirt road to her grandparents' old house.",
+          "The house was next to a big brown river.",
+          "Behind the house, there was a nice garden.",
+          "It had mango trees, banana trees, and yellow flowers.",
+          "Linh walked to the wooden gate.",
+          "Suddenly, a small brown dog ran out to say hello.",
+          "His name was Muc.",
+          "He wagged his tail and jumped near her shoes.",
+          "Linh laughed for the first time that day."
+        ],
+        [
+          "After lunch, Linh's cousin Nam came to the house on an old bike.",
+          "He is twelve years old.",
+          "\"Come on, Linh! Let's see the village!\" he said with a big smile.",
+          "Linh took a bike from the yard and rode with him on the small road by the river.",
+          "At first, she took out her phone, but there was no internet.",
+          "She smiled, put her phone away, and rode faster with Nam."
+        ],
+        [
+          "They saw small wooden boats on the river.",
+          "Friendly people waved hello from their gardens.",
+          "Soon, Nam stopped at a small shop by the road.",
+          "He bought two cold glasses of sweet sugarcane juice.",
+          "They sat under a big tree and drank slowly in the warm wind.",
+          "On the river, white ducks swam in a line.",
+          "Linh forgot about her busy life in the city."
+        ],
+        [
+          "When they went back to the house, the evening sky was orange and pink.",
+          "Linh went to the kitchen outside to help her grandmother.",
+          "They washed green vegetables and made sour fish soup.",
+          "The yard smelled good with garlic and hot white rice.",
+          "When dinner was ready, the whole family sat on a big mat on the floor.",
+          "They ate, talked, and laughed together."
+        ],
+        [
+          "After dinner, Linh sat outside on a wooden bench with her grandfather.",
+          "The night air was cool.",
+          "There were no bright street lights or tall buildings.",
+          "The dark sky was full of shining stars.",
+          "She heard frogs near the river and insects in the grass.",
+          "Linh felt very calm and happy.",
+          "She did not look at her phone all afternoon."
+        ],
+        [
+          "On Sunday afternoon, it was time to go back to Ho Chi Minh City.",
+          "Linh packed her blue bag.",
+          "Before they left, her grandmother gave her a big bag of sweet yellow mangoes and coconut candy for her friends at school.",
+          "Linh gave her grandparents and Nam big hugs.",
+          "She patted Muc on the head and said goodbye.",
+          "On the bus, Linh looked out the window with a happy smile.",
+          "She already wanted to visit again."
+        ]
+      ];
+
+      /* ----------------------------------------------------------------------
+         2. APPLICATION STATE
+         ---------------------------------------------------------------------- */
+      const isSmallScreen = window.innerWidth <= 640;
+      const state = {
+        currentParagraph: 0,
+        viewMode: "single", // "single" | "all"
+        fontSize: isSmallScreen ? 24 : 34,
+        activeColor: "amber", // "amber" | "sage" | "sky"
+        theme: "light", // "light" | "dark"
+        soundEnabled: true,
+        // Map of "paragraphIndex-sentenceIndex" -> color string ("amber" | "sage" | "sky")
+        highlights: {}
+      };
+
+      /* ----------------------------------------------------------------------
+         3. DOM REFERENCES
+         ---------------------------------------------------------------------- */
+      const htmlEl = document.documentElement;
+      const readingCard = document.getElementById("readingCard");
+      const navFooter = document.getElementById("navFooter");
+      const navCounter = document.getElementById("navCounter");
+      const pillsRow = document.getElementById("pillsRow");
+      const btnPrev = document.getElementById("btnPrev");
+      const btnNext = document.getElementById("btnNext");
+      const btnViewToggle = document.getElementById("btnViewToggle");
+      const viewToggleLabel = document.getElementById("viewToggleLabel");
+      const fontSlider = document.getElementById("fontSlider");
+      const fontReadout = document.getElementById("fontReadout");
+      const btnFontDown = document.getElementById("btnFontDown");
+      const btnFontUp = document.getElementById("btnFontUp");
+      const swatchBtns = document.querySelectorAll(".swatch-btn");
+      const btnClearHighlights = document.getElementById("btnClearHighlights");
+      const btnSoundToggle = document.getElementById("btnSoundToggle");
+      const btnThemeToggle = document.getElementById("btnThemeToggle");
+
+      /* ----------------------------------------------------------------------
+         4. WEB AUDIO API SYNTHESIZER (Soft Acoustic Feedback)
+         ---------------------------------------------------------------------- */
+      let audioCtx = null;
+
+      function ensureAudioContext() {
+        if (!state.soundEnabled) return null;
+        try {
+          if (!audioCtx) {
+            const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+            if (AudioContextClass) {
+              audioCtx = new AudioContextClass();
+            }
+          }
+          if (audioCtx && audioCtx.state === "suspended") {
+            audioCtx.resume();
+          }
+          return audioCtx;
+        } catch (err) {
+          return null;
+        }
+      }
+
+      /**
+       * Gentle warm wooden tap/pop when highlighting or unhighlighting a sentence.
+       */
+      function playTapSound(isHighlightOn) {
+        const ctx = ensureAudioContext();
+        if (!ctx) return;
+        try {
+          const now = ctx.currentTime;
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+
+          osc.type = "sine";
+          const startFreq = isHighlightOn ? 420 : 320;
+          const endFreq = isHighlightOn ? 580 : 220;
+          osc.frequency.setValueAtTime(startFreq, now);
+          osc.frequency.exponentialRampToValueAtTime(endFreq, now + 0.065);
+
+          gain.gain.setValueAtTime(0.001, now);
+          gain.gain.linearRampToValueAtTime(0.08, now + 0.01);
+          gain.gain.exponentialRampToValueAtTime(0.0008, now + 0.09);
+
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          osc.start(now);
+          osc.stop(now + 0.1);
+        } catch (err) {
+          // Silently ignore audio errors
+        }
+      }
+
+      /**
+       * Soft warm page-turn chime when switching paragraphs.
+       */
+      function playPageTurnSound() {
+        const ctx = ensureAudioContext();
+        if (!ctx) return;
+        try {
+          const now = ctx.currentTime;
+          const notes = [392.0, 523.25]; // Soft G4 -> C5 interval
+          notes.forEach((freq, idx) => {
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+            const start = now + idx * 0.045;
+
+            osc.type = "triangle";
+            osc.frequency.setValueAtTime(freq, start);
+
+            gain.gain.setValueAtTime(0.001, start);
+            gain.gain.linearRampToValueAtTime(0.045, start + 0.015);
+            gain.gain.exponentialRampToValueAtTime(0.0008, start + 0.18);
+
+            osc.connect(gain);
+            gain.connect(ctx.destination);
+            osc.start(start);
+            osc.stop(start + 0.2);
+          });
+        } catch (err) {
+          // Silently ignore audio errors
+        }
+      }
+
+      /* ----------------------------------------------------------------------
+         5. THEME & PREFERENCE PERSISTENCE
+         ---------------------------------------------------------------------- */
+      function loadSavedTheme() {
+        try {
+          const saved = localStorage.getItem("linh_reader_theme");
+          if (saved === "dark" || saved === "light") {
+            state.theme = saved;
+          }
+        } catch (err) {
+          // localStorage unavailable
+        }
+        applyTheme();
+      }
+
+      function applyTheme() {
+        htmlEl.setAttribute("data-theme", state.theme);
+        try {
+          localStorage.setItem("linh_reader_theme", state.theme);
+        } catch (err) {
+          // Ignore storage errors
+        }
+
+        // Update Sun / Moon SVG icon
+        if (state.theme === "dark") {
+          btnThemeToggle.innerHTML = `
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <circle cx="12" cy="12" r="5"></circle>
+              <line x1="12" y1="1" x2="12" y2="3"></line>
+              <line x1="12" y1="21" x2="12" y2="23"></line>
+              <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+              <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+              <line x1="1" y1="12" x2="3" y2="12"></line>
+              <line x1="21" y1="12" x2="23" y2="12"></line>
+              <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+              <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+            </svg>`;
+          btnThemeToggle.title = "Switch to Light Mode (D)";
+        } else {
+          btnThemeToggle.innerHTML = `
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+            </svg>`;
+          btnThemeToggle.title = "Switch to Dark Mode (D)";
+        }
+      }
+
+      function toggleTheme() {
+        state.theme = state.theme === "light" ? "dark" : "light";
+        applyTheme();
+      }
+
+      /* ----------------------------------------------------------------------
+         6. SOUND ICON UPDATE
+         ---------------------------------------------------------------------- */
+      function updateSoundButton() {
+        if (state.soundEnabled) {
+          btnSoundToggle.innerHTML = `
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+              <path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path>
+              <path d="M19.07 4.93a10 10 0 0 1 0 14.14"></path>
+            </svg>`;
+          btnSoundToggle.title = "Sound On (click to mute)";
+        } else {
+          btnSoundToggle.innerHTML = `
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+              <line x1="23" y1="9" x2="17" y2="15"></line>
+              <line x1="17" y1="9" x2="23" y2="15"></line>
+            </svg>`;
+          btnSoundToggle.title = "Sound Off (click to enable)";
+        }
+      }
+
+      /* ----------------------------------------------------------------------
+         7. FONT SIZE CONTROL
+         ---------------------------------------------------------------------- */
+      function setFontSize(size) {
+        const clamped = Math.max(20, Math.min(64, Number(size)));
+        state.fontSize = clamped;
+        document.documentElement.style.setProperty("--reading-size", clamped + "px");
+        fontSlider.value = clamped;
+        fontReadout.textContent = clamped + "px";
+      }
+
+      /* ----------------------------------------------------------------------
+         8. RENDERING THE READING STAGE & NAVIGATION
+         ---------------------------------------------------------------------- */
+      function createSentenceSpan(text, pIdx, sIdx) {
+        const span = document.createElement("span");
+        span.className = "sentence";
+        span.textContent = text;
+        span.setAttribute("role", "button");
+        span.setAttribute("tabindex", "0");
+        span.dataset.p = pIdx;
+        span.dataset.s = sIdx;
+
+        const key = `${pIdx}-${sIdx}`;
+        if (state.highlights[key]) {
+          span.classList.add(`hl-${state.highlights[key]}`);
+        }
+
+        const handleToggle = () => {
+          const current = state.highlights[key];
+          if (current === state.activeColor) {
+            delete state.highlights[key];
+            span.classList.remove("hl-amber", "hl-sage", "hl-sky");
+            playTapSound(false);
+          } else {
+            state.highlights[key] = state.activeColor;
+            span.classList.remove("hl-amber", "hl-sage", "hl-sky");
+            span.classList.add(`hl-${state.activeColor}`);
+            playTapSound(true);
+          }
+        };
+
+        span.addEventListener("click", handleToggle);
+        span.addEventListener("keydown", (e) => {
+          if (e.key === "Enter" || e.key === " ") {
+            e.preventDefault();
+            handleToggle();
+          }
+        });
+
+        return span;
+      }
+
+      function renderStory() {
+        readingCard.innerHTML = "";
+
+        if (state.viewMode === "single") {
+          const pIdx = state.currentParagraph;
+          const sentences = STORY_PARAGRAPHS[pIdx];
+
+          // Header metadata inside card
+          const meta = document.createElement("div");
+          meta.className = "paragraph-meta";
+          meta.innerHTML = `
+            <span class="paragraph-label">Paragraph ${pIdx + 1}</span>
+            <span class="paragraph-hint">Click any sentence to highlight</span>
+          `;
+          readingCard.appendChild(meta);
+
+          // Paragraph text
+          const pEl = document.createElement("p");
+          pEl.className = "story-paragraph";
+          sentences.forEach((sentenceText, sIdx) => {
+            pEl.appendChild(createSentenceSpan(sentenceText, pIdx, sIdx));
+            if (sIdx < sentences.length - 1) {
+              pEl.appendChild(document.createTextNode(" "));
+            }
+          });
+          readingCard.appendChild(pEl);
+
+          // Tasteful "THE END" flourish on Paragraph 8
+          if (pIdx === STORY_PARAGRAPHS.length - 1) {
+            const endEl = document.createElement("div");
+            endEl.className = "the-end";
+            endEl.textContent = "— THE END —";
+            readingCard.appendChild(endEl);
+          }
+
+          navFooter.classList.remove("hidden");
+          updateNavControls();
+        } else {
+          // All Paragraphs View
+          const meta = document.createElement("div");
+          meta.className = "paragraph-meta";
+          meta.innerHTML = `
+            <span class="paragraph-label">Full Story (8 Paragraphs)</span>
+            <span class="paragraph-hint">Click any sentence to highlight</span>
+          `;
+          readingCard.appendChild(meta);
+
+          const container = document.createElement("div");
+          container.className = "all-paragraphs-container";
+
+          STORY_PARAGRAPHS.forEach((sentences, pIdx) => {
+            const block = document.createElement("div");
+            block.className = "all-paragraph-block";
+
+            const numLabel = document.createElement("span");
+            numLabel.className = "all-paragraph-num";
+            numLabel.textContent = `Paragraph ${pIdx + 1}`;
+            block.appendChild(numLabel);
+
+            const pEl = document.createElement("p");
+            pEl.className = "story-paragraph";
+            sentences.forEach((sentenceText, sIdx) => {
+              pEl.appendChild(createSentenceSpan(sentenceText, pIdx, sIdx));
+              if (sIdx < sentences.length - 1) {
+                pEl.appendChild(document.createTextNode(" "));
+              }
+            });
+            block.appendChild(pEl);
+            container.appendChild(block);
+          });
+
+          readingCard.appendChild(container);
+
+          const endEl = document.createElement("div");
+          endEl.className = "the-end";
+          endEl.textContent = "— THE END —";
+          readingCard.appendChild(endEl);
+
+          navFooter.classList.add("hidden");
+        }
+      }
+
+      function buildPills() {
+        pillsRow.innerHTML = "";
+        STORY_PARAGRAPHS.forEach((_, idx) => {
+          const btn = document.createElement("button");
+          btn.type = "button";
+          btn.className = "pill-btn";
+          btn.textContent = idx + 1;
+          btn.setAttribute("role", "tab");
+          btn.setAttribute("aria-label", `Go to paragraph ${idx + 1}`);
+          btn.addEventListener("click", () => goToParagraph(idx));
+          pillsRow.appendChild(btn);
+        });
+      }
+
+      function updateNavControls() {
+        const total = STORY_PARAGRAPHS.length;
+        const curr = state.currentParagraph;
+        navCounter.textContent = `Paragraph ${curr + 1} of ${total}`;
+        btnPrev.disabled = curr === 0;
+        btnNext.disabled = curr === total - 1;
+
+        const pills = pillsRow.querySelectorAll(".pill-btn");
+        pills.forEach((pill, idx) => {
+          const isActive = idx === curr;
+          pill.classList.toggle("active", isActive);
+          pill.setAttribute("aria-selected", isActive ? "true" : "false");
+        });
+      }
+
+      function goToParagraph(index) {
+        if (index < 0 || index >= STORY_PARAGRAPHS.length || index === state.currentParagraph) {
+          return;
+        }
+        state.currentParagraph = index;
+        playPageTurnSound();
+        renderStory();
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      }
+
+      function clearHighlights() {
+        if (state.viewMode === "single") {
+          const prefix = `${state.currentParagraph}-`;
+          Object.keys(state.highlights).forEach((key) => {
+            if (key.startsWith(prefix)) {
+              delete state.highlights[key];
+            }
+          });
+        } else {
+          state.highlights = {};
+        }
+        playTapSound(false);
+        renderStory();
+      }
+
+      /* ----------------------------------------------------------------------
+         9. EVENT LISTENERS
+         ---------------------------------------------------------------------- */
+      btnPrev.addEventListener("click", () => goToParagraph(state.currentParagraph - 1));
+      btnNext.addEventListener("click", () => goToParagraph(state.currentParagraph + 1));
+
+      btnViewToggle.addEventListener("click", () => {
+        state.viewMode = state.viewMode === "single" ? "all" : "single";
+        viewToggleLabel.textContent = state.viewMode === "single" ? "All Paragraphs" : "Single View";
+        playPageTurnSound();
+        renderStory();
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      });
+
+      fontSlider.addEventListener("input", (e) => setFontSize(e.target.value));
+      btnFontDown.addEventListener("click", () => setFontSize(state.fontSize - 2));
+      btnFontUp.addEventListener("click", () => setFontSize(state.fontSize + 2));
+
+      swatchBtns.forEach((btn) => {
+        btn.addEventListener("click", () => {
+          swatchBtns.forEach((b) => b.classList.remove("active"));
+          btn.classList.add("active");
+          state.activeColor = btn.dataset.color;
+          playTapSound(true);
+        });
+      });
+
+      btnClearHighlights.addEventListener("click", clearHighlights);
+
+      btnSoundToggle.addEventListener("click", () => {
+        state.soundEnabled = !state.soundEnabled;
+        updateSoundButton();
+        if (state.soundEnabled) {
+          playTapSound(true);
+        }
+      });
+
+      btnThemeToggle.addEventListener("click", toggleTheme);
+
+      // Keyboard Shortcuts
+      document.addEventListener("keydown", (e) => {
+        // Ignore shortcuts if user is focused on the range slider with arrow keys
+        if (document.activeElement === fontSlider && (e.key === "ArrowLeft" || e.key === "ArrowRight")) {
+          return;
+        }
+        if (e.metaKey || e.ctrlKey || e.altKey) return;
+
+        switch (e.key) {
+          case "ArrowLeft":
+            if (state.viewMode === "single") {
+              e.preventDefault();
+              goToParagraph(state.currentParagraph - 1);
+            }
+            break;
+          case "ArrowRight":
+            if (state.viewMode === "single") {
+              e.preventDefault();
+              goToParagraph(state.currentParagraph + 1);
+            }
+            break;
+          case "d":
+          case "D":
+            e.preventDefault();
+            toggleTheme();
+            break;
+          case "c":
+          case "C":
+            e.preventDefault();
+            clearHighlights();
+            break;
+          case "+":
+          case "=":
+            e.preventDefault();
+            setFontSize(state.fontSize + 2);
+            break;
+          case "-":
+          case "_":
+            e.preventDefault();
+            setFontSize(state.fontSize - 2);
+            break;
+        }
+      });
+
+      /* ----------------------------------------------------------------------
+         10. INITIALIZATION
+         ---------------------------------------------------------------------- */
+      loadSavedTheme();
+      setFontSize(state.fontSize);
+      updateSoundButton();
+      buildPills();
+      renderStory();
+    })();
+  </script>
+</body>
+</html>
